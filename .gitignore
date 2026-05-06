@@ -1,21 +1,55 @@
-# OS-generated files
+# macOS
 .DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+.TemporaryItems
+.VolumeIcon.icns
+.fseventsd
+Icon
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
 ehthumbs.db
-Desktop.ini
+ehthumbs_vista.db
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.stackdump
+
+# Linux
+.directory
+.Trash-*
+.fuse_hidden*
+.nfs*
+nohup.out
 
 # Editor and IDE files
 .vscode/
 .idea/
+.history/
 *.swp
 *.swo
 *~
+
+# PowerShell artifacts
+*.ps1.bak
+*.psm1.bak
+*.ps1xml.bak
+TestResults.xml
+*.TestResults.xml
 
 # Python (for skills that include Python scripts or examples)
 __pycache__/
 *.py[cod]
 *$py.class
+*.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
 .coverage
 htmlcov/
 .venv/
@@ -24,16 +58,34 @@ env/
 
 # Node.js (for skills that include Node scripts)
 node_modules/
+.eslintcache
+.npm/
 
 # Build outputs and compilation artifacts
 dist/
 build/
 *.tsbuildinfo
 
-# Environment files and secrets
+# Test and coverage outputs
+coverage/
+.nyc_output/
+
+# Environment files
 .env
 .env.local
 .env.*.local
+
+# Credentials and keys (NEVER commit these)
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+credentials.json
+credentials.yml
+credentials.yaml
+secrets/
+.aws/credentials
 
 # Logs
 *.log
@@ -42,3 +94,8 @@ build/
 *.bak
 *.orig
 *.tmp
+
+# Local-only scratch directories
+scratch/
+local/
+private/
