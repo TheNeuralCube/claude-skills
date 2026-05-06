@@ -1,0 +1,44 @@
+# OS-generated files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Python (for skills that include Python scripts or examples)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+env/
+
+# Node.js (for skills that include Node scripts)
+node_modules/
+
+# Build outputs and compilation artifacts
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files and secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Backup and temporary files
+*.bak
+*.orig
+*.tmp
