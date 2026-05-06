@@ -1,0 +1,21 @@
+# Default: auto-detect text files and normalize to LF in the repository.
+# Working tree also uses LF on all platforms for cross-platform consistency.
+* text=auto eol=lf
+
+# Shell scripts must be LF on disk to execute on Unix-like systems
+*.sh text eol=lf
+
+# Windows batch and command scripts must be CRLF on disk to execute on Windows
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Binary file types - do not attempt to diff or normalize line endings
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.tgz binary
