@@ -7,6 +7,18 @@ All notable changes to the project-context skill will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] — 2026-05-11
+
+### Added
+- Surface-compatibility guard in `SKILL.md` pre-flight. The skill now politely declines when invoked from Claude Code and recommends the `session-recap` skill instead. project-context targets AI workspaces with persistent project contexts (claude.ai Projects, ChatGPT Projects, Copilot M365 Projects); `session-recap` covers Claude Code and other filesystem-based surfaces.
+
+### Changed
+- Generated project-context files no longer carry an `SPDX-License-Identifier` header. The generated content is the operator's work product; the operator chooses the license for their own captured context. Apache 2.0 continues to apply to the skill source files only. Examples updated to match the new no-SPDX convention.
+
+### Notes
+- Schema unchanged from v0.1.0. The `schema_version` field in generated outputs remains `v0.1.0`.
+- The operator-attribution-on-generated-SPDX flag carried forward in v0.1.0, v0.2.0, and v0.3.0 Notes is **resolved** with this release. Generated outputs have no SPDX header by default.
+
 ## [0.3.1] — 2026-05-11
 
 ### Fixed

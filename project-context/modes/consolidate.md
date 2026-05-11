@@ -70,16 +70,17 @@ Within each section, sort records to put the most-currently-relevant records fir
 
 ### 7. Construct the file
 
+Do NOT add an `SPDX-License-Identifier` header to the consolidated output file. The consolidated content is the operator's work product; see `modes/generate.md` step 8 for rationale.
+
 Assemble the consolidated file:
 
-1. SPDX header (same convention).
-2. YAML frontmatter per `references/schema.md`. Required additions for consolidated files:
+1. YAML frontmatter per `references/schema.md`. Required additions for consolidated files:
    - `file_subtype: consolidated`.
    - `source_files: [list of every source filename merged in]`.
    - `sessions_covered: [date range, e.g. "2026-04-15 through 2026-08-14"]`.
    - `consolidation_summary` block with `source_file_count`, `records_after_dedup`, `records_dropped_transient`, `records_compressed_summary`.
-3. The seven body sections, in the prescribed order, with the prescribed headers. Empty sections contain `_No records in this section._`.
-4. After the body, an explicit recommendation block:
+2. The seven body sections, in the prescribed order, with the prescribed headers. Empty sections contain `_No records in this section._`.
+3. After the body, an explicit recommendation block:
 
    ```markdown
    ---

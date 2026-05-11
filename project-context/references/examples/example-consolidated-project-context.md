@@ -1,5 +1,3 @@
-<!-- SPDX-License-Identifier: Apache-2.0 -->
-<!-- Copyright 2026 Raul J. Soto -->
 # Example: consolidated project-context file (consolidate mode)
 
 The block below is a realistic example of a `consolidated`-subtype project-context file produced by consolidate mode after merging eight source files. It is illustrative only — the project, names, and content are fictional.
