@@ -25,16 +25,20 @@ If the operator's invocation did not include a topic, choose one of:
 
 Default behavior: ask. If `org-config.md` sets `filename_topic_required: true`, do not allow the operator to skip; require a slug.
 
-### 2. Detect same-day same-topic existing file
+### 2. Detect a same-day filename collision
 
-After the topic slug is known, check the pre-flight file list for any `YYYY-MM-DD-project-context-{topic-slug}.md` file matching today's date and the chosen slug.
+Determine the **target filename** based on the topic decision from step 1:
+- If the operator chose a topic slug: target = `YYYY-MM-DD-project-context-{topic-slug}.md`
+- If the operator skipped the topic: target = `YYYY-MM-DD-project-context.md` (bare form)
 
-If a same-day same-topic file exists:
+Check the pre-flight file list for the **exact target filename**. The collision check uses the bare-vs-slugged form actually chosen in step 1 — do not mix them. Bare-form files do not collide with slugged files (and vice versa), so a bare run later the same day still collides with an earlier bare run, and a slugged run still collides with an earlier file of the same slug.
+
+If a same-day file with the same target filename exists:
 - Tell the operator and offer to **merge** the new content into the existing file rather than creating a duplicate.
 - If the operator confirms merge: read the existing file, treat its records as the starting set, then proceed to step 3 incorporating the existing records and the current chat content. The output overwrites the existing file.
-- If the operator declines merge: ask for a new topic slug that does not collide.
+- If the operator declines merge: ask for a new topic slug that does not collide (or, if the original invocation was bare, ask for a slug to disambiguate this run from the existing bare file).
 
-Same-day **different**-topic invocations always produce a separate file (a different slug is sufficient discriminator).
+Same-day invocations whose target filenames differ (different slug, or bare vs. slugged) always produce a separate file (the filename difference is sufficient discriminator).
 
 ### 3. Extract records from the conversation
 

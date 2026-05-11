@@ -7,6 +7,21 @@ All notable changes to the project-context skill will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] — 2026-05-11
+
+### Fixed
+- `modes/consolidate.md` step 9 validation invariant. The v0.3.0 wording instructed the model to verify `records_after_dedup + records_dropped_transient + records_compressed_summary` reflects the input record count, which double-counts records that remained in the output after summary-tier compression (those records are already inside `records_after_dedup` because compression keeps records in the output, just collapsed). The check would fail valid consolidations or push the model to fudge counts to make the equation balance. The new wording treats the three fields as descriptive counters rather than algebraic terms; a strict input-records invariant is deferred until the schema gains the missing fields (records removed by dedup merging, records consumed by compression).
+- `modes/generate.md` step 2 same-day collision check. The v0.3.0 wording only checked for `YYYY-MM-DD-project-context-{topic-slug}.md` filenames, which silently misses bare `YYYY-MM-DD-project-context.md` files produced when the operator skipped the topic in step 1. The new step 2 branches on whether a slug was chosen and checks the exact target filename, so broad/no-topic runs reuse the same bare file via the merge prompt instead of overwriting it. The step heading also changed from "Detect same-day same-topic existing file" to "Detect a same-day filename collision" to reflect the broader scope.
+
+### Changed
+- `SKILL.md` frontmatter `version: 0.3.0` → `version: 0.3.1`.
+- `references/org-config-template.md` example `config_version: v0.3.0` → `v0.3.1`. Schema unchanged; v0.1.0–v0.3.0 configs remain forward-compatible.
+
+### Notes
+- Both fixes were surfaced by a P2 automated bot review on PR #1 (TheNeuralCube/claude-skills) immediately after v0.3.0 merged. Acknowledged on the original PR and queued for this patch.
+- Schema is unchanged in v0.3.1; generated files continue to declare `schema_version: v0.1.0`. A future schema revision will add fields to support a strict input-records invariant in consolidate mode (records removed by dedup merging, records consumed by summary compression).
+- The operator-attribution-on-generated-SPDX flag from v0.1.0 remains open; carried forward to v0.4.0+.
+
 ## [0.3.0] — 2026-05-11
 
 ### Added

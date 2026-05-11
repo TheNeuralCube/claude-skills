@@ -11,7 +11,7 @@ Below is the full schema. Every field is **optional**. Comments explain what eac
 ```yaml
 ---
 config_type: project-context-org-config       # Required. Identifies this file to the skill.
-config_version: v0.3.0                        # Required. Match the skill version that consumes this config.
+config_version: v0.3.1                        # Required. Match the skill version that consumes this config.
 organization: <name>                          # Free-form name of the deploying organization.
 ---
 
