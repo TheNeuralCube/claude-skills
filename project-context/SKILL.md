@@ -1,6 +1,6 @@
 ---
 name: project-context
-version: 0.3.0
+version: 0.3.1
 description: Capture forward-grounding context from the current chat into a markdown file the operator adds to a Claude/ChatGPT/Copilot project so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", or "project-context skill". Two modes — generate (fresh file, default) and consolidate (merge existing files plus optional new chat content). Pre-flight scans existing files and proposes a mode on every invocation.
 ---
 

@@ -116,7 +116,7 @@ Run the same validation checklist from `references/schema.md`. Additional consol
 - `file_subtype: consolidated`.
 - `source_files` is non-empty and lists every consumed source.
 - `sessions_covered` is populated with a meaningful range.
-- The consolidation summary block totals are internally consistent (`records_after_dedup + records_dropped_transient + records_compressed_summary` should reflect the input record count, accounting for the dedup compression).
+- Populate `records_after_dedup`, `records_dropped_transient`, and `records_compressed_summary` honestly as non-negative integers. **Do not enforce an arithmetic identity** between these three fields and the input record count: `records_after_dedup` is an output count that already contains the records remaining after summary-tier compression, so `records_after_dedup + records_compressed_summary` double-counts those records. A strict input-records invariant requires fields the v0.1.0 schema does not track (records removed by dedup merging, records consumed by compression); deferred to a future schema revision. Treat the three fields as descriptive counters, not algebraic terms.
 
 ### 10. Produce the output
 
