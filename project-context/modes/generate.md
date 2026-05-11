@@ -92,20 +92,13 @@ If the operator has indicated this file builds on a prior project-context file, 
 
 ### 8. Construct the file
 
+Do NOT add an `SPDX-License-Identifier` header to the generated output file. The generated content is the operator's work product, not skill source code; the operator chooses the license for their own captured context, and the project-context skill does not assume Apache 2.0 (or any other license) applies to generated outputs.
+
 Assemble in this order:
 
-1. SPDX header (two lines, the same convention as the skill's own files):
+1. YAML frontmatter per `references/schema.md`. Validate the YAML before continuing.
 
-   ```
-   <!-- SPDX-License-Identifier: Apache-2.0 -->
-   <!-- Copyright <year> <project-context-file-author> -->
-   ```
-
-   For files generated on behalf of the operator, use the operator's name and year if known; otherwise omit the SPDX header on generated outputs (the upstream skill's own files are Apache 2.0, but operator-authored content is theirs).
-
-2. YAML frontmatter per `references/schema.md`. Validate the YAML before continuing.
-
-3. The seven body sections, in the prescribed order, with the prescribed headers. Empty sections contain the literal placeholder `_No records in this section._`. Do not omit empty sections.
+2. The seven body sections, in the prescribed order, with the prescribed headers. Empty sections contain the literal placeholder `_No records in this section._`. Do not omit empty sections.
 
 ### 9. Validate
 

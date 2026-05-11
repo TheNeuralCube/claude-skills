@@ -1,6 +1,6 @@
 ---
 name: project-context
-version: 0.3.1
+version: 0.3.2
 description: Capture forward-grounding context from the current chat into a markdown file the operator adds to a Claude/ChatGPT/Copilot project so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", or "project-context skill". Two modes — generate (fresh file, default) and consolidate (merge existing files plus optional new chat content). Pre-flight scans existing files and proposes a mode on every invocation.
 ---
 
@@ -61,6 +61,18 @@ When `org-config.md` is absent, the skill applies these upstream defaults:
 ## Pre-flight check
 
 Pre-flight runs on **every** invocation, generate or consolidate. Steps:
+
+### Surface compatibility check
+
+Before proceeding, confirm you are running on a supported surface. project-context targets AI workspaces with persistent project contexts the operator can attach files to: claude.ai Projects, ChatGPT Projects, Copilot M365 Projects, and similar hosted AI surfaces.
+
+project-context is **not** designed for Claude Code. Claude Code uses filesystem-based working directories, not hosted project contexts; the `session-recap` skill is the right tool for capturing context from Claude Code sessions.
+
+**If you detect you are running in Claude Code** — signals include: filesystem-mutation tools (e.g., `Bash`, `Write`, `Edit`) are present in your toolbox; the working directory is filesystem-based; no Project-UI affordances are visible to the operator — politely decline and recommend `session-recap`:
+
+> This skill is designed for AI workspaces with persistent project contexts (claude.ai Projects, ChatGPT Projects, Copilot M365 Projects). For capturing context from a Claude Code session, the `session-recap` skill is the right tool. Would you like to invoke `session-recap` instead?
+
+**If you are running on a supported surface**, proceed with the numbered pre-flight steps below.
 
 1. **Identify the project container** the conversation is in. This is a Claude Project, ChatGPT Project, Copilot M365 Project, or analogous container. If the conversation is not inside a project container, warn the operator that the output will not have a natural home as a project file and ask whether to proceed anyway. If the operator declines, stop.
 

@@ -1,5 +1,3 @@
-<!-- SPDX-License-Identifier: Apache-2.0 -->
-<!-- Copyright 2026 Raul J. Soto -->
 # Example: fresh project-context file (generate mode)
 
 The block below is a realistic example of a `fresh`-subtype project-context file produced by generate mode. It is illustrative only — the project, names, and content are fictional.
