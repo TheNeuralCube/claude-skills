@@ -105,8 +105,9 @@ On approval:
 
 1. Replace `project-context.md` with the candidate file.
 2. Update `project-context-archive.md`:
-   - The records promoted out of the archive remain in the archive body. Do NOT delete them. The archive is append-only; the source-of-truth invariant is that nothing is ever removed from the archive. The promoted records now appear in BOTH files, with the archive copy carrying its original `arc-` ID and `status: archived` (we update its `audit` to note the promotion event but leave the body intact).
-   - Append a checkpoint to the archive's `checkpoints` array: `summary: "Rebuild: N records promoted from archive; M stayed archived."`.
+   - The records promoted out of the archive remain in the archive body. Do NOT delete them. The archive is append-only; the source-of-truth invariant is that nothing is ever removed from the archive. The promoted records now appear in BOTH files, with the archive copy carrying its original `arc-` ID and `status: archived`.
+   - **The archive record's `audit` block is preserved as-is.** Do not mutate any per-record audit field (including `approval_mode`, `approved_by`, `approved_at`, `warning_response`, `importance_source`) for a rebuild event. The schema (`references/schema.md`) does not define a per-record rebuild marker, and rebuild traceability lives **only** in the file-level `checkpoints` array in YAML frontmatter — never on individual records.
+   - Append a checkpoint to the archive's `checkpoints` array: `summary: "Rebuild: N records promoted from archive; M stayed archived."`. This is the sole rebuild trace.
 3. `entities.md` is not touched by `rebuild`.
 4. Run the validation checklist from `references/schema.md` section 6.
 
