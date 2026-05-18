@@ -21,30 +21,50 @@ Pre-flight scans the project for files matching either:
 - The legacy filename pattern: `*-project-context*.md` (dated, optionally topic-suffixed, including `-consolidated[-N]` variants).
 - A `file_type: project-context` value in the YAML frontmatter.
 
-For every match, parse the frontmatter `schema_version` field. The migration treats any of the following as legacy:
+For every match, parse the frontmatter `schema_version` field and run the **two-step check** below, in this exact order. The first step exists because the legacy regex (step 2) is broad enough to match the current schema literal `"0.2"`; the current-schema short-circuit prevents that.
+
+**Step 1 — Current-schema short-circuit.** If the file's `schema_version` is exactly the string `"0.2"` (quoted, short, no leading `v`), the file is a v0.4.0+ current-schema file. Skip migration for this file; treat it as a normal v0.4.0 file (pre-flight continues with schema verification per `references/operations.md` section 4). Do NOT evaluate step 2 for this file.
+
+**Step 2 — Legacy regex (only if step 1 did not short-circuit).** Treat the file as legacy if its `schema_version` matches any of these forms (the same data shape, serialized differently across releases):
 
 ```
 v0.1, v0.1.0, v0.1.x, 0.1, 0.1.0, "0.1", "v0.1.0",
-v0.2, v0.2.0, v0.2.x, 0.2, 0.2.0, "0.2.0",   # note: short "0.2" is v0.4.0+, see disambiguation below
+v0.2, v0.2.0, v0.2.x, 0.2, 0.2.0, "0.2.0",   # note: SHORT "0.2" already handled by step 1
 v0.3, v0.3.0, v0.3.x, v0.3.1, v0.3.2, 0.3, 0.3.0, 0.3.1, 0.3.2
 ```
 
-In regex form: `^"?v?0\.(1|2|3)(\.\d+)?"?$`.
+In regex form: `^"?v?0\.(1|2|3)(\.\d+)?"?$` (evaluated only after the step-1 short-circuit). The regex is intentionally permissive about quoting and the leading `v` because v0.1.0-v0.3.2 serialized this field in multiple shapes (see `references/schema-changelog.md`).
 
-**Disambiguation note.** The literal string `"0.2"` (with quotes, no leading `v`) is the v0.4.0 schema "0.2" marker. Legacy v0.2.0 wrote `schema_version: v0.2.0` (unquoted, full version, with leading `v`). If a file presents `schema_version: "0.2"` (quoted, short, no `v`) it is v0.4.0+ schema "0.2" and must NOT be migrated.
+**Disambiguation note.** The literal string `"0.2"` (quoted, short, no `v`) is the v0.4.0 schema "0.2" marker — handled by step 1, never reaches step 2. Legacy v0.2.0 wrote `schema_version: v0.2.0` (unquoted, full version, with leading `v`) — does not match step 1, matches step 2 → legacy.
 
-If a file's `schema_version` does not match the legacy regex and is not exactly `"0.2"`, pre-flight halts and asks the operator to identify the file.
+If a file's `schema_version` does not pass step 1 AND does not match the step 2 regex, pre-flight halts and asks the operator to identify the file.
+
+Pseudocode for clarity:
+
+```
+def classify_for_migration(schema_version):
+    # Step 1 — current-schema short-circuit
+    if schema_version == '"0.2"' or schema_version == '0.2':   # quoted or bare short form
+        return CURRENT     # skip migration; treat as v0.4.0+ file
+    # Step 2 — legacy regex (only reached when step 1 did not return)
+    if re.match(r'^"?v?0\.(1|2|3)(\.\d+)?"?$', schema_version):
+        return LEGACY      # candidate for migration
+    return UNKNOWN         # halt; ask the operator
+```
 
 ## 2. Migration trigger
 
-Migration runs when:
+Migration runs whenever one or more legacy files are detected, **regardless of whether v0.4.0 files coexist**. The three project states pre-flight may observe:
 
-- One or more legacy files are detected, AND
-- No v0.4.0 files (`project-context.md`, `entities.md`, `project-context-archive.md`) are present in the project.
+| Project state | Migration trigger |
+|---|---|
+| **Pure-legacy** — one or more legacy files; no v0.4.0 files | Migrate. |
+| **Coexistence** — one or more legacy files AND one or more v0.4.0 files | Migrate. The migration merges legacy content into the existing v0.4.0 files (using the same classifier and scoring as a normal session). The operator's safety net is the brief's `download → verify → delete old → upload new` ordering: nothing is deleted from the Project until the operator has reviewed the merged output. |
+| **Pure-current** — only v0.4.0 files; no legacy files | No-op. Pre-flight continues into the requested operation normally. |
 
-If both legacy and v0.4.0 files coexist, pre-flight does not migrate automatically. Instead it prompts the operator: "I see both legacy and v0.4.0 files in this project. Should I migrate the legacy files into the existing v0.4.0 files, ignore the legacy files, or stop?" The operator decides.
+Pre-flight does NOT ask a separate coexistence question. The unified ordering of the operator brief (section 4 below) is the review gate; an additional prompt would duplicate that gate without adding safety.
 
-Migration is one-time per project. After successful migration, re-running migration on the same project is a no-op (pre-flight detects the v0.4.0 files and skips).
+Migration is one-time per legacy file. After the operator follows the brief's required ordering — verifying the merged output and deleting the named legacy files — re-running pre-flight in the same project finds no legacy files and falls into the pure-current state.
 
 ## 3. Migration algorithm
 
@@ -128,26 +148,26 @@ Migration is surfaced via the operator brief as a distinct flow. The skill **doe
 ```
 ✅ Migration complete.
 
-📥 Download these three new files from this chat:
+Order matters: (a) download new, (b) verify, (c) delete old, (d) upload new.
+Doing this out of order risks losing the source if the migration was wrong.
+
+📥 (a) Download these three new files from this chat:
    • project-context.md       (N records imported)
    • entities.md              (M records imported)
    • project-context-archive.md  (K records, including L dropped under DEMOTE)
 
-🔍 Verify the new files look correct.
+🔍 (b) Verify the new files look correct.
    Open each one and confirm the records match what you expected.
-   The migration is reversible until you delete the old files in step 4.
+   The migration is reversible until you delete the old files in step (c).
 
-📂 Upload the three new files to your Project.
-   In Claude.ai: Project → Knowledge → Upload file (for each one).
-
-🗑 Delete the following old dated files from your Project AFTER verification:
+🗑 (c) Delete the following old dated files from your Project AFTER verification:
    • 2026-04-15-project-context.md
    • 2026-04-22-project-context-segmentation.md
    • 2026-05-03-project-context-revenue-baseline.md
    • [...exact filename list, one per detected legacy file...]
 
-   Order matters: (a) download new, (b) verify, (c) delete old, (d) upload new.
-   Doing this out of order risks losing the source if the migration was wrong.
+📂 (d) Upload the three new files to your Project.
+   In Claude.ai: Project → Knowledge → Upload file (for each one).
 
 🔔 If anything looks off, do NOT delete the legacy files. Tell me what's
    wrong and I can re-run migration from the archived versions.
@@ -165,11 +185,11 @@ The skill always lists each legacy file by its **exact filename**, not generic g
 
 ## 6. Idempotency
 
-Re-running migration on a project that has already been migrated:
+Pre-flight behavior on a project that may have been partially or fully migrated:
 
-1. Pre-flight detects v0.4.0 files (`schema_version: "0.2"`).
-2. If legacy files coexist (operator did not delete them), pre-flight prompts: migrate-into-existing, ignore-legacy, or stop. Default proposal: ignore-legacy (with rationale that they were already migrated).
-3. If only v0.4.0 files exist, pre-flight skips migration silently.
+1. **Pure-current state** (only v0.4.0 files; no legacy files). Pre-flight detects `schema_version: "0.2"` on all files, finds no legacy files, and skips migration silently. The requested operation proceeds.
+2. **Coexistence state** (the operator downloaded the new files and uploaded them but has not yet deleted the legacy files). Per section 2, migration runs again — but this time it finds the legacy content already present in the v0.4.0 files and most candidates classify as NOOP (reinforcement) or are dropped as duplicates. The brief reminds the operator to delete the named legacy files. This is safe re-entry, not a separate prompt.
+3. **Pure-legacy state** (operator skipped the upload step or is running migration for the first time). Migration produces the three new files; the brief lists the legacy files for deletion.
 
 ## 7. Edge cases
 

@@ -123,7 +123,7 @@ Every operation begins with a pre-flight check. The full sequence:
 
 5. **Conflict detection.** If multiple files claim the same `file_role`, prompt the operator to identify the canonical one.
 
-6. **Migration trigger.** If legacy files exist and v0.4.0 files do not, initiate the migration flow per `references/migration.md`. If both exist, ask the operator which path to take (migrate-and-replace vs. ignore-legacy).
+6. **Migration trigger.** If legacy files exist — whether alone (pure-legacy state) or alongside v0.4.0 files (coexistence state) — initiate the migration flow per `references/migration.md`. The migration brief's `download → verify → delete old → upload new` ordering is the review gate; pre-flight does not add a separate coexistence prompt. Only the pure-current state (v0.4.0 files present, no legacy files) skips migration.
 
 7. **Configuration resolution.** Load `user-config.md` and `org-config.md` if present. Apply layered resolution per `references/defaults.md` to determine effective settings.
 

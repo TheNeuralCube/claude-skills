@@ -25,8 +25,12 @@ skill-name-vX-Y/
   SKILL.md           Required. Skill metadata and trigger logic.
   README.md          Required. User-facing documentation for this skill.
   CHANGELOG.md       Required. Version history for this skill.
+  ROADMAP.md         Required (v0.4.0+). Planned work, deferred items, platform dependencies.
+  USAGE.md           Required (v0.4.0+). User-facing walkthrough of the skill workflow.
   [supporting files] Optional. Templates, examples, or helpers.
 ```
+
+`ROADMAP.md` and `USAGE.md` were added to the required set with the project-context v0.4.0 release. Skills released before that date are grandfathered until their next minor; new skills must include both files.
 
 Each skill is independently versioned using the `vMAJOR-MINOR` suffix on the folder name. Versions follow the spirit of semantic versioning: MAJOR for breaking changes to skill triggers, output schema, or expected behavior; MINOR for additive improvements that preserve existing behavior.
 

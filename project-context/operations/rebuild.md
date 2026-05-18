@@ -64,7 +64,7 @@ Construct a candidate `project-context.md` containing:
   - Set `status: active`.
   - Preserve lifecycle fields (`first_seen_update`, `last_seen_update`, etc.) as-is.
   - Drop archive-only fields (`prior_id`, `superseded_by`, `superseded_at_update`, `demoted_at_update`, `restore_command`).
-  - Preserve the audit block, but append an `audit.rebuild_at_update` field equal to the current `update_count` for traceability.
+  - Preserve the audit block as-is. Rebuild traceability is captured in the archive's `checkpoints` frontmatter array (see step 6 below), not in per-record audit fields. The schema (`references/schema.md`) does not define a per-record rebuild marker.
 
 ## 5. Show the rebuilt file BEFORE committing
 

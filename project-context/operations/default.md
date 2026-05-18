@@ -32,7 +32,7 @@ Then stop. Do not proceed to the rest of pre-flight on a non-supported surface.
 
 ### 1.2 Remaining pre-flight
 
-If the surface guard passes, run the rest of the pre-flight per `references/operations.md` section 4: project detection, file discovery (canonical filenames + legacy patterns + config files), schema verification, conflict detection, migration trigger (per `references/migration.md` if legacy files exist alongside no v0.4.0 files), and configuration resolution (`user-config.md` > `org-config.md` > skill defaults).
+If the surface guard passes, run the rest of the pre-flight per `references/operations.md` section 4: project detection, file discovery (canonical filenames + legacy patterns + config files), schema verification, conflict detection, migration trigger (per `references/migration.md` whenever legacy files are detected — pure-legacy OR coexistence with v0.4.0 files; pure-current state with no legacy files skips), and configuration resolution (`user-config.md` > `org-config.md` > skill defaults).
 
 ## 2. Parse the conversation
 

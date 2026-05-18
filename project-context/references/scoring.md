@@ -30,7 +30,7 @@ Symbols:
 
 | Symbol | Meaning |
 |---|---|
-| `times_seen_i` | Per-record count of reinforcements (every NOOP/UPDATE/SUPERSEDE that touches the record increments it; ADD initializes to 1). |
+| `times_seen_i` | Per-record reinforcement count. ADD initializes it to 1. NOOP (duplicate or reinforcement) increments it. UPDATE and SUPERSEDE are state changes that replace or supersede a record, not reinforcements, and do not increment this field. |
 | `importance_i` | Per-record integer 1-10 assigned by the model at ingest, optionally overridden by the user. |
 | `current_update` | The file's `update_count` at the moment of scoring (post-increment for the current session). |
 | `last_seen_update_i` | The `update_count` value when the record was last reinforced. |

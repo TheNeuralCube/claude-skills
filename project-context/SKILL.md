@@ -104,7 +104,7 @@ After the surface guard passes:
 2. **File discovery.** Scan for the three canonical filenames (`project-context.md`, `entities.md`, `project-context-archive.md`), legacy dated filenames (`*-project-context*.md`), and configuration files (`user-config.md`, `org-config.md`).
 3. **Schema verification.** Parse the frontmatter of every file found and confirm `file_role` matches the filename.
 4. **Conflict detection.** If multiple files claim the same `file_role`, prompt the operator to identify the canonical one.
-5. **Migration trigger.** If legacy v0.1.x-v0.3.x files exist alongside no v0.4.0 files, initiate migration per `references/migration.md`. If both coexist, ask the operator how to proceed.
+5. **Migration trigger.** If legacy v0.1.x-v0.3.x files exist (whether alone or alongside v0.4.0 files), initiate migration per `references/migration.md`. The migration brief's required `download → verify → delete old → upload new` ordering is the review gate; pre-flight does not add a separate coexistence question. Only the pure-current state (v0.4.0 files present, no legacy files) skips migration.
 6. **Configuration resolution.** Load `user-config.md` and `org-config.md` if present; apply layered defaults.
 
 Pre-flight produces a state snapshot used by the operation body. Detailed pre-flight per operation lives in the operation file.

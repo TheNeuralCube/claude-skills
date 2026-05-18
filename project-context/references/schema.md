@@ -108,7 +108,7 @@ generated_by:
 | `checkpoints` | only on archive | Ordered list of per-merge checkpoint objects. See section 5.3. |
 | `generated_by.skill` | yes | Always `project-context`. |
 | `generated_by.version` | yes | The skill version that wrote the file (e.g., `"0.4.0"`). Independent of `schema_version`. |
-| `generated_by.model` | no | Model identifier when known. |
+| `generated_by.model` | yes | Model identifier (e.g., `claude-opus-4-7`). |
 | `generated_by.generation_date` | yes | ISO-8601 when the file was written. |
 
 Frontmatter resolution order when the skill writes a file: `user-config.md` defaults > `org-config.md` defaults > skill defaults from `references/defaults.md` > field-level inferences from project state.
