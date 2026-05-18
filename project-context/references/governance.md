@@ -1,40 +1,27 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
-# Governance metadata framework
+# Governance metadata framework (project-context v0.4.0)
 
-The project-context skill ships a governance metadata framework so that records and files can carry the policy attributes enterprise environments care about (sensitivity, audience, retention, applicable frameworks). The framework is **a schema**, not an integration. v0.1.0 does not call DLP services, does not enforce retention, and does not apply ACLs. It captures the metadata so downstream systems and future skill versions can act on it.
+The project-context skill ships a governance metadata framework so files can carry the policy attributes enterprise environments care about (sensitivity, retention, applicable frameworks). The framework is **a schema**, not an integration: the skill captures the metadata so downstream systems and future skill versions can act on it. v0.4.0 does not call DLP services, does not enforce retention, and does not apply ACLs.
 
-All governance fields are **optional**. Every output is valid even when no governance field is set.
+All governance fields appear in every file's YAML frontmatter and are REQUIRED (though several may carry empty values like `[]` or `{}`). The framework is unchanged from v0.1.0 except for the per-record audit-block addition documented in section 6.
 
-## Two layers: file-level defaults and per-item overrides
+## File-level governance fields
 
-### File-level defaults
-
-The frontmatter declares default governance values that apply to every record in the file unless a record overrides them:
+The frontmatter declares the governance values that apply to records in that file:
 
 ```yaml
 sensitivity: internal
-audience: ""
 retention: standard
 governance_frameworks: []
 custom_governance: {}
 ```
 
-When a file is read by a downstream session or governance scanner, file-level defaults set the baseline. A file marked `sensitivity: internal` is treated as internal; only records that declare an override deviate from that.
+When a file is read by a downstream system or governance scanner, these fields set the baseline for everything in the file.
 
-### Per-item overrides
+v0.4.0 does not support per-record governance overrides via inline brackets. The v0.1 inline-bracket form (`[sensitivity: confidential]` after a bullet) is removed. Records that need divergent governance go in a separate file. This is a workshop-locked decision: per-record overrides were rarely used in production and added parsing complexity without operational benefit.
 
-When a single record diverges from the file-level baseline, the divergence is declared inline:
-
-```markdown
-- Customer-level revenue figures are confidential. [categories: governance, finance] [sensitivity: confidential]
-```
-
-The inline `[sensitivity: confidential]` bracket overrides the file-level `sensitivity: internal` for this record only. Other records in the file continue to inherit the file-level default.
-
-Any of the file-level governance fields may be overridden inline. Inline brackets always carry one field per bracket pair.
-
-## The five fields
+## The four fields
 
 ### `sensitivity`
 
@@ -45,38 +32,33 @@ Allowed values: `open`, `internal`, `confidential`, `restricted`.
 | `open` | Public or shareable with no restrictions. |
 | `internal` | Within the organization or within the operator's trusted circle. **Upstream default.** |
 | `confidential` | Limited to specific people, teams, or contracts. |
-| `restricted` | Highly sensitive; access strictly controlled (e.g., legal hold material, board-level information, regulated PII). |
+| `restricted` | Highly sensitive; access strictly controlled (legal hold, board-level, regulated PII). |
 
-The upstream default is `internal`. Org-config can change the default via `defaults.sensitivity`.
-
-### `audience`
-
-Free-form string. Common values: `team`, `leadership`, `legal`, `compliance`, `engineering`, `external-partners`, `vendor`, `customer`. Empty by default.
-
-Org-config can constrain to a vocabulary by listing allowed values. The upstream skill does not enforce a vocabulary.
+The upstream default is `internal`. `org-config.md` can change the default via `defaults.sensitivity`. `user-config.md` can override per user.
 
 ### `retention`
 
-Allowed values: `standard`, `extended`, `legal_hold`, `delete_after_<period>` (e.g., `delete_after_30d`, `delete_after_180d`, `delete_after_1y`).
+Allowed values: `standard`, `extended`, `indefinite`.
 
-| Value | Typical mapping (org-config defines actual durations) |
+| Value | Meaning |
 |---|---|
-| `standard` | Default project retention (often 12 months). **Upstream default.** |
-| `extended` | Long-term retention (often 5 years). |
-| `legal_hold` | Indefinite; do not delete without legal sign-off. |
-| `delete_after_<period>` | Explicit deletion target. |
+| `standard` | Default project retention. **Upstream default for active and entities files.** |
+| `extended` | Long-term retention. |
+| `indefinite` | Retain without expiry. **Upstream default for archive files.** |
 
-The upstream skill does not delete or archive anything; the metadata is for downstream systems.
+The v0.1 values `legal_hold` and `delete_after_<period>` are removed in v0.4.0 (`schema_version: "0.2"`). Organizations that need those semantics document them via `custom_governance` instead. See `references/schema-changelog.md`.
+
+The upstream skill does not delete or archive files based on this value; the metadata is for downstream systems.
 
 ### `governance_frameworks`
 
-A list of framework names that apply to the record or file. Free-form. Common entries: `HIPAA`, `SOX`, `GDPR`, `CCPA`, `internal-IP`, `customer-PII`, `export-controlled`. Empty by default.
+A list of framework names that apply to the file. Free-form. Common entries: `HIPAA`, `SOX`, `GDPR`, `CCPA`, `internal-IP`, `customer-PII`, `export-controlled`. Empty list `[]` by default.
 
-The upstream skill does not validate framework names. Org-config can supply an allowed list if the deploying organization wants strict tagging.
+The upstream skill does not validate framework names. `org-config.md` can supply an allowed list if the deploying organization wants strict tagging.
 
 ### `custom_governance`
 
-A free-form key-value object for org-specific governance dimensions that do not fit the four fields above. Examples:
+A free-form key-value object for org-specific governance dimensions that do not fit the three fields above. Example:
 
 ```yaml
 custom_governance:
@@ -85,75 +67,59 @@ custom_governance:
   approver: "compliance@example.com"
 ```
 
-Inline overrides for `custom_governance` keys use the same per-bracket form:
-
-```markdown
-- <record content>. [categories: legal] [custom_governance.bcdr_tier: tier-1]
-```
-
-## Worked example
-
-A file-level frontmatter declares:
-
-```yaml
-sensitivity: internal
-audience: ""
-retention: standard
-governance_frameworks: [internal-IP]
-custom_governance: {}
-```
-
-The body contains:
-
-```markdown
-## Decisions
-
-- Adopt the four-segment customer model. [categories: customer, strategy]
-- Customer-level revenue figures are confidential; aggregate figures are internal. [categories: governance, finance] [sensitivity: confidential]
-- Pricing methodology is restricted to the deal team. [categories: pricing, governance] [sensitivity: restricted] [audience: deal-team]
-```
-
-Reading rules a downstream system applies:
-
-- The first record inherits everything from the file-level frontmatter: `internal` sensitivity, no audience, `standard` retention, `internal-IP` framework.
-- The second record overrides only sensitivity to `confidential`. Other fields still inherit.
-- The third record overrides sensitivity to `restricted` and adds an audience of `deal-team`. Retention and frameworks still inherit.
+Empty `{}` by default. Downstream systems consume whatever keys the org puts here.
 
 ## Defaults summary
 
 | Field | Upstream default | Where to override |
 |---|---|---|
-| `sensitivity` | `internal` | File frontmatter; per-record inline; org-config `defaults.sensitivity`. |
-| `audience` | empty | File frontmatter; per-record inline; org-config `defaults.audience`. |
-| `retention` | `standard` | File frontmatter; per-record inline; org-config `defaults.retention`. |
-| `governance_frameworks` | `[]` | File frontmatter; per-record inline; org-config `defaults.governance_frameworks`. |
-| `custom_governance` | `{}` | File frontmatter; per-record inline; org-config does not have a dedicated default but can set values via custom org-config sections. |
+| `sensitivity` | `internal` | File frontmatter; `org-config.md`'s `defaults.sensitivity`; `user-config.md`. |
+| `retention` (active, entities) | `standard` | File frontmatter; `org-config.md`'s `defaults.retention`; `user-config.md`. |
+| `retention` (archive) | `indefinite` | File frontmatter; `org-config.md`'s `defaults.retention.archive`; `user-config.md`. |
+| `governance_frameworks` | `[]` | File frontmatter; `org-config.md`'s `defaults.governance_frameworks`; `user-config.md`. |
+| `custom_governance` | `{}` | File frontmatter; `org-config.md` (custom keys); `user-config.md` (custom keys). |
 
 ## Resolution order
 
-When governance values are determined for a generated file or record, apply this resolution order:
+When governance values are determined for a generated file, apply this resolution order:
 
-1. Upstream defaults from this skill.
-2. Organization defaults from `org-config.md`, if present.
-3. Operator instructions in the current invocation.
-4. Record-level inline overrides for specific records.
+1. Upstream defaults from `references/defaults.md`.
+2. `org-config.md` if present.
+3. `user-config.md` if present.
+4. Operator instructions in the current invocation.
 
-Each later layer overrides earlier layers for the specific fields it declares. Layers do not require values for every field; unspecified fields inherit from the prior layer.
+Each later layer overrides earlier layers for the fields it declares. Layers do not require values for every field; unspecified fields inherit from the prior layer.
 
-## What v0.1.0 does and does not do
+The full resolution order (including non-governance settings) is detailed in `references/defaults.md`.
 
-**v0.1.0 does:**
-- Capture governance metadata at file and record level.
-- Apply file-level defaults to records that do not declare overrides.
-- Allow per-record overrides on any governance field.
-- Allow org-config.md to change file-level defaults at deployment time.
+## Per-record audit metadata (new in v0.4.0)
+
+Every record carries an `audit` block independent of the governance framework. The audit block records HOW a record was approved and is not the same thing as governance metadata. See `references/schema.md` for the schema. Brief summary:
+
+```yaml
+audit:
+  approval_mode: auto | manual | hybrid
+  approved_by: <user id or null>
+  approved_at: <ISO-8601>
+  warning_response: acknowledged | passive | dismissed | n/a
+  importance_source: llm-auto | user-override
+```
+
+The audit block exists so quality issues (especially from auto-mode) can be diagnosed and coached after the fact, not as a blame mechanism. Governance fields (`sensitivity` etc.) describe WHAT the record is. Audit fields describe HOW it got into the file. Both are required.
+
+## What v0.4.0 does and does not do
+
+**v0.4.0 does:**
+- Capture file-level governance metadata.
+- Capture per-record audit metadata (new).
+- Apply file-level defaults from upstream, `org-config.md`, and `user-config.md` in resolution order.
 - Carry `custom_governance` keys through unchanged so downstream systems can read them.
 
-**v0.1.0 does not:**
+**v0.4.0 does not:**
 - Call DLP, ACL, or compliance services.
 - Encrypt or redact records based on `sensitivity`.
 - Auto-delete files based on `retention`.
-- Validate that framework names are real frameworks.
-- Block generation when governance fields are absent or unusual.
+- Validate framework names.
+- Block generation when governance fields carry their default values.
 
-The framework is the deliverable. Integrations are a v0.2.0+ workstream.
+Integrations (DLP, ACL, retention enforcement) are a v0.5.0+ workstream tracked in `ROADMAP.md`.

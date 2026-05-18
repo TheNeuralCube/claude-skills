@@ -1,203 +1,289 @@
+---
+file_role: skill-reference
+topic: schema
+schema_version_documented: "0.2"
+skill_version: "0.4.0"
+---
+
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
-# project-context schema (v0.1.0)
 
-This file is the authoritative restatement of the schema for any file the project-context skill produces. Mode files reference this document. The model uses it during generation and during consolidation to validate output.
+# Schema (project-context v0.4.0, schema_version "0.2")
 
-If org-config.md overrides any default below, the override applies; otherwise the values here apply.
+This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.3.2`) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
 
-## File-level YAML frontmatter
+## 1. The three files
 
-Every project-context file begins with a YAML frontmatter block delimited by `---` lines:
+| Filename | `file_role` | Purpose | Token budget |
+|---|---|---|---|
+| `project-context.md` | `project-context` | Active grounding file: decisions, constraints, current state, open items, terminology, external references. | Target 30K, soft warning 50K, hard ceiling 80K. |
+| `entities.md` | `entities` | Stable reference data: people, places, things, organizations, datasets. Looked up by name; no automatic decay. | No fixed ceiling; loaded selectively. |
+| `project-context-archive.md` | `archive` | Append-only history of superseded and demoted records, plus per-session checkpoints in frontmatter. | No fixed ceiling; loaded selectively (on rebuild, restore, historical lookup). |
+
+`user-config.md` and `org-config.md` are configuration files, not data files. Their schema lives in `references/user-config-template.md` and `references/org-config-template.md`.
+
+## 2. File-level YAML frontmatter
+
+Every file the skill writes begins with this frontmatter. Fields marked OPTIONAL may be absent or null.
 
 ```yaml
 ---
-file_type: project-context
-file_subtype: fresh | consolidated
-schema_version: v0.1.0
-created: <ISO 8601 timestamp with timezone, e.g. 2026-05-08T14:30:00-05:00>
-project_name: <string>
-session_topic: <short sentence-case description>
-sessions_covered: [list of session references]
-source_files: [list of filenames]
-related_session_recap: <filename or null>
-related_files: [list of filenames]
+# Schema identification
+schema_version: "0.2"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
+file_role: project-context | entities | archive  # REQUIRED
 
-sensitivity: open | internal | confidential | restricted
-audience: <free-form string>
-retention: standard | extended | legal_hold | delete_after_<period>
-governance_frameworks: [list of strings]
-custom_governance: <object>
+# Project identification
+project: <human-readable project name>           # REQUIRED, string
+project_id: <slug>                               # REQUIRED, string, kebab-case
 
+# Lifecycle
+created: <ISO-8601 timestamp>                    # REQUIRED
+last_merged: <ISO-8601 timestamp>                # REQUIRED
+update_count: <integer>                          # REQUIRED, monotonic
+record_count: <integer>                          # REQUIRED, count of records in this file
+
+# Display and parsing aids
+read_order: [<section names>]                    # REQUIRED, list (per file_role; see section 4)
+how_to_read: |                                   # REQUIRED, multi-line plain-text instruction for AI readers
+  <one to three sentences>
+id_prefix_legend:                                # REQUIRED, map of all ID prefixes used by the skill
+  dec: "Decision (in project-context.md)"
+  con: "Constraint (in project-context.md)"
+  csn: "Current State (in project-context.md)"
+  opn: "Open Item (in project-context.md)"
+  trm: "Terminology (in project-context.md)"
+  ref: "External Reference (in project-context.md)"
+  ent: "Entity (in entities.md)"
+  arc: "Archived Record (in project-context-archive.md)"
+
+# Cross-references
+authors: [<list of user identifiers>]            # REQUIRED, list, may be [] (nullable in v0.4.0 pending platform identity API)
+related_session_recap: <optional path>           # OPTIONAL, may be null
+related_files: [<list of paths>]                 # OPTIONAL, may be []
+
+# Governance (inherited from v0.1.0 governance framework)
+sensitivity: open | internal | confidential | restricted   # REQUIRED
+retention: standard | extended | indefinite                # REQUIRED
+governance_frameworks: []                                   # REQUIRED, may be []
+custom_governance: {}                                       # REQUIRED, may be {}
+
+# Archive-only fields (present only when file_role == "archive")
+checkpoints:                                     # REQUIRED on archive files; omitted on others
+  - update: <integer>
+    timestamp: <ISO-8601>
+    summary: <string>
+    approver: <user identifier or null>
+
+# Generation metadata
 generated_by:
   skill: project-context
-  version: v0.1.0
-  mode: generate | consolidate
+  version: <semver>                              # the skill version, e.g. "0.4.0"
   model: <model identifier>
-  generation_date: <ISO 8601 timestamp>
+  generation_date: <ISO-8601 timestamp>
 ---
 ```
 
-### Field-by-field
+### Field-by-field reference
 
 | Field | Required | Notes |
 |---|---|---|
-| `file_type` | yes | Always the literal string `project-context`. |
-| `file_subtype` | yes | `fresh` for generate-mode output. `consolidated` for consolidate-mode output. |
-| `schema_version` | yes | The schema version this file conforms to. v0.1.0 files write `v0.1.0`. |
-| `created` | yes | ISO 8601 with timezone. Use the operator's local timezone if known; otherwise UTC. |
-| `project_name` | yes | The Claude Project / ChatGPT Project / Copilot M365 Project name. Operator-supplied or inferred from project context. |
-| `session_topic` | yes | A short sentence-case description of what the session covered. |
-| `sessions_covered` | yes | List of session references. For fresh files, usually one entry. For consolidated files, multiple — typically a date range like `"2026-04-15 through 2026-08-14"`. |
-| `source_files` | yes | List of filenames. Empty `[]` for fresh files. For consolidated files, the full filenames of every project-context file merged in. |
-| `related_session_recap` | no | Filename of a session-recap file produced for the same session, or `null`. Cross-skill awareness, not dependency. |
-| `related_files` | no | Filenames of other project-context files this one builds on (e.g., the prior session in the same project). Empty list `[]` if none. |
-| `sensitivity` | no | One of `open`, `internal`, `confidential`, `restricted`. Upstream default: `internal`. |
-| `audience` | no | Free-form string. Org-config can constrain to a vocabulary. |
-| `retention` | no | One of `standard`, `extended`, `legal_hold`, or `delete_after_<period>`. Upstream default: `standard`. |
-| `governance_frameworks` | no | Free-form list (e.g., `[HIPAA, SOX, GDPR, internal-IP]`). Empty by default. |
-| `custom_governance` | no | Free-form key-value object for org-specific extensions. Empty `{}` by default. |
+| `schema_version` | yes | The data-shape contract. v0.4.0 writes `"0.2"`. Bumps only when fields change; see `references/schema-changelog.md`. |
+| `file_role` | yes | One of `project-context`, `entities`, `archive`. Must match the filename. |
+| `project` | yes | Human-readable project name. |
+| `project_id` | yes | kebab-case slug used for cross-file references. |
+| `created` | yes | ISO-8601 with timezone; the date this file was first written. |
+| `last_merged` | yes | ISO-8601; updated every successful merge. |
+| `update_count` | yes | Monotonic integer; increments by one per successful merge. |
+| `record_count` | yes | Count of records currently in this file's body. |
+| `read_order` | yes | List of section names in display order. Per `file_role`; see section 4. |
+| `how_to_read` | yes | One to three sentences telling an AI reader how to consume this file. |
+| `id_prefix_legend` | yes | Map of every ID prefix the skill uses. Present in every file to give cross-file readers a complete legend regardless of which file they loaded. |
+| `authors` | yes | List, may be `[]`. Reserved for future platform-identity API. |
+| `related_session_recap` | no | Filename of a session-recap file for the same project, or null. |
+| `related_files` | no | Other related files; may be `[]`. |
+| `sensitivity` | yes | One of `open`, `internal`, `confidential`, `restricted`. Default `internal`. |
+| `retention` | yes | One of `standard`, `extended`, `indefinite`. Default `standard`. Archive files default to `indefinite`. |
+| `governance_frameworks` | yes | Free-form list, may be `[]`. |
+| `custom_governance` | yes | Free-form object, may be `{}`. |
+| `checkpoints` | only on archive | Ordered list of per-merge checkpoint objects. See section 5.3. |
 | `generated_by.skill` | yes | Always `project-context`. |
-| `generated_by.version` | yes | The skill version that produced the file (e.g., `v0.1.0`). |
-| `generated_by.mode` | yes | `generate` or `consolidate`. |
-| `generated_by.model` | no | Model identifier (e.g., `claude-opus-4-7`). Populate when known; omit if not. |
-| `generated_by.generation_date` | yes | ISO 8601 timestamp when the file was produced. Often equal to `created`. |
+| `generated_by.version` | yes | The skill version that wrote the file (e.g., `"0.4.0"`). Independent of `schema_version`. |
+| `generated_by.model` | no | Model identifier when known. |
+| `generated_by.generation_date` | yes | ISO-8601 when the file was written. |
 
-For consolidated files, an additional optional block summarizes the consolidation:
+Frontmatter resolution order when the skill writes a file: `user-config.md` defaults > `org-config.md` defaults > skill defaults from `references/defaults.md` > field-level inferences from project state.
+
+## 3. Per-record schema
+
+Records are written under section headers (e.g., `## Decisions`) as markdown list items with a YAML metadata block beneath each bullet.
 
 ```yaml
-consolidation_summary:
-  source_file_count: <integer>
-  records_after_dedup: <integer>
-  records_dropped_transient: <integer>
-  records_compressed_summary: <integer>
+- id: <prefix>-<NNN>                          # REQUIRED, kebab-case prefix + zero-padded number
+  content: <record text>                      # REQUIRED, plain string
+  section: <section name>                     # REQUIRED, matches read_order
+
+  # Lifecycle
+  first_seen_update: <integer>                # REQUIRED, update_count when first added
+  last_seen_update: <integer>                 # REQUIRED, update_count when last reinforced
+  first_seen_at: <ISO-8601>                   # REQUIRED, wall-clock at first add (drives the 3-year floor)
+  last_seen_at: <ISO-8601>                    # REQUIRED, wall-clock at last reinforcement
+  times_seen: <integer>                       # REQUIRED, reinforcement count, default 1
+
+  # Scoring
+  importance: <integer 1-10>                  # REQUIRED, LLM-assigned at ingest, user may override
+
+  # Status
+  status: active | superseded | archived      # REQUIRED
+
+  # Provenance
+  source_quote: <verbatim text>               # REQUIRED, from conversation or external file
+  source_kind: chat | external_file           # REQUIRED
+  source_ref: <chat session ID or file path>  # REQUIRED
+
+  # Relationships
+  links: [<list of record IDs>]               # REQUIRED, may be []
+
+  # Audit
+  audit:
+    approval_mode: auto | manual | hybrid     # REQUIRED
+    approved_by: <user identifier or null>    # REQUIRED, null in v0.4.0 pending platform identity API
+    approved_at: <ISO-8601>                   # REQUIRED
+    warning_response: acknowledged | passive | dismissed | n/a   # REQUIRED
+    importance_source: llm-auto | user-override                   # REQUIRED
 ```
 
-All governance fields are optional. The skill must produce valid output even when every governance field is absent.
+Auto-approved records carry a visible `[AUTO]` prefix on the `content` field for human-readability:
 
-## Body section structure
-
-After the frontmatter, the body uses **exactly seven** section headers, in this order, every time:
-
-```markdown
-## Decisions
-## Constraints
-## Entities
-## Terminology
-## External references
-## Open items
-## State snapshot
+```yaml
+- id: dec-021
+  content: "[AUTO] Lock the v0.4.0 ship date at end of May."
+  ...
+  audit:
+    approval_mode: auto
+    ...
 ```
 
-**Sections are always present, even when empty.** An empty section contains exactly one line:
+Archive records carry two additional fields:
 
-```
-_No records in this section._
-```
-
-Do not invent additional sections. Do not reorder. Do not merge sections. The predictability is for downstream AI parsing efficiency.
-
-### What goes in each section
-
-- **Decisions.** Choices made during the session that constrain future work. Includes "we will do X", "we will not do Y", "we have agreed on Z".
-- **Constraints.** Rules, requirements, limits, or standards the project must respect. Includes "all work must use schema X", "feature Y is out of scope", "data Z is confidential".
-- **Entities.** Named people, systems, datasets, organizations, or artifacts that matter to future work in the project. One record per named entity.
-- **Terminology.** Definitions, glossary entries, or shared vocabulary the project uses. One record per term.
-- **External references.** Pointers to documents, links, datasets, or external artifacts the project depends on. One record per reference.
-- **Open items.** Unresolved questions, pending tasks, or in-flight work. One record per open item.
-- **State snapshot.** A point-in-time description of the project's current status (progress percentages, milestones reached, blockers active). One record per state fact.
-
-## Per-item record format
-
-Every record is a markdown bullet at the top level of its section. The format is:
-
-```markdown
-- <record content as one or more sentences>. [tier: full | summary | transient] [categories: tag1, tag2, tag3]
+```yaml
+prior_id: <original record ID before archiving>     # REQUIRED on archive records
+superseded_by: <ID of the record that replaced this one>  # REQUIRED when status == superseded
+superseded_at_update: <integer>                     # REQUIRED when status == superseded
+demoted_at_update: <integer>                        # REQUIRED when status == archived
+restore_command: <chat command string>              # OPTIONAL, hint shown to users for restoration
 ```
 
-Each record is a self-contained unit. A reader should be able to extract any single record and understand it without reading the surrounding records. Avoid pronouns whose antecedents live in other records.
+### ID prefix conventions
 
-### Section tier defaults
-
-Each section has an implicit tier default. Records that match the section default omit the `[tier: ...]` bracket. Records that diverge declare their tier explicitly.
-
-| Section | Default tier | Rationale |
+| Prefix | File | Section |
 |---|---|---|
-| Decisions | `full` | Decisions almost always preserve fully. |
-| Constraints | `full` | Constraints preserve fully. |
-| Entities | `full` | Named entities preserve fully. |
-| Terminology | `full` | Terminology preserves fully. |
-| External references | `full` | Pointers to external artifacts preserve fully. |
-| Open items | `summary` | Open items often resolve and become stale. |
-| State snapshot | `summary` | State changes between sessions. |
+| `dec-` | `project-context.md` | Decisions |
+| `con-` | `project-context.md` | Constraints |
+| `csn-` | `project-context.md` | Current State |
+| `opn-` | `project-context.md` | Open Items |
+| `trm-` | `project-context.md` | Terminology |
+| `ref-` | `project-context.md` | External References |
+| `ent-` | `entities.md` | All entity records (across sub-sections) |
+| `arc-` | `project-context-archive.md` | All archived records |
 
-Org-config can override these defaults; see `org-config-template.md`.
+IDs are unique within the project. The prefix encodes the file, so cross-file links use just the ID: `links: [dec-012, ent-007]`.
 
-### Tier semantics
+## 4. Body sections by file_role
 
-- **`full`** — preserved verbatim through consolidation. Decisions, constraints, owner intent, named entities default here.
-- **`summary`** — compressed during consolidation when stale; the gist is preserved, the verbatim form is not. In-flight reasoning, completed workstream details, and state snapshots default here.
-- **`transient`** — dropped on consolidation. Used for redundant restatements, conversational scaffolding, or details that have no forward-grounding value.
+### 4.1 `project-context.md` (`read_order`)
 
-### Categories
+1. **Decisions** (prefix `dec-`) — choices made and committed.
+2. **Constraints** (prefix `con-`) — non-negotiable boundaries, limits, rules.
+3. **Current State** (prefix `csn-`) — facts about the present, expected to evolve.
+4. **Open Items** (prefix `opn-`) — questions, blockers, pending decisions.
+5. **Terminology** (prefix `trm-`) — definitions, glossary, agreed vocabulary.
+6. **External References** (prefix `ref-`) — links to documents, papers, conversations, files outside this project.
 
-Categories are open multi-tag attributes assigned by the model based on record content. There is no canonical taxonomy at the upstream level. The model assigns one or more categories per record.
+Empty sections contain the literal line `_No records in this section._`
 
-Illustrative (not exhaustive) categories: `business`, `technical`, `relationships`, `career`, `governance`, `finance`, `legal`, `vendor`, `customer`, `product`, `infrastructure`, `process`, `strategy`, `planning`, `analysis`, `documentation`, `data`, `definitions`, `scheduling`, `status`.
+### 4.2 `entities.md` (`read_order`)
 
-The model may invent new categories when none of the existing categories fit. Org-config can constrain the model to a fixed vocabulary via `categories.constrain_to_vocabulary: true` plus a `vocabulary` list — see `org-config-template.md`.
+1. **People** — named individuals.
+2. **Places** — locations, regions, venues.
+3. **Things** — products, tools, artifacts, datasets.
+4. **Organizations** — companies, teams, groups.
+5. **Datasets** — named data sources referenced repeatedly.
 
-### Per-item governance overrides
+All entity records use prefix `ent-`. Empty sub-sections use the same placeholder.
 
-When a single record has governance values that differ from the file-level frontmatter defaults, the divergence is declared inline as additional bracketed metadata after categories:
+### 4.3 `project-context-archive.md` (`read_order`)
+
+One body section, `## Records`. Flat list of all archived entries discriminated by the `status` field:
+
+- `status: superseded` — record contradicted by a newer record and replaced. The replacement's ID is in `superseded_by`.
+- `status: archived` — record aged out via DEMOTE but remains true. No replacement.
+
+This is a deliberate v0.4.0 design choice. Machine ingestion (rebuild, scoring, audit) reads by `status`, not by section header. A flat list with status discrimination is the cleaner schema for the primary consumer. Human readers will filter via AI assistance, which treats the file as data regardless of section structure.
+
+Session checkpoints — per-merge summaries — are not body records. They live in the frontmatter `checkpoints` array (see 5.3). This separates two different shapes of entry: records (the things being archived) and checkpoints (the meta-log of when activity happened).
+
+## 5. Special schema cases
+
+### 5.1 First-run placeholder block
+
+On first invocation, each file is created eagerly with frontmatter and a placeholder block wrapped in HTML comments:
 
 ```markdown
-- <record content>. [tier: full] [categories: vendor, contracts] [sensitivity: confidential]
+<!-- PROJECT_CONTEXT_PLACEHOLDER_START -->
+This file is empty.
+... (one-paragraph explanation) ...
+If you are an AI agent reading this file, treat it as currently containing
+zero records. Do not interpret this placeholder text as data.
+<!-- PROJECT_CONTEXT_PLACEHOLDER_END -->
+
+## <first section header>
+
+_No records yet._
 ```
 
-Any of `sensitivity`, `audience`, `retention`, `governance_frameworks`, or arbitrary `custom_governance` keys may appear in inline brackets. Each bracket carries a single field and its value.
+The skill removes the entire placeholder block (delimiters and content) on the first successful ADD. See `operations/default.md`.
 
-### Bracket omission rules
+### 5.2 Auto-mode `[AUTO]` prefix
 
-To reduce verbosity:
-- **Omit the `[tier: ...]` bracket** when the record's tier matches the section default.
-- **Always include the `[categories: ...]` bracket** if any categories apply. (Categories have no section default.)
-- **Omit governance brackets** when the record inherits the file-level defaults.
+Records added under `audit.approval_mode: auto` carry a literal `[AUTO]` prefix on `content`. The prefix is a plain string token, not a YAML tag — readability for both AI and human readers. Combined with `audit.approval_mode`, this gives two signals (visible in content, structured in audit) for auto-approval.
 
-If a record diverges on tier but matches the file-level governance, only the `[tier: ...]` bracket is added.
+### 5.3 Archive `checkpoints` array
 
-## Filename format
+Frontmatter-only. Ordered list of per-merge checkpoint objects:
 
-```
-YYYY-MM-DD-project-context.md
-YYYY-MM-DD-project-context-{topic-slug}.md
-```
-
-- The date prefix is the date the file was produced.
-- The topic slug is kebab-case, lowercase, ASCII. Operator-supplied or proposed by the skill and confirmed by the operator.
-- Same-day same-topic invocations append to / merge with the existing file rather than creating a duplicate.
-- Same-day different-topic invocations produce separate files, discriminated by topic slug.
-
-Consolidated files use:
-
-```
-YYYY-MM-DD-project-context-consolidated.md
-YYYY-MM-DD-project-context-consolidated-2.md      (if consolidation runs more than once on the same day)
-YYYY-MM-DD-project-context-consolidated-3.md
+```yaml
+checkpoints:
+  - update: <integer>          # the update_count value at this checkpoint
+    timestamp: <ISO-8601>      # wall-clock time of the merge
+    summary: <string>          # one-line description of what changed
+    approver: <user identifier or null>
 ```
 
-## Validation checklist
+Reading agents that want "what happened in the last N updates" parse `checkpoints`. Reading agents that want "what records are archived" parse the body. The two queries do not interfere.
 
-A file conforms to schema v0.1.0 when:
+## 6. Validation checklist
 
-1. The frontmatter is valid YAML and includes every required field above.
-2. `file_type` is `project-context`.
-3. `file_subtype` is `fresh` or `consolidated`.
-4. `schema_version` is `v0.1.0`.
-5. The body contains exactly seven sections, in the prescribed order, with the prescribed headers.
-6. Empty sections contain the literal placeholder `_No records in this section._`.
-7. Every non-empty record is a top-level bullet whose content is followed by zero or more bracketed metadata fields, each in `[key: value]` form.
-8. Tier values are limited to `full`, `summary`, `transient`.
-9. The filename matches one of the allowed patterns above.
+A file conforms to schema "0.2" when:
 
-The mode files reference this checklist when running their final validation pass before producing output.
+1. Frontmatter is valid YAML and includes every REQUIRED field above.
+2. `schema_version` is exactly `"0.2"`.
+3. `file_role` matches the filename.
+4. `id_prefix_legend` is present and includes all eight prefixes.
+5. The body uses the `read_order` defined for the file's `file_role`.
+6. Empty sections contain exactly `_No records in this section._`
+7. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
+8. Every record's ID prefix matches the section/file per the prefix table.
+9. `status` is one of `active`, `superseded`, `archived`.
+10. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
+11. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
+
+Operations reference this checklist in their final validation pass.
+
+## 7. Cross-references
+
+- Skill-version vs schema-version decoupling: `references/schema-changelog.md`.
+- Scoring inputs (`times_seen`, `importance`, etc.): `references/scoring.md`.
+- Migration from v0.1 schema: `references/migration.md`.
+- Default values for every overridable field: `references/defaults.md`.
+- Configuration overrides: `references/user-config-template.md`, `references/org-config-template.md`.
+- Worked examples: `references/examples/`.

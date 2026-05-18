@@ -2,115 +2,143 @@
 <!-- Copyright 2026 Raul J. Soto -->
 # project-context
 
-> Forward-grounding context for AI sessions inside a project.
+> Forward-grounding context for AI sessions inside a project. Three rolling files, four operations, automatic decay and archival.
 
 ## What this skill does
 
-The project-context skill captures the decisions, constraints, entities, terminology, external references, open items, and state snapshot from the current chat into a structured markdown file the operator adds to their Claude Project, ChatGPT Project, or Copilot M365 Project. Future chats inside the same project load that file as a project file and start grounded — without the operator re-explaining context they already established.
+The project-context skill captures the decisions, constraints, current state, open items, terminology, external references, and entities from your chats into a **three-file system** the operator adds to their Claude Project (or ChatGPT Project / Copilot M365 Project). Future chats inside the same project load those files and start grounded — without the operator re-explaining context they already established.
 
-It ships with two modes: **generate** (the default — produce a fresh project-context file from the current chat) and **consolidate** (merge multiple existing project-context files plus optional new content from the current chat into a single replacement file). A pre-flight check runs on every invocation, scans the project's existing project-context files, and proposes a mode with rationale before either mode runs.
+The three files:
+
+- **`project-context.md`** — active grounding file. Decisions, constraints, current state, open items, terminology, external references. Soft ceiling 50K tokens, hard ceiling 80K.
+- **`entities.md`** — stable reference data. People, places, things, organizations, datasets. Looked up by name. No automatic decay.
+- **`project-context-archive.md`** — append-only history. Superseded and demoted records plus per-merge checkpoint log. Loaded selectively (rebuild, restore, historical lookup), not on every chat.
+
+The skill ships with four named operations:
+
+- **`default`** (no operation named) — parse the conversation, classify candidate records against the existing files, propose merges, write updated files. The everyday workflow.
+- **`merge_external`** — same flow, but the input is an attached file (session-recap output, vision document, spec, partner doc) instead of the conversation.
+- **`compact`** — score all active records, propose batch DEMOTE for records below the demotion threshold. Manual cleanup when the active file approaches the soft warning.
+- **`rebuild`** — regenerate the active file from the archive using the current scoring algorithm. Recovery operation. Mandatory pre-commit review.
+
+v0.4.0 is a major architectural pivot from v0.1.x-v0.3.x. The dated-single-file model and two modes (generate, consolidate) are replaced by the rolling three-file system and four operations. See `CHANGELOG.md`.
 
 ## Who this skill is for
 
-AI-literate professionals who work inside projects spanning multiple chat sessions on a recurring topic — quarterly business reviews, multi-week investigations, long-running design work, ongoing audits. The user is comfortable with YAML frontmatter, structured markdown, the concept of preservation tiers, and the idea that the file's primary audience is future AI sessions, not human readers.
+AI-literate professionals who work inside projects spanning multiple chat sessions on a recurring topic — quarterly business reviews, multi-week investigations, long-running design work, ongoing audits. The user is comfortable with YAML frontmatter, structured markdown, the merge classifier vocabulary (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE), and the idea that the file's primary audience is future AI sessions, not human readers.
 
-The skill is **explicitly not** for non-AI-literate users. Such users are downstream consumers of output from chats that were grounded by project-context — they should not be invoking the skill directly. The path to less-technical users is the agent layer (post-v0.1.0), not this skill.
+The skill is **explicitly not** for non-AI-literate users. Such users are downstream consumers of output from chats that were grounded by project-context — they should not be invoking the skill directly. The path to less-technical users is the agent layer (post-v1.0.0), not this skill.
+
+**Model assumption.** This skill is optimized for top-tier thinking models (Claude Opus 4.5+, GPT-5 Pro thinking, Gemini Ultra thinking). Token budgets assume substantial effective context. On lighter models, data integrity may degrade as files approach the hard ceiling.
 
 ## When to use this skill (and when not to)
 
 | Use **project-context** when | Use **session-recap** instead when |
 |---|---|
-| You're inside a Claude Project / ChatGPT Project / Copilot M365 Project. | You want a portable, exhaustive recap that travels outside any specific project. |
-| You want lightweight forward-grounding for future chats in the same project. | You want a rich, human-readable handoff document. |
-| You want to consolidate accumulated project files when they start stacking up. | You want a single comprehensive session record. |
-| The audience for the output is future AI sessions. | The audience includes human collaborators who will read the file. |
+| You're inside a Claude Project / ChatGPT Project / Copilot M365 Project. | You're in Claude Code or another filesystem-based surface. |
+| You want forward-grounding for future chats in the same project. | You want a portable, exhaustive recap that travels outside any specific project. |
+| You want the three-file system maintained automatically with a decay model. | You want a single rich, human-readable handoff document. |
+| The primary audience for the output is future AI sessions. | The audience includes human collaborators who will read the file. |
 
-You can run **both** skills on the same conversation. They serve different purposes and each tolerates the presence of the other. project-context can optionally cross-reference a session-recap file via the `related_session_recap` frontmatter field.
+You can run **both** skills on the same conversation. They serve different purposes and each tolerates the presence of the other. project-context can optionally cross-reference a session-recap file via the `related_session_recap` frontmatter field, and `merge_external` can ingest a session-recap output as input.
 
 ## How to invoke
 
-Use any of these phrases in your chat:
+The skill is triggered by phrases in your chat. The full list lives in `SKILL.md`; the most common:
 
-**Generate mode (the default):**
-- "create project-context" / "create project context"
-- "save project context" / "save the project context"
-- "generate project-context"
-- "snapshot project context"
-- "ground this project" / "ground the project"
-- "project-context this" / "project context this conversation"
+**Default (everyday flow):**
+- "create project-context", "save project context", "snapshot project context", "ground this project"
 - "build project-context file"
+- "run project-context", or just "project context"
 
-**Consolidate mode:**
-- "consolidate project-context" / "consolidate project context"
-- "consolidate project-context files"
-- "merge project-context files"
-- "compress project-context"
+**Compact (cleanup):**
+- "compact this", "trim the project context"
+- "consolidate project-context" (legacy phrase routes to compact)
 
-**Ambiguous (pre-flight will propose a mode and ask):**
-- "run project-context"
-- "project context"
-- "project-context skill"
+**Rebuild (recovery):**
+- "rebuild", "rebuild from archive", "reset from archive", "regenerate project context"
 
-The pre-flight check runs first regardless of phrase. It identifies your project, lists the existing project-context files in it, assesses whether consolidation is warranted, and confirms a mode before generating anything.
+**Merge external file:**
+- Attach a file in the chat (the skill detects the attachment).
+- Or: "merge this into project context", "process this attached file", "import this session-recap".
+
+All 19 trigger phrases from v0.1.0 are preserved verbatim in v0.4.0 and route to the closest behavioral equivalent.
+
+The pre-flight check (surface guard, project detection, file discovery, schema verification, migration trigger, configuration resolution) runs first regardless of phrase.
 
 ## Output format
 
-The skill produces a markdown file with:
+The skill writes three markdown files with YAML frontmatter and structured-YAML records under each section header. The schema is documented in `references/schema.md`.
 
-- **YAML frontmatter** declaring file type, schema version, project name, session topic, sessions covered, source files (for consolidations), cross-references to related files including an optional session-recap pointer, and governance metadata (sensitivity, audience, retention, governance frameworks, custom governance keys). All governance fields are optional.
-- **Seven body sections**, always in this order: Decisions, Constraints, Entities, Terminology, External references, Open items, State snapshot. Empty sections show a placeholder line; missing sections are not allowed.
-- **Per-record metadata** in inline brackets: `[tier: full | summary | transient]` and `[categories: tag1, tag2]`. Section tier defaults reduce verbosity — most records omit the `[tier: ...]` bracket.
-- **Three preservation tiers**: `full` (preserved verbatim through consolidation), `summary` (compressed when stale), `transient` (dropped on consolidation).
-- **Open multi-tag categories** assigned by the model based on record content.
+Highlights:
 
-For the full schema, see [`references/schema.md`](references/schema.md). For governance metadata details, see [`references/governance.md`](references/governance.md). For complete examples, see [`references/examples/example-fresh-project-context.md`](references/examples/example-fresh-project-context.md) and [`references/examples/example-consolidated-project-context.md`](references/examples/example-consolidated-project-context.md).
+- Every file carries `schema_version: "0.2"` (the data-shape contract — decoupled from the skill version).
+- Every file carries an `id_prefix_legend` map so a reader has the full eight-prefix legend regardless of which file is loaded.
+- Every record carries lifecycle fields (`first_seen_update`, `last_seen_update`, `first_seen_at`, `last_seen_at`, `times_seen`), a numeric `importance` (1-10), a `status` (`active`, `superseded`, `archived`), provenance (`source_quote`, `source_kind`, `source_ref`), `links`, and an `audit` block.
+- The archive's `checkpoints` array lives in frontmatter (per-merge log); its body is a flat `## Records` list discriminated by `status`.
+- Auto-approved records (under `merge_policy: auto`) carry a literal `[AUTO]` prefix on their `content` field plus `audit.approval_mode: auto`.
+
+For complete examples, see [`references/examples/example-project-context.md`](references/examples/example-project-context.md), [`references/examples/example-entities.md`](references/examples/example-entities.md), [`references/examples/example-project-context-archive.md`](references/examples/example-project-context-archive.md).
 
 ## Filename convention
 
+Rolling filenames (no date in the filename — date lives in `last_merged` frontmatter):
+
 ```
-YYYY-MM-DD-project-context.md                          (no topic)
-YYYY-MM-DD-project-context-{topic-slug}.md             (with topic)
-YYYY-MM-DD-project-context-consolidated.md             (consolidate-mode output)
+project-context.md
+entities.md
+project-context-archive.md
+user-config.md          (optional, per-user overrides)
+org-config.md           (optional, org-scope overrides)
 ```
 
-Same-day same-topic invocations merge into the existing file. Same-day different-topic invocations produce separate files.
+## Customization with user-config.md and org-config.md
 
-## Customization with org-config.md
+The skill follows a **three-layer configuration model** in v0.4.0:
 
-The skill follows an upstream-skill-plus-org-config-layer architecture. The upstream skill (this folder) works out of the box with safe-permissive defaults. Organizations that want to customize defaults — sensitivity floor, audience vocabulary, retention policy, category taxonomy, additional trigger phrases, downstream skill chaining — drop an `org-config.md` file alongside `SKILL.md`.
+| Layer | Source | Scope | Priority |
+|---|---|---|---|
+| User | `user-config.md` | This user, this project | Highest |
+| Org | `org-config.md` | All users in the org | Middle |
+| Skill | `references/defaults.md` | Universal | Lowest |
 
-The template is at [`references/org-config-template.md`](references/org-config-template.md). Copy it, populate the values your organization needs, and the skill will load it on every invocation. The upstream skill ships with no populated `org-config.md`; if absent, upstream defaults apply unchanged.
+- The user layer is new in v0.4.0. The template is at [`references/user-config-template.md`](references/user-config-template.md). Drop it in your Project, uncomment the settings you want to override, and the skill will pick them up. This is the canonical example of the new **`user-config.md` cross-skill convention** that future skills in the monorepo will adopt.
+- The org layer is unchanged from v0.1.0. The template is at [`references/org-config-template.md`](references/org-config-template.md). Copy it to `org-config.md` in your Project's deployment if you want org-scope governance defaults, scoring tweaks, trigger-phrase additions, or downstream chaining reminders.
+- The skill layer is the source of truth for unset values, documented in [`references/defaults.md`](references/defaults.md).
 
-What `org-config.md` can change:
+What the config layers can change: merge policy, proposal cap, token budgets, scoring coefficients and threshold, governance defaults, user identifier (for audit trail), brief format, additional trigger phrases, downstream chaining.
 
-- File-level governance defaults (sensitivity, audience, retention, frameworks).
-- Whether the model is constrained to a fixed category vocabulary.
-- Section-level tier defaults.
-- Reminders or instructions printed after generate or consolidate completes.
-- Additional trigger phrases.
-- Default project name and filename topic behavior.
+What they cannot change: schema validity. The three files, eight ID prefixes, six body sections of `project-context.md`, five sub-sections of `entities.md`, archive's `status`-discriminated body, and the `audit` block are all part of the `schema_version: "0.2"` contract.
 
-What it cannot change: the seven body sections, the schema fields, or anything that would break schema validity.
+## Migration from v0.1.x-v0.3.x
+
+If a Project contains legacy `*-project-context*.md` dated files, pre-flight detects them and triggers an automatic migration: parse the legacy records, stamp lifecycle fields, score them, partition into active and archive, write the three new files. The operator brief lists each legacy file by exact filename for manual deletion (the skill cannot delete Project files in v0.4.0 — no platform API). Required order of operations: download new → verify → delete old → upload new. See [`references/migration.md`](references/migration.md).
 
 ## Cross-skill awareness
 
-project-context is aware of the session-recap skill via an optional `related_session_recap` frontmatter field. If you have run session-recap on the same conversation, you can reference its filename in this field; downstream AI sessions reading the project-context file can then optionally fetch the richer session-recap if they need more depth. The reverse pointer (session-recap referencing project-context) is owned by the session-recap skill, not this one.
+project-context is aware of session-recap via the optional `related_session_recap` frontmatter field. v0.4.0 adds first-class support for session-recap files as input to the `merge_external` operation: when you attach a session-recap output, the skill recognizes the format and extracts records using session-recap's known structure.
 
-The two skills do not depend on each other. Either can be run without the other. The cross-reference is metadata only.
+The two skills do not depend on each other. The `user-config.md` convention introduced in v0.4.0 is intended for cross-skill adoption — future skills follow the same pattern.
 
 ## Troubleshooting
 
-**Pre-flight detects the wrong project.** The skill identifies the project from the runtime's project-container signal. If the runtime exposes a different project name than expected, override at the prompt: state the project name explicitly and the skill will use it.
+**The skill declined and recommended session-recap.** You are on a Claude Code or filesystem-based surface. The surface guard is intentional. Use session-recap for Claude Code; come back to project-context when you are in a Project.
 
-**Pre-flight is noisy on every invocation.** v0.1.0 does not allow skipping pre-flight. If the friction is real, file a feature request for a `--no-preflight` flag in v0.2.0+.
+**Pre-flight detects the wrong project.** State the project name explicitly at the prompt; the skill will use what you provide.
 
-**Consolidation produces too-large output.** The skill warns when aggregate output approaches the project's file-size budget. Options: tighten compression on summary-tier records, drop borderline summary-tier records the operator confirms are stale, or split the consolidation into two output files. See [`modes/consolidate.md`](modes/consolidate.md) for the full list of failure-mode handlers.
+**The active file is approaching 50K tokens.** Invoke `compact` to demote weak records to the archive. If the file is over 80K, the skill will push harder on DEMOTE proposals in the default operation, but you should be running `compact` proactively.
 
-**The model assigned categories the operator dislikes.** Either edit the file by hand (it is plain markdown), or set `categories.constrain_to_vocabulary: true` in `org-config.md` with the allowed list. Future invocations will respect the vocabulary.
+**A demoted record was needed after all.** It lives in `project-context-archive.md` with a `restore_command` field. Invoke `restore arc-NNN` in a future session.
 
-**Generated file lands in an unexpected location.** The skill writes to whatever path the runtime exposes for generated artifacts and presents the file via the runtime's file-presentation mechanism. The exact path is environment-dependent. The operator downloads the file and adds it to the project manually; v0.1.0 does not have a programmatic path to add files to a Claude Project.
+**The active file got corrupted or manually mis-edited.** Invoke `rebuild` to regenerate from the archive. The rebuild has a mandatory pre-commit review gate.
 
-**Cross-platform invocation.** The Agent Skills standard means this folder works in any tool that supports it. Place the folder at the tool-specific skills location (e.g., `~/.claude/skills/project-context/` for Claude Code) and the skill is available.
+**Auto-mode is making changes I would have caught manually.** Turn off `merge_policy: auto` in `user-config.md` or chat-time. The audit trail (`audit.approval_mode: auto` on every auto record) lets you find what was created and review it later.
+
+**Cross-platform invocation.** The Agent Skills standard means this folder works in any tool that supports it. Place the folder at the tool-specific skills location (e.g., `~/.claude/skills/project-context/` for Claude Code — though the surface guard will decline there).
+
+## Roadmap
+
+Parking-lot items, post-v0.4.0 plans, and platform dependencies are tracked in `ROADMAP.md`. Highlights: programmatic Project-file management (awaiting platform API), multi-collaborator audit, archive compaction / cold-storage tier, A-MEM-style link evolution, Zep-style bi-temporal tracking, MCP server packaging, the nc3-meta-skill-forge skill that will absorb the user-config convention.
 
 ## License
 

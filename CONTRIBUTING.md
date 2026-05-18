@@ -30,6 +30,10 @@ skill-name-vX-Y/
 
 Each skill is independently versioned using the `vMAJOR-MINOR` suffix on the folder name. Versions follow the spirit of semantic versioning: MAJOR for breaking changes to skill triggers, output schema, or expected behavior; MINOR for additive improvements that preserve existing behavior.
 
+## The user-config.md cross-skill convention
+
+Beginning with project-context v0.4.0, skills in this repository may publish a `user-config.md` file as a per-user override layer alongside the existing `org-config.md` per-organization layer. The file is a Linux-conf-style markdown document — a YAML body with every setting commented out by default, plus prose comments explaining what each does and the recommended values. The resolution order is `user-config.md` > `org-config.md` > skill defaults. The canonical example of this convention lives at [`project-context/references/user-config-template.md`](project-context/references/user-config-template.md); new skills adopting the pattern should mirror its structure. A future release of the `nc3-meta-skill-forge` skill (working name) will absorb the convention as its canonical home.
+
 ## Pull request process
 
 1. Fork the repository

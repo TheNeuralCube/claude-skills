@@ -7,6 +7,53 @@ All notable changes to the project-context skill will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+The skill version (e.g., `0.4.0`) tracks releases. Beginning with v0.4.0, the **schema version** (`schema_version` in every file's frontmatter) is **decoupled** from the skill version. The schema version bumps only when the shape of stored data changes; the skill version bumps on every release. See `references/schema-changelog.md` for the version-by-version history of the data schema.
+
+## [0.4.0] — 2026-05-18
+
+### Added
+- **Three-file rolling architecture.** Output is now three files with rolling filenames: `project-context.md` (active grounding file), `entities.md` (stable reference data), `project-context-archive.md` (append-only history). Date lives in the `last_merged` frontmatter, not in the filename. Files are eagerly created on first invocation with HTML-comment-delimited placeholder blocks that the skill removes on first record write.
+- **Four named operations** replacing the two modes. `default` (parse conversation, classify, propose, write), `merge_external` (same flow on an attached file), `compact` (batch-demote weak records), `rebuild` (regenerate active file from archive; mandatory pre-commit review). See `operations/`.
+- **Five-op merge classifier.** ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE — Mem0-style four plus the operator's DEMOTE extension. Classifier pseudocode lives in `references/operations.md`.
+- **Hybrid brake** (default `merge_policy`). Auto-apply ADD and NOOP; gate UPDATE, DEMOTE, SUPERSEDE for operator approval. Alternative policies: `gate` (require approval on every change), `auto` (auto-approve everything, with mandatory warning and full audit trail).
+- **Update-based scoring algorithm** with 6 tunable coefficients (`alpha`, `beta`, `gamma`, `delta`, `epsilon`, `lambda`) and a default `demotion_threshold` of 5. Decay is measured in file updates, not calendar time — a project untouched for six months sees zero decay. Formula and worked examples in `references/scoring.md`.
+- **Auto-mode** shipped as a published option. Mandatory per-session warning matches design spec §12.3 verbatim. Every auto-approved record carries `audit.approval_mode: auto` and a visible `[AUTO]` prefix on `content`. Audit metadata enables coaching and quality diagnosis after the fact.
+- **Per-record audit block.** Every record has `audit.approval_mode`, `audit.approved_by` (nullable in v0.4.0), `audit.approved_at`, `audit.warning_response`, `audit.importance_source`.
+- **Three-layer configuration.** `user-config.md` (new in v0.4.0) > `org-config.md` > skill defaults from `references/defaults.md`. The `user-config.md` convention is intended as cross-skill: future skills in the monorepo adopt the same pattern. See `references/user-config-template.md`.
+- **Decoupled schema versioning** plus `references/schema-changelog.md`. Schema is now `"0.2"` (the short, quoted form). The build session enforces a drift-detection guard against the prior tag.
+- **`id_prefix_legend`** REQUIRED frontmatter map carried in every file the skill writes. Eight ID prefixes: `dec`, `con`, `csn`, `opn`, `trm`, `ref`, `ent`, `arc`.
+- **Archive `checkpoints` array** in YAML frontmatter (not body). Per-merge log of what changed each update.
+- **Migration** from v0.1.x-v0.3.x dated files. Automated, one-time, non-destructive. Operator brief lists each legacy file by exact filename with required order of operations (download new → verify → delete old → upload new). See `references/migration.md`.
+- **ROADMAP.md** and **USAGE.md** added to the per-skill file set.
+
+### Changed
+- **Body sections** for the active file: was 7 (Decisions, Constraints, Entities, Terminology, External references, Open items, State snapshot) → now 6 (Decisions, Constraints, Current State, Open Items, Terminology, External References). "Entities" moved to its own file. "State snapshot" renamed "Current State."
+- **Per-record format** rewritten. The v0.1 inline-bracket metadata (`[tier: full | summary | transient] [categories: tag1, tag2]`) is gone. Records now carry structured per-record YAML with lifecycle, scoring, status, provenance, links, and audit blocks.
+- **Three preservation tiers** (`full`, `summary`, `transient`) are removed. Update-based scoring plus the merge classifier replaces them. Migration translates legacy `full` → `importance: 8`, `summary` → `importance: 5`, drops `transient`.
+- **Open category tags** are removed. Categorization is implicit in the section/file structure.
+- **Filename convention.** Dated filenames retired in favor of rolling filenames. The date now lives in `last_merged` frontmatter.
+- **`schema_version` field.** Bumped from the unquoted-skill-version form used by v0.1.0-v0.3.2 (e.g., `schema_version: v0.1.0`, `schema_version: v0.3.2`) to the short, quoted, decoupled form `schema_version: "0.2"`. The shift to a decoupled scheme is documented in `references/schema-changelog.md`.
+- **`retention` allowed values.** Reduced to `standard | extended | indefinite`. The v0.1 values `legal_hold` and `delete_after_<period>` are removed; organizations document those semantics via `custom_governance` instead.
+- **Per-record governance overrides** (inline brackets) are removed. Records that need divergent governance go in a separate file.
+- **`modes/` directory** removed; replaced by `operations/`.
+- **`SKILL.md`** rewritten as a thin router with surface guard + pre-flight + routing to four operation files. All 19 v0.1.0 trigger phrases preserved verbatim in the description; new v0.4.0 phrases added for compact, rebuild, and merge_external.
+- **README.md** rewritten for the three-file architecture and four operations.
+
+### Removed
+- `modes/generate.md` and `modes/consolidate.md` (replaced by `operations/`).
+- `references/examples/example-fresh-project-context.md` and `references/examples/example-consolidated-project-context.md` (replaced by four v0.4.0 examples covering active, entities, archive, and user-config).
+- Inline per-record `[tier: ...]`, `[categories: ...]`, and inline-governance bracket syntax.
+- `consolidation_summary` frontmatter block (replaced by archive `checkpoints` array).
+
+### Notes
+- **Model-assumption disclosure** in SKILL.md: this skill is optimized for top-tier thinking models (Claude Opus 4.5+, GPT-5 Pro thinking, Gemini Ultra thinking). Active-file token budgets (target 30K, soft warning 50K, hard ceiling 80K) assume substantial effective context. On lighter models, data integrity may degrade as files approach the hard ceiling.
+- **Operator-attribution-on-generated-SPDX flag** carried since v0.1.0 was resolved in v0.3.2 (no SPDX on generated outputs) and remains resolved. v0.4.0 example files in `references/examples/` follow the no-SPDX rule. Skill source files carry Apache 2.0 SPDX headers as before.
+- **`user-config.md` cross-skill convention.** The new file pattern (Linux-conf-style markdown with YAML body, kebab-case keys, settings commented out by default with prose rationale, single source of truth in `references/defaults.md`, resolution order user > org > skill) is intended as the canonical example for future skills in the monorepo. Repo-root `CONTRIBUTING.md` points to `references/user-config-template.md`. The nc3-meta-skill-forge skill (working name; tracked in `ROADMAP.md`) will absorb the convention as its canonical home in a future release.
+- **Design-spec historical correction.** Design spec §15 stated that v0.1.0-v0.3.2 wrote `schema_version: "0.1"`. Actual v0.3.2 output wrote `schema_version: v0.1.0` (unquoted, full skill-version string). `references/schema-changelog.md` documents the historical reality; migration detection is liberal (matches `v0.1.0`, `0.1.0`, `0.1`, etc.) so real v0.3.2 files are recognized. The design spec correction is a separate doc-only follow-up.
+
+### Migration
+- One-time, per-project, automated. Pre-flight detects legacy `*-project-context*.md` files. The skill writes the three new files and surfaces an operator brief listing each legacy file by exact name for manual deletion (the skill cannot delete Project files in v0.4.0 — no platform API). Required order of operations: download new → verify → delete old → upload new. See `references/migration.md`.
+
 ## [0.3.2] — 2026-05-11
 
 ### Added
