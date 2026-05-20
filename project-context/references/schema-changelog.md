@@ -1,8 +1,8 @@
 ---
 file_role: skill-reference
 topic: schema-changelog
-current_schema_version: "0.2"
-skill_version: "0.4.0"
+current_schema_version: "0.3"
+skill_version: "0.5.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -16,12 +16,36 @@ The build session enforces a drift-detection guard. Before commit, the build com
 
 ## Schema versions
 
-### Schema "0.2" — current
+### Schema "0.3" — current
+
+- **Introduced:** 2026-05-19 (skill release v0.5.0).
+- **Used by skill versions:** 0.5.0 and forward (until the next schema bump).
+- **Carrier files:** every file the skill writes (`project-context.md`, `entities.md`, `project-context-archive.md`).
+- **Schema_version literal on disk:** `schema_version: "0.3"` (short, quoted).
+
+**Field-level diff from schema "0.2":**
+
+| Change | Detail |
+|---|---|
+| `_managed_by` | New REQUIRED string field in the frontmatter of all three files. Canonical value: `project-context-skill`. The leading underscore signals internal metadata, not user-facing data. The field is the registry marker that makes pre-flight detection reliable: `project_knowledge_search` for `_managed_by: project-context-skill` returns chunks where this distinctive YAML field actually appears, which is only in files under skill management. |
+
+No other field-level changes from "0.2". All other schema mechanics (`file_role`, `schema_version`, `project`, `project_id`, lifecycle fields, `id_prefix_legend`, audit block, archive `checkpoints` array, per-record schema, body section structure) carry forward unchanged.
+
+**Migration path from "0.2":** automated, one-time per project, in-place upgrade. Pre-flight detects canonical filenames with `schema_version: "0.2"` and no `_managed_by` field; the operator confirms with `confirm upgrade`; the skill rewrites the three files adding `_managed_by: project-context-skill` and changing `schema_version: "0.2"` → `schema_version: "0.3"`. All other content preserved unchanged. See `references/migration.md` section 9.
+
+**Rationale:** schema "0.3" closes the protocol-enforcement gap documented in the 2026-05-19 postmortem. The pre-flight check in v0.4.0 was prose-described but not structurally enforced; under inference-time load, the model could skip pre-flight and write v0.1-era format records over a live v0.4.0 schema-0.2 system. v0.5.0 introduces a mandatory pre-flight protocol gated by SKILL.md's `## Protocol` section and a post-flight summary, both backed by reliable schema detection. The `_managed_by` field is the detection anchor: it is distinctive enough that `project_knowledge_search` returns only chunks from files under skill management, eliminating the false-positive problem the postmortem's broad-search approach would have suffered.
+
+The schema bump (0.2 → 0.3) accompanies the protocol-enforcement work because the new REQUIRED field is backward-incompatible with the v0.2 file format. By semver convention, a schema bump with a new required field exceeds patch-release scope and triggers at least a minor version bump (hence v0.5.0 rather than v0.4.1). This release sets the precedent for future bumps.
+
+---
+
+### Schema "0.2" — historical, still supported for upgrade migration
 
 - **Introduced:** 2026-05-18 (skill release v0.4.0).
-- **Used by skill versions:** 0.4.0 and forward (until the next schema bump).
+- **Used by skill versions:** 0.4.0 only.
 - **Carrier files:** every file the skill writes (`project-context.md`, `entities.md`, `project-context-archive.md`).
 - **Schema_version literal on disk:** `schema_version: "0.2"` (short, quoted).
+- **v0.5.0 handling:** v0.5.0 detects schema "0.2" files (canonical filenames with `schema_version: "0.2"` and no `_managed_by` field) and offers an in-place upgrade migration to "0.3" via the `confirm upgrade` token path. The schema is not directly writable by v0.5.0 — v0.5.0 always writes "0.3".
 
 **Field-level diff from schema "0.1":**
 
@@ -97,6 +121,18 @@ consolidation_summary:
 
 **Body in schema "0.1":** seven sections in fixed order — Decisions, Constraints, Entities, Terminology, External references, Open items, State snapshot. Records were markdown bullets with inline metadata `[tier: full|summary|transient] [categories: tag1, tag2, ...]` and optional inline governance overrides.
 
+## Supported Schemas
+
+This release of the skill (v0.5.0) supports:
+
+- **Read/write:** schema "0.3" (current). All v0.5.0 writes produce schema "0.3" with `_managed_by: project-context-skill`.
+- **Migrate from:** schema "0.2" (v0.4.0 format). Detection: canonical filenames + `schema_version: "0.2"` + no `_managed_by` field. Migration path: in-place upgrade (add `_managed_by`, bump `schema_version`, preserve content). Operator confirmation token: `confirm upgrade`. See `references/migration.md` section 9.
+- **Migrate from:** v0.1-era literals (`v0.1.0` unquoted, `"0.1"` quoted, and the broader regex `^"?v?0\.(1|2|3)(\.\d+)?"?$` covering v0.1.0–v0.3.2 historical writes — see "Schema '0.1'" below). Detection: legacy filename pattern OR legacy `schema_version` literal. Migration path: full legacy migration to schema "0.3" directly (operators with v0.1-era projects skip schema "0.2" entirely). Operator confirmation token: `confirm migration`. See `references/migration.md` section 3.
+- **Refuse:** schemas newer than "0.3" (e.g., a hypothetical "0.4" produced by a future skill version). Verdict: `✗ MISMATCH: project newer than skill`. Operator path: upgrade the local skill copy. Override path exists (`override version mismatch and proceed`) but is marked NOT RECOMMENDED.
+- **Refuse:** unrecognized `schema_version` values that match no documented pattern. Verdict: `✗ Mismatch: unknown schema` or `✗ Parse Error` depending on whether the value is a malformed literal or a syntactically valid but unknown one. Operator path: identify the file or override.
+
+The compatibility matrix is the authoritative input to pre-flight classification. See `references/preflight.md` for the algorithm that consumes this matrix and produces the operator-facing report block.
+
 ## Build-time drift detection
 
 Every build session running on a v0.4.0+ release must run the drift-detection guard before commit:
@@ -113,10 +149,14 @@ This mechanism catches the "I forgot to bump" failure mode mechanically rather t
 
 For the v0.4.0 build: the prior tag is `project-context-v0.3.2`. The schemas differ (everything listed above). `schema_version` bumps from the unquoted-skill-version form to `"0.2"`. This entry documents every field-level change. The guard passes.
 
+For the v0.5.0 build: the prior tag is `project-context-v0.4.0`. The schemas differ by exactly one field (the new REQUIRED `_managed_by` in frontmatter). `schema_version` bumps from `"0.2"` to `"0.3"`. This file's schema "0.3" entry documents the field-level change. The guard passes.
+
 ## Versioning policy
 
-The skill version (`0.4.0`, `0.4.1`, ...) tracks releases. The schema version (`"0.2"`, `"0.3"`, ...) tracks the data-shape contract. A patch release (e.g., `0.4.1`) that fixes documentation without touching the schema still writes `schema_version: "0.2"`. A future minor release (e.g., `0.5.0`) that adds a new optional field bumps schema to `"0.3"` and adds an entry here.
+The skill version (`0.4.0`, `0.5.0`, ...) tracks releases. The schema version (`"0.2"`, `"0.3"`, ...) tracks the data-shape contract. A patch release (e.g., `0.5.1`) that fixes documentation without touching the schema still writes `schema_version: "0.3"`. A future minor release that adds a new field bumps schema to `"0.4"` and adds an entry here.
+
+**Schema bumps trigger at least a minor version bump.** v0.5.0 establishes this precedent: a schema bump with a new REQUIRED field is backward-incompatible with the prior file format and exceeds patch-release scope by semver convention. Future skills and future project-context versions should follow this pattern.
 
 Until skill v1.0.0, schema bumps are allowed but every bump must be documented here with field-level diffs and a migration path. After v1.0.0, schema changes are MAJOR-version bumps with explicit deprecation notices on prior fields.
 
-This versioning convention is intended for cross-skill adoption. The forthcoming nc3-meta-skill-forge skill (working name; see project-context `ROADMAP.md`) will codify it as a standard pattern for all skills in the monorepo.
+This versioning convention is intended for cross-skill adoption. The forthcoming nc3-meta-skill-forge skill (working name; see project-context `ROADMAP.md`) will codify it as a standard pattern for all skills in the monorepo. The `_managed_by` field introduced in schema "0.3" is implicitly a cross-skill convention from the moment v0.5.0 ships: other skills writing to project knowledge can use the same field shape with their own identifiers (`session-recap-skill`, `wellhead-skill`, etc.) to mark files they manage.

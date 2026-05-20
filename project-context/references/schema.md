@@ -1,16 +1,16 @@
 ---
 file_role: skill-reference
 topic: schema
-schema_version_documented: "0.2"
-skill_version: "0.4.0"
+schema_version_documented: "0.3"
+skill_version: "0.5.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Schema (project-context v0.4.0, schema_version "0.2")
+# Schema (project-context v0.5.0, schema_version "0.3")
 
-This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.3.2`) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
+This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.4.0` for the v0.5.0 build) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
 
 ## 1. The three files
 
@@ -29,7 +29,8 @@ Every file the skill writes begins with this frontmatter. Fields marked OPTIONAL
 ```yaml
 ---
 # Schema identification
-schema_version: "0.2"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
+schema_version: "0.3"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
+_managed_by: project-context-skill               # REQUIRED in schema 0.3. String literal. Registry marker used by pre-flight detection — see references/preflight.md. The leading underscore signals internal metadata, not user-facing data.
 file_role: project-context | entities | archive  # REQUIRED
 
 # Project identification
@@ -57,7 +58,7 @@ id_prefix_legend:                                # REQUIRED, map of all ID prefi
   arc: "Archived Record (in project-context-archive.md)"
 
 # Cross-references
-authors: [<list of user identifiers>]            # REQUIRED, list, may be [] (nullable in v0.4.0 pending platform identity API)
+authors: [<list of user identifiers>]            # REQUIRED, list, may be [] (nullable in v0.5.0 pending platform identity API)
 related_session_recap: <optional path>           # OPTIONAL, may be null
 related_files: [<list of paths>]                 # OPTIONAL, may be []
 
@@ -77,7 +78,7 @@ checkpoints:                                     # REQUIRED on archive files; om
 # Generation metadata
 generated_by:
   skill: project-context
-  version: <semver>                              # the skill version, e.g. "0.4.0"
+  version: <semver>                              # the skill version, e.g. "0.5.0"
   model: <model identifier>
   generation_date: <ISO-8601 timestamp>
 ---
@@ -87,7 +88,8 @@ generated_by:
 
 | Field | Required | Notes |
 |---|---|---|
-| `schema_version` | yes | The data-shape contract. v0.4.0 writes `"0.2"`. Bumps only when fields change; see `references/schema-changelog.md`. |
+| `schema_version` | yes | The data-shape contract. v0.5.0 writes `"0.3"`. Bumps only when fields change; see `references/schema-changelog.md`. |
+| `_managed_by` | yes (schema 0.3+) | String literal `project-context-skill`. Registry marker. Makes pre-flight detection reliable: `project_knowledge_search` for this distinctive YAML field returns only chunks from files under skill management. See `references/preflight.md`. |
 | `file_role` | yes | One of `project-context`, `entities`, `archive`. Must match the filename. |
 | `project` | yes | Human-readable project name. |
 | `project_id` | yes | kebab-case slug used for cross-file references. |
@@ -107,7 +109,7 @@ generated_by:
 | `custom_governance` | yes | Free-form object, may be `{}`. |
 | `checkpoints` | only on archive | Ordered list of per-merge checkpoint objects. See section 5.3. |
 | `generated_by.skill` | yes | Always `project-context`. |
-| `generated_by.version` | yes | The skill version that wrote the file (e.g., `"0.4.0"`). Independent of `schema_version`. |
+| `generated_by.version` | yes | The skill version that wrote the file (e.g., `"0.5.0"`). Independent of `schema_version`. |
 | `generated_by.model` | yes | Model identifier (e.g., `claude-opus-4-7`). |
 | `generated_by.generation_date` | yes | ISO-8601 when the file was written. |
 
@@ -146,7 +148,7 @@ Records are written under section headers (e.g., `## Decisions`) as markdown lis
   # Audit
   audit:
     approval_mode: auto | manual | hybrid     # REQUIRED
-    approved_by: <user identifier or null>    # REQUIRED, null in v0.4.0 pending platform identity API
+    approved_by: <user identifier or null>    # REQUIRED, null in v0.5.0 pending platform identity API
     approved_at: <ISO-8601>                   # REQUIRED
     warning_response: acknowledged | passive | dismissed | n/a   # REQUIRED
     importance_source: llm-auto | user-override                   # REQUIRED
@@ -263,27 +265,29 @@ Reading agents that want "what happened in the last N updates" parse `checkpoint
 
 ## 6. Validation checklist
 
-A file conforms to schema "0.2" when:
+A file conforms to schema "0.3" when:
 
 1. Frontmatter is valid YAML and includes every REQUIRED field above.
-2. `schema_version` is exactly `"0.2"`.
-3. `file_role` matches the filename.
-4. `id_prefix_legend` is present and includes all eight prefixes.
-5. The body uses the `read_order` defined for the file's `file_role`.
-6. Empty sections contain exactly `_No records in this section._`
-7. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
-8. Every record's ID prefix matches the section/file per the prefix table.
-9. `status` is one of `active`, `superseded`, `archived`.
-10. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
-11. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
+2. `schema_version` is exactly `"0.3"`.
+3. `_managed_by` is present and equals exactly the string `project-context-skill`.
+4. `file_role` matches the filename.
+5. `id_prefix_legend` is present and includes all eight prefixes.
+6. The body uses the `read_order` defined for the file's `file_role`.
+7. Empty sections contain exactly `_No records in this section._`
+8. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
+9. Every record's ID prefix matches the section/file per the prefix table.
+10. `status` is one of `active`, `superseded`, `archived`.
+11. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
+12. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
 
 Operations reference this checklist in their final validation pass.
 
 ## 7. Cross-references
 
-- Skill-version vs schema-version decoupling: `references/schema-changelog.md`.
+- Skill-version vs schema-version decoupling, schema-changelog, Supported Schemas matrix: `references/schema-changelog.md`.
+- Pre-flight algorithm, report block, token catalog, post-flight summary: `references/preflight.md`.
 - Scoring inputs (`times_seen`, `importance`, etc.): `references/scoring.md`.
-- Migration from v0.1 schema: `references/migration.md`.
+- Migration from schema "0.1" (v0.1-era) and "0.2" (v0.4.0 upgrade): `references/migration.md`.
 - Default values for every overridable field: `references/defaults.md`.
 - Configuration overrides: `references/user-config-template.md`, `references/org-config-template.md`.
 - Worked examples: `references/examples/`.

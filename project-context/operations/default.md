@@ -1,14 +1,18 @@
 ---
 file_role: skill-operation
 operation: default
-schema_version_documented: "0.2"
-skill_version: "0.4.0"
+schema_version_documented: "0.3"
+skill_version: "0.5.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
 # Operation: default
+
+## Pre-flight prerequisite
+
+The operations in this document apply only after pre-flight (`references/preflight.md`) has completed and operator confirmation (where required by the verdict) has been received. Operations described here assume a valid, classified project state. Do not execute these operations without pre-flight completion.
 
 This is the default operation: triggered when the operator invokes the skill with no specific operation named. It parses the current conversation, classifies candidate records against the existing three-file system, applies the hybrid brake, surfaces gated proposals for approval, writes the updated files, and emits the operator brief.
 
@@ -32,7 +36,7 @@ Then stop. Do not proceed to the rest of pre-flight on a non-supported surface.
 
 ### 1.2 Remaining pre-flight
 
-If the surface guard passes, run the rest of the pre-flight per `references/operations.md` section 4: project detection, file discovery (canonical filenames + legacy patterns + config files), schema verification, conflict detection, migration trigger (per `references/migration.md` whenever legacy files are detected — pure-legacy OR coexistence with v0.4.0 files; pure-current state with no legacy files skips), and configuration resolution (`user-config.md` > `org-config.md` > skill defaults).
+If the surface guard passes, hand off to the pre-flight protocol per `references/preflight.md` for the protocol-enforcement work (three-tier search, four-branch classification, report block, confirmation token). The post-classification runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4. Migration is initiated per `references/migration.md` whenever pre-flight classifies as `⚠ Legacy` or `⚠ Upgrade Available`; pure-current state with no legacy or schema-0.2 files skips migration.
 
 ## 2. Parse the conversation
 
@@ -222,7 +226,7 @@ Proceed with auto-mode for this session?
 | Passive (unclear, off-topic, silent) | Auto-mode proceeds (per workshop decision). | `passive` |
 | Explicit dismissal ("whatever", "fine") | Auto-mode proceeds. | `dismissed` |
 
-Activation scope is per-session. The warning fires again on the next session if auto-mode is still configured. Persistent across-session activation is not supported in v0.4.0.
+Activation scope is per-session. The warning fires again on the next session if auto-mode is still configured. Persistent across-session activation is not supported in v0.5.0.
 
 Every record added under auto-mode carries:
 
@@ -247,8 +251,8 @@ After successful write, emit a structured brief in the chat. Emojis are allowed 
    In Claude.ai: Project → Knowledge → Upload file → confirm replace.
 
 🗑 **Cleanup**: if you see older dated versions of these files from before
-   v0.4.0, you can remove them. The new v0.4.0 files do not use date
-   stamps; the file IS the current state.
+   v0.4.0, you can remove them. The current three-file system does not
+   use date stamps; the file IS the current state.
 
 🔔 **Heads up**: a future Anthropic API update may automate this upload
    step. Until then, manual upload is the dominant friction in the

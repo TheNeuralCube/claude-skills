@@ -1,14 +1,18 @@
 ---
 file_role: skill-operation
 operation: rebuild
-schema_version_documented: "0.2"
-skill_version: "0.4.0"
+schema_version_documented: "0.3"
+skill_version: "0.5.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
 # Operation: rebuild
+
+## Pre-flight prerequisite
+
+The operations in this document apply only after pre-flight (`references/preflight.md`) has completed and operator confirmation (where required by the verdict) has been received. Operations described here assume a valid, classified project state. Do not execute these operations without pre-flight completion.
 
 `rebuild` reconstructs `project-context.md` from the archive (`project-context-archive.md`) using the current scoring algorithm. It is a recovery operation, not a routine one.
 

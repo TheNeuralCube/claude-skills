@@ -166,7 +166,7 @@ The skill never writes to `user-config.md`. It is operator-owned.
 ## What does not belong in `user-config.md`
 
 - Anything specific to a single chat session — use chat-time instructions instead.
-- Anything that would change schema validity. You cannot add or remove the file's sections, rename frontmatter fields, or change the ID prefix table; those are part of the `schema_version: "0.2"` contract.
+- Anything that would change schema validity. You cannot add or remove the file's sections, rename frontmatter fields, or change the ID prefix table; those are part of the `schema_version: "0.3"` contract.
 - Secrets or credentials. The skill does not need them, and `user-config.md` may end up in shared infrastructure.
 
 ## What if I want to share my user-config?

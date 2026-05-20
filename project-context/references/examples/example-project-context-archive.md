@@ -2,11 +2,12 @@
 
 The block below is a realistic example of the archive file. It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers.
 
-Note the structure: a flat `## Records` body discriminated by the `status` field (`superseded` vs `archived`), with the per-merge `checkpoints` array living in the YAML frontmatter (NOT in the body). This is the v0.2 schema convention.
+Note the structure: a flat `## Records` body discriminated by the `status` field (`superseded` vs `archived`), with the per-merge `checkpoints` array living in the YAML frontmatter (NOT in the body). This is the v0.3 schema convention.
 
 ```markdown
 ---
-schema_version: "0.2"
+schema_version: "0.3"
+_managed_by: project-context-skill
 file_role: archive
 project: "Q3 Strategic Review"
 project_id: "q3-strategic-review-2026"
@@ -53,7 +54,7 @@ checkpoints:
     approver: null
 generated_by:
   skill: project-context
-  version: "0.4.0"
+  version: "0.5.0"
   model: claude-opus-4-7
   generation_date: 2026-05-13T16:42:00-05:00
 ---

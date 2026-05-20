@@ -2,7 +2,7 @@
 <!-- Copyright 2026 Raul J. Soto -->
 # project-context — usage walkthrough
 
-This file is a user-facing walkthrough of the v0.4.0 three-file workflow. It complements `README.md` (which explains what the skill does) and `operations/*.md` (which contain the operation logic) with concrete step-by-step usage. Read this if you are setting up the skill in a new Project for the first time, or returning after using the v0.1.x-v0.3.x version.
+This file is a user-facing walkthrough of the v0.5.0 three-file workflow. It complements `README.md` (which explains what the skill does) and `operations/*.md` (which contain the operation logic) with concrete step-by-step usage. Read this if you are setting up the skill in a new Project for the first time, or returning after using the v0.1.x-v0.3.x version, or upgrading from v0.4.0 (see "Upgrading from v0.4.0" below).
 
 ## Prerequisites
 
@@ -27,7 +27,7 @@ The first time you invoke the skill in a new Project, it creates all three files
 3. **The skill runs pre-flight.** It detects the Project (correctly identifying you are in one). It finds no existing project-context files, so it does NOT trigger migration. It loads any `user-config.md` or `org-config.md` you have in the Project (none on first run, so it uses upstream defaults).
 4. **The skill parses the conversation.** It produces candidate records (decisions, constraints, current state, etc.).
 5. **The skill applies the hybrid brake.** New records with no similar neighbors auto-apply. (On first run, every record has no neighbors, so they all auto-apply.)
-6. **The skill writes three files.** All three are created with `update_count: 1`, `schema_version: "0.2"`, and frontmatter populated. Records you generated populate the active file (`project-context.md`) and entities file (`entities.md`). The archive (`project-context-archive.md`) is created with one frontmatter checkpoint but no body records yet.
+6. **The skill writes three files.** All three are created with `update_count: 1`, `schema_version: "0.3"`, and frontmatter populated. Records you generated populate the active file (`project-context.md`) and entities file (`entities.md`). The archive (`project-context-archive.md`) is created with one frontmatter checkpoint but no body records yet.
 7. **The skill emits the operator brief.** A summary of what was created, plus instructions: download these three files, upload them to your Project.
 8. **You download and upload.**
 
@@ -39,7 +39,7 @@ The everyday workflow once you have the three files in place.
 
 1. **Chat as normal.** Have a substantive exchange.
 2. **Invoke the skill.** "create project-context", "save project context", or any equivalent.
-3. **Pre-flight loads the existing three files** and detects their `schema_version: "0.2"`. No migration. Configuration loaded if `user-config.md` is present.
+3. **Pre-flight loads the existing three files** and detects their `schema_version: "0.3"`. No migration. Configuration loaded if `user-config.md` is present.
 4. **The skill parses the conversation** for candidates.
 5. **The skill classifies each candidate** against existing records using the five-op merge classifier:
    - **ADD** — no similar neighbor → new record.
@@ -128,7 +128,7 @@ When you want to import context from a file rather than the conversation.
 If you used project-context v0.1.x through v0.3.2 in this Project, you have dated files (`2026-04-15-project-context.md`, etc.) accumulated.
 
 1. **Invoke the skill** with any phrase.
-2. **Pre-flight detects the legacy dated files.** It also detects the absence of v0.4.0 files (`project-context.md`, `entities.md`, `project-context-archive.md`).
+2. **Pre-flight detects the legacy dated files.** It also detects the absence of canonical three-file system (`project-context.md`, `entities.md`, `project-context-archive.md`).
 3. **The skill triggers migration.** It parses every legacy file, stamps lifecycle fields with the legacy `created` date, infers `importance` from tier (`full` → 8, `summary` → 5, `transient` → DROPPED), scores everything, and partitions into active and archive.
 4. **The skill writes the three new files** with `update_count: 0` and a frontmatter `checkpoints` entry summarizing the migration.
 5. **The skill emits a migration brief** listing each legacy file by exact filename with required order of operations:
@@ -138,7 +138,22 @@ If you used project-context v0.1.x through v0.3.2 in this Project, you have date
    - **(d)** upload the three new files.
 6. **Do them in that order.** If you delete first and the migration is wrong, you lose the source. The skill cannot delete files itself.
 
-Migration is one-time. Re-running the skill on a migrated Project skips migration (it detects `schema_version: "0.2"` and proceeds normally).
+Migration is one-time. Re-running the skill on a migrated Project skips migration (it detects `schema_version: "0.3"` and `_managed_by: project-context-skill` and proceeds normally).
+
+## Upgrading from v0.4.0
+
+If your project already has the v0.4.0 three-file system (`project-context.md`, `entities.md`, `project-context-archive.md` at `schema_version: "0.2"` with no `_managed_by` field), pre-flight detects this on first invocation under v0.5.0 and emits the verdict `⚠ Upgrade Available` rather than proceeding with the requested operation.
+
+To complete the upgrade, type the confirmation token `confirm upgrade`. The skill then rewrites the three canonical files with two frontmatter changes:
+
+- Adds `_managed_by: project-context-skill` near `schema_version`.
+- Changes `schema_version: "0.2"` → `schema_version: "0.3"`.
+
+All record content — every `dec-`, `con-`, `csn-`, `opn-`, `trm-`, `ref-`, `ent-`, and `arc-` entry — is preserved verbatim. Lifecycle fields, audit metadata, timestamps, scores, links, the archive's `checkpoints` array: none are modified. The upgrade is frontmatter-only.
+
+After the upgrade, download the three updated files from the chat and re-upload them to your Project, replacing the schema-0.2 versions. The filenames are unchanged, so the upload-replace flow handles file management — there is no legacy-file-deletion step.
+
+See `references/preflight.md` for the full pre-flight protocol and `references/migration.md` section 9 for the upgrade migration algorithm.
 
 ## Setting up `user-config.md`
 

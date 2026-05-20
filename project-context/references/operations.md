@@ -1,14 +1,14 @@
 ---
 file_role: skill-reference
 topic: operations
-schema_version_documented: "0.2"
-skill_version: "0.4.0"
+schema_version_documented: "0.3"
+skill_version: "0.5.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Operations (project-context v0.4.0)
+# Operations (project-context v0.5.0)
 
 This file documents the **logic** of the four operations and the merge classifier they share. The actual operation entry points live in `operations/default.md`, `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`. SKILL.md routes invocation to one of those four files. This file is the cross-operation reference each of those files cites.
 
@@ -79,9 +79,9 @@ See `references/scoring.md` for the `weight()` formula.
 
 ### 2.3 Wellhead taxonomy mapping
 
-For operators who come from the operator's prior wellhead skill, the v0.4.0 classifier maps to their five-class taxonomy:
+For operators who come from the operator's prior wellhead skill, the v0.5.0 classifier maps to their five-class taxonomy:
 
-| Wellhead class | v0.4.0 operation |
+| Wellhead class | v0.5.0 operation |
 |---|---|
 | novel | `ADD` |
 | duplicate | `NOOP` |
@@ -106,24 +106,25 @@ Under `merge_policy: gate`, every output is gated. Under `merge_policy: auto`, e
 
 ## 4. Common pre-flight prologue
 
-Every operation begins with a pre-flight check. The full sequence:
+**v0.5.0 pointer.** The authoritative pre-flight protocol (the three-tier search strategy, the six-step classification, the report block format, the confirmation token catalog, the token matching rules, the completion criteria, the infrastructure-failure handling, and the symmetric post-flight summary) lives in `references/preflight.md`. SKILL.md's `## Protocol` section structurally gates every operation on the completion of that protocol. This section describes the post-pre-flight runtime steps each operation performs once pre-flight has classified the project state — it is not a complete pre-flight specification.
+
+Every operation begins with a pre-flight check. The runtime sequence operation files consume:
 
 1. **Surface guard.** Detect whether the skill is running on Claude Code. If so, decline and recommend `session-recap`. The detection signals: filesystem-mutation tools present (`Bash`, `Write`, `Edit`, etc.), filesystem-based working directory, no Project-UI affordances visible. The decline message:
 
    > This skill is designed for AI workspaces with persistent project contexts (Claude.ai Projects, ChatGPT Projects, Copilot M365 Projects). For capturing context from a Claude Code session, the `session-recap` skill is the right tool. Would you like to invoke `session-recap` instead?
 
+   The surface guard runs upstream of the schema-protocol gate. It is restated inline in each operation file because it can terminate the operation immediately.
+
 2. **Project detection.** Identify the project container. If the conversation is not in a Project, ask the operator before proceeding (the output has no natural home as a project file).
 
-3. **File discovery.** Scan project files for:
-   - The three canonical filenames (`project-context.md`, `entities.md`, `project-context-archive.md`).
-   - Legacy dated filenames (`*-project-context*.md` patterns from v0.1.x-v0.3.x).
-   - Configuration files (`user-config.md`, `org-config.md`).
+3. **File discovery and schema verification.** Defer to `references/preflight.md` for the three-tier search strategy and the four-branch classification (CURRENT, UPGRADE_AVAILABLE, LEGACY, UNKNOWN per `references/migration.md` section 1). The classification's resulting state snapshot is the input to steps 5–7 below.
 
-4. **Schema verification.** For each found file with `file_role`, parse the frontmatter and confirm `file_role` matches the filename. Confirm `schema_version` is `"0.2"` (or a recognized legacy form — see `references/migration.md`).
+4. *(Reserved — see step 3.)*
 
 5. **Conflict detection.** If multiple files claim the same `file_role`, prompt the operator to identify the canonical one.
 
-6. **Migration trigger.** If legacy files exist — whether alone (pure-legacy state) or alongside v0.4.0 files (coexistence state) — initiate the migration flow per `references/migration.md`. The migration brief's `download → verify → delete old → upload new` ordering is the review gate; pre-flight does not add a separate coexistence prompt. Only the pure-current state (v0.4.0 files present, no legacy files) skips migration.
+6. **Migration trigger.** If pre-flight classified the project state as `⚠ Legacy` or `⚠ Upgrade Available`, initiate the corresponding migration flow per `references/migration.md` (legacy migration in sections 3–8; upgrade migration in section 9). The migration brief's `download → verify → delete old → upload new` ordering is the review gate; pre-flight does not add a separate coexistence prompt. Only the pure-current state (canonical v0.5.0 files present, no legacy or schema-0.2 files) skips migration.
 
 7. **Configuration resolution.** Load `user-config.md` and `org-config.md` if present. Apply layered resolution per `references/defaults.md` to determine effective settings.
 

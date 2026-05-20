@@ -60,7 +60,7 @@ brief:
 
 ## What this configuration does NOT do
 
-- It does not change the schema. Files Sarah produces are valid `schema_version: "0.2"` files readable by anyone in the org.
+- It does not change the schema. Files Sarah produces are valid `schema_version: "0.3"` files readable by anyone in the org.
 - It does not change governance defaults. Sensitivity, retention, and frameworks come from `org-config.md` or upstream.
 - It does not override the auto-mode warning. The warning still fires once per session.
 - It does not affect other users. Each user has their own `user-config.md` in their own Project deployment.

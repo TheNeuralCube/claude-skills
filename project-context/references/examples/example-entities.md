@@ -4,7 +4,8 @@ The block below is a realistic example of the entities reference file. It is ill
 
 ```markdown
 ---
-schema_version: "0.2"
+schema_version: "0.3"
+_managed_by: project-context-skill
 file_role: entities
 project: "Q3 Strategic Review"
 project_id: "q3-strategic-review-2026"
@@ -35,7 +36,7 @@ governance_frameworks: []
 custom_governance: {}
 generated_by:
   skill: project-context
-  version: "0.4.0"
+  version: "0.5.0"
   model: claude-opus-4-7
   generation_date: 2026-05-13T16:42:00-05:00
 ---

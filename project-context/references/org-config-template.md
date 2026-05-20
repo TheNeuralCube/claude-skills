@@ -1,6 +1,6 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
-# org-config.md template (project-context v0.4.0)
+# org-config.md template (project-context v0.5.0)
 
 This file is a **template**. Copy it to `org-config.md` in your Project, populate the values your organization needs, and the skill will load it on every invocation. Resolution order: `user-config.md` > `org-config.md` (this file) > skill defaults in `references/defaults.md`.
 
@@ -11,7 +11,7 @@ Every field below is **optional**. Comments explain what each does. Delete secti
 ```yaml
 ---
 config_type: project-context-org-config       # Required. Identifies this file to the skill.
-config_version: "0.4.0"                       # Required. Match the skill version that consumes this config.
+config_version: "0.5.0"                       # Required. Match the skill version that consumes this config.
 organization: <name>                          # Free-form name of the deploying organization.
 ---
 
@@ -122,7 +122,7 @@ project_id_default: ""
 ## What does not belong in `org-config.md`
 
 - Anything specific to a single user's session — use `user-config.md` instead.
-- Anything that would change schema validity (cannot add or remove the body sections, cannot rename frontmatter fields, cannot change the ID prefix table; those are part of the `schema_version: "0.2"` contract).
+- Anything that would change schema validity (cannot add or remove the body sections, cannot rename frontmatter fields, cannot change the ID prefix table; those are part of the `schema_version: "0.3"` contract).
 - Secrets or credentials. The skill does not need them and `org-config.md` may be checked into shared infrastructure.
 
-If you want to extend the schema beyond what `org-config.md` allows, that is a v0.5.0+ feature request rather than a config customization.
+If you want to extend the schema beyond what `org-config.md` allows, that is a future-release feature request rather than a config customization.

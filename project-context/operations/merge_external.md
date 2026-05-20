@@ -1,14 +1,18 @@
 ---
 file_role: skill-operation
 operation: merge_external
-schema_version_documented: "0.2"
-skill_version: "0.4.0"
+schema_version_documented: "0.3"
+skill_version: "0.5.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
 # Operation: merge_external
+
+## Pre-flight prerequisite
+
+The operations in this document apply only after pre-flight (`references/preflight.md`) has completed and operator confirmation (where required by the verdict) has been received. Operations described here assume a valid, classified project state. Do not execute these operations without pre-flight completion.
 
 `merge_external` is a variant of the default operation. Instead of parsing the current conversation, it parses an attached file (or a named external artifact) and runs the same classify → propose → write → brief flow.
 

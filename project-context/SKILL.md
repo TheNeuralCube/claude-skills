@@ -1,19 +1,43 @@
 ---
 name: project-context
-version: 0.4.0
-description: Capture forward-grounding context from the current chat into the three-file project-context system (active, entities, archive) so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", "project-context skill", "compact this", "trim the project context", "rebuild", or "regenerate project context". v0.4.0 uses four operations (default, merge_external, compact, rebuild) and a five-op merge classifier. Optimized for top-tier thinking models.
+version: 0.5.0
+description: Capture forward-grounding context from the current chat into the three-file project-context system (active, entities, archive) so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", "project-context skill", "compact this", "trim the project context", "rebuild", or "regenerate project context". v0.5.0 uses four operations (default, merge_external, compact, rebuild) and a five-op merge classifier. Optimized for top-tier thinking models.
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# project-context (v0.4.0)
+# project-context (v0.5.0)
 
-A thin-router skill. This file detects the invocation, runs the surface guard and pre-flight, and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, and configuration documentation live in `references/`.
+A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` below), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration documentation, and the pre-flight / post-flight protocol live in `references/`.
 
-v0.4.0 is a major architectural pivot from v0.1.x-v0.3.x. The dated single-file output is replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`). The two modes (generate, consolidate) become four operations (default, merge_external, compact, rebuild). The skill applies a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. See `CHANGELOG.md` for the full v0.4.0 change list.
+v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`); the two modes (generate, consolidate) became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. v0.5.0 inherits all of that architecture and closes the protocol-enforcement gap documented in the 2026-05-19 postmortem: pre-flight is now a structural gate, schema bumps to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. See `CHANGELOG.md` for the full change history.
 
-Key references the router and operations consume: `references/schema.md` (data shape, `schema_version: "0.2"`), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and common pre-flight), `references/migration.md` (v0.1.x-v0.3.x detection and migration), `references/defaults.md` (single source of truth for tunables).
+Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, report block format, token catalog, post-flight summary), `references/schema.md` (data shape, `schema_version: "0.3"`), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration and the new v0.4.0 → v0.5.0 upgrade migration), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables).
+
+## Protocol
+
+This skill operates under a mandatory pre-flight protocol. Before any output
+is generated, before any other section of this skill applies, you MUST:
+
+1. Complete the pre-flight check defined in references/preflight.md.
+2. Emit the pre-flight report block (per references/preflight.md format) as
+   the first content in your response to the operator.
+3. Where the verdict requires operator confirmation (per the report's
+   "To proceed" line), wait for the operator's confirmation token. Do not
+   generate output, do not write to project knowledge, do not propose files
+   until the matching token is received.
+
+Failure to complete pre-flight before generation is a protocol violation,
+not an optimization. Operator urgency, perceived skill execution context,
+or any other condition does not license skipping pre-flight. If project
+knowledge access fails and pre-flight cannot complete, refuse to proceed
+and surface the failure to the operator.
+
+All operations described in subsequent sections (default, merge_external,
+compact, rebuild, migration, upgrade) are conditional on pre-flight
+completion. Do not read further as actionable instruction until pre-flight
+has emitted its report and any required confirmation has been received.
 
 ## Model-assumption disclosure
 
@@ -23,7 +47,7 @@ This skill is optimized for top-tier thinking models (Claude Opus 4.5+, GPT-5 Pr
 
 ```
 project-context/
-├── SKILL.md                                          (this file — router and pre-flight)
+├── SKILL.md                                          (this file — router, ## Protocol gate, and surface guard)
 ├── README.md
 ├── CHANGELOG.md
 ├── ROADMAP.md
@@ -34,11 +58,12 @@ project-context/
 │   ├── compact.md                                   (aggressively demote weak active records)
 │   └── rebuild.md                                   (rebuild active file from archive; mandatory pre-commit review)
 └── references/
-    ├── schema.md                                    (file-level + per-record schema, schema_version "0.2")
-    ├── schema-changelog.md                          (version-by-version schema history + drift detection)
+    ├── preflight.md                                 (pre-flight algorithm, report block, token catalog, post-flight summary)
+    ├── schema.md                                    (file-level + per-record schema, schema_version "0.3", _managed_by field)
+    ├── schema-changelog.md                          (version-by-version schema history, Supported Schemas matrix, drift detection)
     ├── scoring.md                                   (the formula, coefficients, demotion threshold, worked examples)
-    ├── operations.md                                (cross-operation logic, classifier pseudocode, pre-flight)
-    ├── migration.md                                 (v0.1.x-v0.3.x dated files → v0.4.0 three-file system)
+    ├── operations.md                                (cross-operation runtime logic and post-pre-flight steps)
+    ├── migration.md                                 (legacy v0.1-era migration + v0.4.0 → v0.5.0 upgrade migration)
     ├── defaults.md                                  (single source of truth for every configurable default)
     ├── governance.md                                (governance metadata framework)
     ├── user-config-template.md                      (per-user override layer; cross-skill convention)
@@ -64,7 +89,7 @@ When the skill is invoked, the router:
    | `compact` | "compact", "compact this", "compact the project context", "trim the project context", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context" |
    | `rebuild` | "rebuild", "rebuild from archive", "reset from archive", "reset project context", "regenerate project context" |
 
-   All 19 of the v0.1.0 trigger phrases preserved verbatim above. The v0.1.0 `consolidate` phrases route to v0.4.0 `compact` (the closest behavioral analog) — the operator can override during pre-flight if they intended `rebuild` instead.
+   All 19 of the v0.1.0 trigger phrases preserved verbatim above. The v0.1.0 `consolidate` phrases route to v0.5.0 `compact` (the closest behavioral analog) — the operator can override during pre-flight if they intended `rebuild` instead.
 
 3. **Loads the operation file** (`operations/<operation>.md`) and runs its body to completion.
 4. **Applies configuration overrides** by loading `user-config.md` and `org-config.md` if present in the project; resolution order is user > org > skill defaults from `references/defaults.md`.
@@ -82,11 +107,9 @@ When neither `user-config.md` nor `org-config.md` is present, the skill applies 
 - `sensitivity: internal`, `retention: standard` (active/entities) or `indefinite` (archive).
 - Surface guard always on. Migration detection always on.
 
-## Pre-flight check (common prologue)
+## Pre-flight surface guard
 
-Every operation begins with the same pre-flight prologue. The full sequence is in `references/operations.md` section 4. The surface guard is restated inline in each operation file because it can terminate the operation immediately.
-
-### Surface compatibility check
+The authoritative pre-flight protocol (algorithm, report block, token catalog, completion criteria, infrastructure-failure handling, and the symmetric post-flight summary) lives in `references/preflight.md` and is gated structurally by the `## Protocol` section above. This section restates only the surface guard inline because it runs upstream of the schema-protocol gate and can terminate the operation immediately, before any `project_knowledge_search` is issued.
 
 Before proceeding, confirm you are running on a supported surface. project-context targets AI workspaces with persistent project contexts the operator can attach files to: Claude.ai Projects, ChatGPT Projects, Copilot M365 Projects, and similar hosted AI surfaces.
 
@@ -96,22 +119,11 @@ project-context is **not** designed for Claude Code. Claude Code uses filesystem
 
 > This skill is designed for AI workspaces with persistent project contexts (Claude.ai Projects, ChatGPT Projects, Copilot M365 Projects). For capturing context from a Claude Code session, the `session-recap` skill is the right tool. Would you like to invoke `session-recap` instead?
 
-### Other pre-flight steps
-
-After the surface guard passes:
-
-1. **Project detection.** Identify the Project container. If the conversation is not in a Project, warn and ask before proceeding.
-2. **File discovery.** Scan for the three canonical filenames (`project-context.md`, `entities.md`, `project-context-archive.md`), legacy dated filenames (`*-project-context*.md`), and configuration files (`user-config.md`, `org-config.md`).
-3. **Schema verification.** Parse the frontmatter of every file found and confirm `file_role` matches the filename.
-4. **Conflict detection.** If multiple files claim the same `file_role`, prompt the operator to identify the canonical one.
-5. **Migration trigger.** If legacy v0.1.x-v0.3.x files exist (whether alone or alongside v0.4.0 files), initiate migration per `references/migration.md`. The migration brief's required `download → verify → delete old → upload new` ordering is the review gate; pre-flight does not add a separate coexistence question. Only the pure-current state (v0.4.0 files present, no legacy files) skips migration.
-6. **Configuration resolution.** Load `user-config.md` and `org-config.md` if present; apply layered defaults.
-
-Pre-flight produces a state snapshot used by the operation body. Detailed pre-flight per operation lives in the operation file.
+Once the surface guard passes, hand off to the pre-flight protocol in `references/preflight.md`. The post-surface-guard runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4.
 
 ## Output behavior
 
-Operations write three markdown files to the session's output location and present them via the available file-presentation mechanism so the operator can download and re-upload them to the Project. The skill does not have a programmatic path to add files to a Claude Project in v0.4.0 (awaiting platform API capability; tracked in `ROADMAP.md`).
+Operations write three markdown files to the session's output location and present them via the available file-presentation mechanism so the operator can download and re-upload them to the Project. The skill does not have a programmatic path to add files to a Claude Project in v0.5.0 (awaiting platform API capability; tracked in `ROADMAP.md`).
 
 The skill does not commit, push, or transmit output anywhere. Distribution is the operator's responsibility.
 
