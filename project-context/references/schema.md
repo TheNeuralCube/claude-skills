@@ -109,7 +109,7 @@ generated_by:
 | `custom_governance` | yes | Free-form object, may be `{}`. |
 | `checkpoints` | only on archive | Ordered list of per-merge checkpoint objects. See section 5.3. |
 | `generated_by.skill` | yes | Always `project-context`. |
-| `generated_by.version` | yes | The skill version that wrote the file (e.g., `"0.5.0"`). Independent of `schema_version`. |
+| `generated_by.version` | yes | The skill version that originally generated the records in this file (e.g., `"0.5.0"`). Independent of `schema_version`. Preserved unchanged across upgrade migrations — the field records original generation, not subsequent metadata-only rewrites. |
 | `generated_by.model` | yes | Model identifier (e.g., `claude-opus-4-7`). |
 | `generated_by.generation_date` | yes | ISO-8601 when the file was written. |
 

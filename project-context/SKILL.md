@@ -4,17 +4,6 @@ version: 0.5.0
 description: Capture forward-grounding context from the current chat into the three-file project-context system (active, entities, archive) so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", "project-context skill", "compact this", "trim the project context", "rebuild", or "regenerate project context". v0.5.0 uses four operations (default, merge_external, compact, rebuild) and a five-op merge classifier. Optimized for top-tier thinking models.
 ---
 
-<!-- SPDX-License-Identifier: Apache-2.0 -->
-<!-- Copyright 2026 Raul J. Soto -->
-
-# project-context (v0.5.0)
-
-A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` below), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration documentation, and the pre-flight / post-flight protocol live in `references/`.
-
-v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`); the two modes (generate, consolidate) became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. v0.5.0 inherits all of that architecture and closes the protocol-enforcement gap documented in the 2026-05-19 postmortem: pre-flight is now a structural gate, schema bumps to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. See `CHANGELOG.md` for the full change history.
-
-Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, report block format, token catalog, post-flight summary), `references/schema.md` (data shape, `schema_version: "0.3"`), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration and the new v0.4.0 → v0.5.0 upgrade migration), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables).
-
 ## Protocol
 
 This skill operates under a mandatory pre-flight protocol. Before any output
@@ -38,6 +27,17 @@ All operations described in subsequent sections (default, merge_external,
 compact, rebuild, migration, upgrade) are conditional on pre-flight
 completion. Do not read further as actionable instruction until pre-flight
 has emitted its report and any required confirmation has been received.
+
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 Raul J. Soto -->
+
+# project-context (v0.5.0)
+
+A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` above), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration documentation, and the pre-flight / post-flight protocol live in `references/`.
+
+v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`); the two modes (generate, consolidate) became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. v0.5.0 inherits all of that architecture and closes the protocol-enforcement gap documented in the 2026-05-19 postmortem: pre-flight is now a structural gate, schema bumps to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. See `CHANGELOG.md` for the full change history.
+
+Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, report block format, token catalog, post-flight summary), `references/schema.md` (data shape, `schema_version: "0.3"`), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration and the new v0.4.0 → v0.5.0 upgrade migration), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables).
 
 ## Model-assumption disclosure
 

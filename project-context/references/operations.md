@@ -124,7 +124,7 @@ Every operation begins with a pre-flight check. The runtime sequence operation f
 
 5. **Conflict detection.** If multiple files claim the same `file_role`, prompt the operator to identify the canonical one.
 
-6. **Migration trigger.** If pre-flight classified the project state as `⚠ Legacy` or `⚠ Upgrade Available`, initiate the corresponding migration flow per `references/migration.md` (legacy migration in sections 3–8; upgrade migration in section 9). The migration brief's `download → verify → delete old → upload new` ordering is the review gate; pre-flight does not add a separate coexistence prompt. Only the pure-current state (canonical v0.5.0 files present, no legacy or schema-0.2 files) skips migration.
+6. **Migration trigger.** If pre-flight classified the project state as `⚠ Legacy` or `⚠ Upgrade Available`, initiate the corresponding migration flow per `references/migration.md` (legacy migration in sections 3–8; upgrade migration in section 9). Follow the corresponding migration brief's file-management ordering as the review gate — legacy uses `download → verify → delete old → upload new` (section 4); upgrade uses `download → upload (replace)` with no deletion step (section 9.5). Pre-flight does not add a separate coexistence prompt. Only the pure-current state (canonical v0.5.0 files present, no legacy or schema-0.2 files) skips migration.
 
 7. **Configuration resolution.** Load `user-config.md` and `org-config.md` if present. Apply layered resolution per `references/defaults.md` to determine effective settings.
 

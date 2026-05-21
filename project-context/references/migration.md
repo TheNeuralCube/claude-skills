@@ -56,16 +56,19 @@ def classify_for_migration(file):
     is_canonical = file.filename in {'project-context.md', 'entities.md',
                                      'project-context-archive.md'}
 
-    # Step 1 — current schema (v0.5.0)
-    if mb == 'project-context-skill' and sv == '"0.3"' or sv == '0.3':
+    # Normalize sv (strip surrounding quotes if YAML returned them as part of the string)
+    sv_normalized = sv.strip('"') if sv else sv
+
+    # Step 1 — current schema (v0.5.0): BOTH marker AND schema_version "0.3" required
+    if mb == 'project-context-skill' and sv_normalized == '0.3':
         return CURRENT          # ✓ Compatible
 
     # Step 2 — upgrade available (v0.4.0 → v0.5.0)
-    if is_canonical and (sv == '"0.2"' or sv == '0.2') and mb is None:
+    if is_canonical and sv_normalized == '0.2' and mb is None:
         return UPGRADE_AVAILABLE  # ⚠ Upgrade Available
 
-    # Special case — v0.5.0-shaped schema_version but no marker (parse error)
-    if (sv == '"0.3"' or sv == '0.3') and mb != 'project-context-skill':
+    # Special case — v0.5.0-shaped schema_version but missing/wrong marker (parse error)
+    if sv_normalized == '0.3' and mb != 'project-context-skill':
         return PARSE_ERROR      # ✗ Parse Error — surface to operator
 
     # Step 3 — legacy regex (v0.1-era)
@@ -264,9 +267,8 @@ For each of the three canonical files (`project-context.md`, `entities.md`, `pro
 3. **Modify the frontmatter only:**
    - Change `schema_version: "0.2"` → `schema_version: "0.3"`.
    - Add `_managed_by: project-context-skill` near the other top-level frontmatter fields (place adjacent to `schema_version` for legibility).
-4. **Preserve all other frontmatter fields and all body content unchanged.** No record-level fields are modified, no records are added or removed, no `update_count` increment, no `last_merged` update — the upgrade is metadata-only.
-5. **Optional: update `generated_by.version`** to `"0.5.0"` since the file is being rewritten under the v0.5.0 skill. (This is informational; `_managed_by` and `schema_version` are the authoritative version signals.)
-6. **Emit the modified file** as a proposed write.
+4. **Preserve all other frontmatter fields and all body content unchanged.** No record-level fields are modified, no records are added or removed, no `update_count` increment, no `last_merged` update — the upgrade is metadata-only. `generated_by.version` is explicitly preserved unchanged; the field records the skill version that originally produced the records, not the upgrade.
+5. **Emit the modified file** as a proposed write.
 
 ### 9.4 Post-flight summary
 
@@ -315,7 +317,7 @@ _managed_by marker and run pre-flight reliably.
 - It does NOT modify any record content. Every record's `content`, `source_quote`, `audit`, `links`, `importance`, lifecycle fields are preserved verbatim.
 - It does NOT increment `update_count`. Pre-flight may treat upgrade as a non-update event; the next normal session will increment.
 - It does NOT add a checkpoint to the archive's `checkpoints` array. The schema upgrade is structural, not a content event.
-- It does NOT change the `last_merged` timestamp. (Operators auditing the file history can identify the upgrade event by the version bump in `generated_by.version` if that field was updated; otherwise the schema-version bump itself is the marker.)
+- It does NOT change the `last_merged` timestamp. The schema-version bump itself is the audit marker for the upgrade event. `generated_by.version` is preserved unchanged — it records the skill version that originally produced the records, not the upgrade.
 - It does NOT alter the `created` timestamp.
 
 ### 9.7 Idempotency (upgrade migration)
