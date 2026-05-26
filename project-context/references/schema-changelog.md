@@ -1,8 +1,8 @@
 ---
 file_role: skill-reference
 topic: schema-changelog
-current_schema_version: "0.3"
-skill_version: "0.5.0"
+current_schema_version: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -16,12 +16,42 @@ The build session enforces a drift-detection guard. Before commit, the build com
 
 ## Schema versions
 
-### Schema "0.3" — current
+### Schema "0.4" — current
+
+- **Introduced:** 2026-05-22 (skill release v0.6.0).
+- **Used by skill versions:** 0.6.0 and forward (until the next schema bump).
+- **Carrier files:** every file the skill writes (`project-context.md`, `entities.md`, `project-context-archive.md`).
+- **Schema_version literal on disk:** `schema_version: "0.4"` (short, quoted).
+
+**Field-level diff from schema "0.3":**
+
+| Change | Detail |
+|---|---|
+| `topology` | New REQUIRED block in the frontmatter of all three files. Universal across all projects regardless of role. Contains: `role` (enum: `hub`, `spoke-dev`, `spoke-solution`, `standalone`, `unclassified`), `hub_reference` (string or null), `hub_version` (string or null), `last_hub_sync` (ISO 8601 or null), `parent` (string or null, for hybrid topology), `declared_by` (`operator` or `skill-default`), `declared_at` (ISO 8601). The full schema, role definitions, validation rules, and spoke inventory format live in `references/topology.md`. |
+
+No other field-level changes from "0.3". All other schema mechanics (`_managed_by` field, `file_role`, `schema_version`, lifecycle fields, `id_prefix_legend`, audit block, archive `checkpoints` array, per-record schema, body section structure other than the new `## Spoke Inventory` section for Hub projects) carry forward unchanged.
+
+**Body-section diff from schema "0.3":**
+
+| Change | Detail |
+|---|---|
+| `## Spoke Inventory` (Hub projects only) | New section in the body of `project-context.md` immediately after frontmatter, present only when `topology.role: hub`. Markdown table with columns: Name, Role, Artifact Type, Source Hub Version, Status, Parent. Operator-maintained. The skill never auto-discovers spokes; the audit trigger refreshes the Status column at audit time but does not write the inventory itself (out of scope for v0.6.0). See `references/topology.md` section 3. |
+
+**Migration path from "0.3":** automated, one-time per project, in-place upgrade (Scenario F). Pre-flight detects canonical filenames with `_managed_by: project-context-skill` and `schema_version: "0.3"` and no `topology` block; the operator confirms with `confirm v0.6.0 upgrade`; the skill rewrites the three files adding the `topology` block (with `role: "unclassified"` default and all relationship fields null) and changing `schema_version: "0.3"` → `schema_version: "0.4"`. All other content preserved unchanged. After the upgrade, the skill prompts the operator to declare topology role via the role-declaration prompt (`references/preflight.md` section 13.1). See `references/migration.md` section 10.
+
+**Rationale:** schema "0.4" formalizes hub-spoke governance metadata as part of project identity. The 2026-05-21 hub-spoke governance workshop locked the federal-state model (decision V1 of the parent vision doc) with two-layer supremacy: HUB INHERITANCE BLOCK in spoke templates plus the Hub instructions attached file. v0.6.0 makes `project-context.md` the runtime store for the topology side of that model. The schema bump (0.3 → 0.4) accompanies the topology metadata work because the new REQUIRED `topology` block is backward-incompatible with the v0.3 file format. By semver convention, a schema bump with a new required block exceeds patch-release scope and triggers at least a minor version bump (hence v0.6.0 rather than v0.5.1).
+
+The topology block enables three downstream behaviors in v0.6.0: (a) topology validation at pre-flight (per `references/preflight.md` section 10), (b) stale-spoke detection on spoke projects (section 11 of preflight), and (c) the audit trigger handler on Hub projects (section 12 of preflight). Two new informational verdicts (`⚠ Stale Spoke` and `⚠ Upgrade Available (v0.5.0 to v0.6.0)`) accompany the schema bump.
+
+---
+
+### Schema "0.3" — historical, still supported for upgrade migration
 
 - **Introduced:** 2026-05-19 (skill release v0.5.0).
-- **Used by skill versions:** 0.5.0 and forward (until the next schema bump).
+- **Used by skill versions:** 0.5.0 only.
 - **Carrier files:** every file the skill writes (`project-context.md`, `entities.md`, `project-context-archive.md`).
 - **Schema_version literal on disk:** `schema_version: "0.3"` (short, quoted).
+- **v0.6.0 handling:** v0.6.0 detects schema "0.3" files (canonical filenames with `_managed_by: project-context-skill` AND `schema_version: "0.3"` AND no `topology` block) and offers an in-place Scenario F upgrade migration to "0.4" via the `confirm v0.6.0 upgrade` token path. The schema is not directly writable by v0.6.0 — v0.6.0 always writes "0.4".
 
 **Field-level diff from schema "0.2":**
 
@@ -123,13 +153,15 @@ consolidation_summary:
 
 ## Supported Schemas
 
-This release of the skill (v0.5.0) supports:
+This release of the skill (v0.6.0) supports:
 
-- **Read/write:** schema "0.3" (current). All v0.5.0 writes produce schema "0.3" with `_managed_by: project-context-skill`.
-- **Migrate from:** schema "0.2" (v0.4.0 format). Detection: canonical filenames + `schema_version: "0.2"` + no `_managed_by` field. Migration path: in-place upgrade (add `_managed_by`, bump `schema_version`, preserve content). Operator confirmation token: `confirm upgrade`. See `references/migration.md` section 9.
-- **Migrate from:** v0.1-era literals (`v0.1.0` unquoted, `"0.1"` quoted, and the broader regex `^"?v?0\.(1|2|3)(\.\d+)?"?$` covering v0.1.0–v0.3.2 historical writes — see "Schema '0.1'" below). Detection: legacy filename pattern OR legacy `schema_version` literal. Migration path: full legacy migration to schema "0.3" directly (operators with v0.1-era projects skip schema "0.2" entirely). Operator confirmation token: `confirm migration`. See `references/migration.md` section 3.
-- **Refuse:** schemas newer than "0.3" (e.g., a hypothetical "0.4" produced by a future skill version). Verdict: `✗ MISMATCH: project newer than skill`. Operator path: upgrade the local skill copy. Override path exists (`override version mismatch and proceed`) but is marked NOT RECOMMENDED.
+- **Read/write:** schema "0.4" (current). All v0.6.0 writes produce schema "0.4" with `_managed_by: project-context-skill` and a `topology` block in frontmatter (per `references/topology.md`).
+- **Read for upgrade:** schema "0.3" (v0.5.0 format). Detection: canonical filenames + `_managed_by: project-context-skill` + `schema_version: "0.3"` + no `topology` block. Migration path: in-place Scenario F upgrade (add `topology` block with `role: "unclassified"` default, bump `schema_version` to "0.4", preserve content). Operator confirmation token: `confirm v0.6.0 upgrade`. See `references/migration.md` section 10.
+- **Read for upgrade:** schema "0.2" (v0.4.0 format). Detection: canonical filenames + `schema_version: "0.2"` + no `_managed_by` field. Migration path: in-place Scenario E upgrade (add `_managed_by`, bump `schema_version` to "0.3", preserve content); operator re-invokes for Scenario F to reach "0.4". Operator confirmation token: `confirm upgrade`. See `references/migration.md` section 9.
+- **Read for migration:** v0.1-era literals (`v0.1.0` unquoted, `"0.1"` quoted, and the broader regex `^"?v?0\.(1|2|3)(\.\d+)?"?$` covering v0.1.0–v0.3.2 historical writes — see "Schema '0.1'" below). Detection: legacy filename pattern OR legacy `schema_version` literal. Migration path: full Scenario D legacy migration. v0.6.0 preserves the v0.5.0 legacy migration algorithm (`references/migration.md` sections 3–8) verbatim; legacy migration produces schema "0.3" files, after which pre-flight routes through Scenario F to reach schema "0.4". Operator confirmation token: `confirm migration`. See `references/migration.md` section 3.
+- **Refuse:** schemas newer than "0.4" (e.g., a hypothetical "0.5" produced by a future skill version). Verdict: `✗ MISMATCH: project newer than skill`. Operator path: upgrade the local skill copy. Override path exists (`override version mismatch and proceed`) but is marked NOT RECOMMENDED.
 - **Refuse:** unrecognized `schema_version` values that match no documented pattern. Verdict: `✗ Mismatch: unknown schema` or `✗ Parse Error` depending on whether the value is a malformed literal or a syntactically valid but unknown one. Operator path: identify the file or override.
+- **Refuse:** schema "0.4" files with no `topology` block (malformed v0.6.0 data, not legacy). Verdict: `✗ Parse Error` with topology diagnostic. See `references/migration.md` section 1 disambiguation notes.
 
 The compatibility matrix is the authoritative input to pre-flight classification. See `references/preflight.md` for the algorithm that consumes this matrix and produces the operator-facing report block.
 
@@ -150,6 +182,8 @@ This mechanism catches the "I forgot to bump" failure mode mechanically rather t
 For the v0.4.0 build: the prior tag is `project-context-v0.3.2`. The schemas differ (everything listed above). `schema_version` bumps from the unquoted-skill-version form to `"0.2"`. This entry documents every field-level change. The guard passes.
 
 For the v0.5.0 build: the prior tag is `project-context-v0.4.0`. The schemas differ by exactly one field (the new REQUIRED `_managed_by` in frontmatter). `schema_version` bumps from `"0.2"` to `"0.3"`. This file's schema "0.3" entry documents the field-level change. The guard passes.
+
+For the v0.6.0 build: the prior tag is `project-context-v0.5.0`. The schemas differ by exactly one block (the new REQUIRED `topology` block in frontmatter, plus the new `## Spoke Inventory` body section for Hub projects). `schema_version` bumps from `"0.3"` to `"0.4"`. This file's schema "0.4" entry documents the block-level change. The guard passes.
 
 ## Versioning policy
 

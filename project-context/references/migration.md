@@ -1,19 +1,20 @@
 ---
 file_role: skill-reference
 topic: migration
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Migration (project-context v0.5.0)
+# Migration (project-context v0.6.0)
 
-This file documents the two migration paths v0.5.0 supports:
+This file documents the three migration paths v0.6.0 supports:
 
-1. **Legacy migration** (schema "0.1" → "0.3"): one-time, per-project, from the v0.1-era schema used by skill versions v0.1.0 through v0.3.2 to the current schema "0.3". Operators with v0.1-era projects skip schema "0.2" entirely. See sections 1–8.
-2. **Upgrade migration** (schema "0.2" → "0.3"): one-time, per-project, in-place upgrade from the v0.4.0 schema "0.2" to the current schema "0.3". Adds the new REQUIRED `_managed_by` field; preserves all other content unchanged. See section 9.
+1. **Legacy migration** (schema "0.1" → "0.4" via Scenario D): one-time, per-project, from the v0.1-era schema used by skill versions v0.1.0 through v0.3.2 to the current schema "0.4". v0.6.0 retargets legacy migration to produce schema "0.4" directly; operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely. The operator declares topology role as part of the migration interview. See sections 1–8.
+2. **Upgrade migration** (schema "0.2" → "0.3" via Scenario E): one-time, per-project, in-place upgrade from the v0.4.0 schema "0.2" to schema "0.3". Adds the REQUIRED `_managed_by` field; preserves all other content unchanged. v0.6.0 preserves this path verbatim from v0.5.0; after Scenario E, operators re-invoke for Scenario F to reach schema "0.4". See section 9.
+3. **Topology upgrade migration** (schema "0.3" → "0.4" via Scenario F): one-time, per-project, in-place upgrade from the v0.5.0 schema "0.3" to the current schema "0.4". Adds the REQUIRED topology block (with `role: unclassified` default); preserves all other content unchanged. The operator declares topology role in a follow-up exchange. See section 10.
 
 Pre-flight (per `references/preflight.md`) classifies the project's state and routes to the right migration path. This file is the algorithm pre-flight cites for the write phase.
 
@@ -27,25 +28,31 @@ Pre-flight scans the project for files matching either:
 - The legacy filename pattern: `*-project-context*.md` (dated, optionally topic-suffixed, including `-consolidated[-N]` variants).
 - A `file_type: project-context` value in the YAML frontmatter.
 
-For every match, parse the frontmatter and run the **four-branch classification** below, in this exact order. The branch ordering is significant: the `_managed_by` requirement in step 1 is the explicit disambiguator that distinguishes the v0.5.0 current marker from any legacy literal the broad regex (step 3) would otherwise match.
+For every match, parse the frontmatter and run the **five-branch classification** below, in this exact order. The branch ordering is significant: the `_managed_by` requirement in step 1 is the explicit disambiguator that distinguishes the v0.6.0 current marker from any legacy literal the broad regex (step 4) would otherwise match. Step 2 (Scenario F detection) sits between the v0.6.0 current branch and the v0.4.0 upgrade branch because v0.5.0-managed files share the `_managed_by` marker with v0.6.0 currents but differ on schema version and topology block presence.
 
-**Step 1 — Current-schema (v0.5.0).** If the file has BOTH `_managed_by: project-context-skill` AND `schema_version: "0.3"`, the file is a v0.5.0 current-schema file. Skip migration; pre-flight classifies as `✓ Compatible` and proceeds with normal operation per `references/preflight.md`. Do NOT evaluate later steps.
+**Step 1 — Current-schema (v0.6.0).** If the file has ALL of `_managed_by: project-context-skill` AND `schema_version: "0.4"` AND a `topology` block in frontmatter, the file is a v0.6.0 current-schema file. Skip migration; pre-flight classifies as `✓ Compatible` and proceeds with normal operation per `references/preflight.md` (which also applies topology validation per its section 10). Do NOT evaluate later steps.
 
-**Step 2 — Upgrade-available (v0.4.0 → v0.5.0).** If the file has a canonical v0.5.0 filename AND `schema_version: "0.2"` (the v0.4.0 literal) AND no `_managed_by` field, the file is a v0.4.0 schema-0.2 file eligible for in-place upgrade. Pre-flight classifies as `⚠ Upgrade Available` and routes to the upgrade migration in section 9. Operator confirmation token: `confirm upgrade`. Do NOT evaluate later steps for this file.
+**Step 2 — Topology-upgrade-available (v0.5.0 → v0.6.0, Scenario F).** If the file has `_managed_by: project-context-skill` AND `schema_version: "0.3"` AND no `topology` block, the file is a v0.5.0-managed schema-0.3 file eligible for in-place upgrade to schema "0.4". Pre-flight classifies as `⚠ Upgrade Available (v0.5.0 to v0.6.0)` and routes to the topology-upgrade migration in section 10. Operator confirmation token: `confirm v0.6.0 upgrade`. Do NOT evaluate later steps for this file.
 
-**Step 3 — Legacy regex (v0.1-era).** If neither step 1 nor step 2 matched, test `schema_version` against the legacy regex `^"?v?0\.(1|2|3)(\.\d+)?"?$`. The regex matches the following forms:
+**Step 3 — Upgrade-available (v0.4.0 → v0.5.0).** If the file has a canonical v0.5.0 filename AND `schema_version: "0.2"` (the v0.4.0 literal) AND no `_managed_by` field, the file is a v0.4.0 schema-0.2 file eligible for in-place upgrade. Pre-flight classifies as `⚠ Upgrade Available` and routes to the upgrade migration in section 9. Operator confirmation token: `confirm upgrade`. After section 9 completes, the file reaches schema "0.3" with `_managed_by`; pre-flight on the next invocation then matches step 2 and routes through Scenario F to reach schema "0.4". Do NOT evaluate later steps for this file.
+
+**Step 4 — Legacy regex (v0.1-era).** If steps 1, 2, and 3 all did not match, test `schema_version` against the legacy regex `^"?v?0\.(1|2|3)(\.\d+)?"?$`. The regex matches the following forms:
 
 ```
 v0.1, v0.1.0, v0.1.x, 0.1, 0.1.0, "0.1", "v0.1.0",
-v0.2, v0.2.0, v0.2.x, 0.2, 0.2.0, "0.2.0",   # NOTE: SHORT "0.2" is handled by step 2 above (canonical-filename + no _managed_by); only NON-canonical or v0.2.0-shaped legacy literals reach this step
+v0.2, v0.2.0, v0.2.x, 0.2, 0.2.0, "0.2.0",   # NOTE: SHORT "0.2" is handled by step 3 above (canonical-filename + no _managed_by); only NON-canonical or v0.2.0-shaped legacy literals reach this step
 v0.3, v0.3.0, v0.3.x, v0.3.1, v0.3.2, 0.3, 0.3.0, 0.3.1, 0.3.2
 ```
 
-The regex is intentionally permissive about quoting and the leading `v` because v0.1.0-v0.3.2 serialized this field in multiple shapes (see `references/schema-changelog.md`). A match routes to the full legacy migration in section 3. Operator confirmation token: `confirm migration`.
+The regex is intentionally permissive about quoting and the leading `v` because v0.1.0-v0.3.2 serialized this field in multiple shapes (see `references/schema-changelog.md`). A match routes to the full legacy migration in section 3. Operator confirmation token: `confirm migration`. v0.6.0 retargets legacy migration to produce schema "0.4" directly (with operator-declared topology); operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely.
 
-**Disambiguation note (v0.5.0).** A file with `schema_version: "0.3"` but NO `_managed_by` field does not match step 1 (no marker), does not match step 2 (wrong schema_version), and DOES match the step 3 regex — but should NOT be silently treated as legacy because it is malformed v0.5.0, not v0.1-era data. Pre-flight surfaces such files as `✗ Parse Error` per `references/preflight.md` rather than auto-classifying as legacy.
+**Disambiguation notes (v0.6.0).**
 
-**Step 4 — Unknown.** If the file's `schema_version` does not match any of steps 1, 2, or 3, pre-flight halts and asks the operator to identify the file. Verdict: `✗ Mismatch: unknown schema`.
+- A file with `schema_version: "0.4"` but NO `topology` block does not match step 1 (missing topology), does not match step 2 (wrong schema version), does not match step 3 (wrong schema version and `_managed_by` present), and DOES match neither the step 4 regex (schema 0.4 is not in the v0.1-era regex range) nor step 5 — it falls through to UNKNOWN. Pre-flight surfaces such files as `✗ Parse Error` because schema 0.4 with no topology is malformed v0.6.0 data, not legacy.
+- A file with `schema_version: "0.3"` and `_managed_by: project-context-skill` and a `topology` block (operator hand-edit, or third-party tool wrote a partial v0.6.0 frontmatter without bumping schema_version) matches none of the five steps cleanly. Pre-flight surfaces this as `✗ Parse Error` with an ambiguity diagnostic and asks the operator to resolve.
+- A file with `schema_version: "0.3"` but NO `_managed_by` field does not match step 1 (no marker), does not match step 2 (no marker), does not match step 3 (wrong schema_version), and DOES match the step 4 regex — but should NOT be silently treated as legacy because it is malformed v0.5.0, not v0.1-era data. Pre-flight surfaces such files as `✗ Parse Error` per `references/preflight.md`.
+
+**Step 5 — Unknown.** If the file's `schema_version` does not match any of steps 1, 2, 3, or 4, pre-flight halts and asks the operator to identify the file. Verdict: `✗ Mismatch: unknown schema`.
 
 Pseudocode for clarity:
 
@@ -53,30 +60,39 @@ Pseudocode for clarity:
 def classify_for_migration(file):
     sv = file.frontmatter.get('schema_version')
     mb = file.frontmatter.get('_managed_by')
+    has_topology = 'topology' in file.frontmatter
     is_canonical = file.filename in {'project-context.md', 'entities.md',
                                      'project-context-archive.md'}
 
     # Normalize sv (strip surrounding quotes if YAML returned them as part of the string)
     sv_normalized = sv.strip('"') if sv else sv
 
-    # Step 1 — current schema (v0.5.0): BOTH marker AND schema_version "0.3" required
-    if mb == 'project-context-skill' and sv_normalized == '0.3':
-        return CURRENT          # ✓ Compatible
+    # Step 1 — current schema (v0.6.0): marker AND schema_version "0.4" AND topology block
+    if mb == 'project-context-skill' and sv_normalized == '0.4' and has_topology:
+        return CURRENT                # ✓ Compatible
 
-    # Step 2 — upgrade available (v0.4.0 → v0.5.0)
+    # Step 2 — topology upgrade available (v0.5.0 → v0.6.0, Scenario F)
+    if mb == 'project-context-skill' and sv_normalized == '0.3' and not has_topology:
+        return UPGRADE_AVAILABLE_TOPOLOGY  # ⚠ Upgrade Available (v0.5.0 to v0.6.0)
+
+    # Step 3 — upgrade available (v0.4.0 → v0.5.0, Scenario E)
     if is_canonical and sv_normalized == '0.2' and mb is None:
-        return UPGRADE_AVAILABLE  # ⚠ Upgrade Available
+        return UPGRADE_AVAILABLE      # ⚠ Upgrade Available
+
+    # Special case — v0.6.0-shaped schema_version with missing topology (parse error)
+    if sv_normalized == '0.4' and not has_topology:
+        return PARSE_ERROR            # ✗ Parse Error — surface to operator
 
     # Special case — v0.5.0-shaped schema_version but missing/wrong marker (parse error)
     if sv_normalized == '0.3' and mb != 'project-context-skill':
-        return PARSE_ERROR      # ✗ Parse Error — surface to operator
+        return PARSE_ERROR            # ✗ Parse Error — surface to operator
 
-    # Step 3 — legacy regex (v0.1-era)
+    # Step 4 — legacy regex (v0.1-era)
     if re.match(r'^"?v?0\.(1|2|3)(\.\d+)?"?$', sv):
-        return LEGACY           # ⚠ Legacy — candidate for full migration
+        return LEGACY                 # ⚠ Legacy — candidate for full migration
 
-    # Step 4 — unknown
-    return UNKNOWN              # ✗ Mismatch: unknown schema
+    # Step 5 — unknown
+    return UNKNOWN                    # ✗ Mismatch: unknown schema
 ```
 
 ## 2. Migration trigger (legacy)
@@ -85,9 +101,10 @@ Legacy migration runs whenever one or more legacy files are detected, **regardle
 
 | Project state | Verdict | Trigger |
 |---|---|---|
-| **Pure-current (v0.5.0)** — canonical v0.5.0 files only; no legacy files; no schema-0.2 files | `✓ Compatible` | No-op for migration. Pre-flight continues into the requested operation. |
-| **Pure-upgrade (v0.4.0 → v0.5.0)** — canonical filenames at schema 0.2 with no `_managed_by`; no v0.1-era legacy files | `⚠ Upgrade Available` | Route to upgrade migration (section 9). Token: `confirm upgrade`. |
-| **Pure-legacy (v0.1-era)** — one or more legacy files; no v0.5.0 canonical files | `⚠ Legacy` | Route to legacy migration (sections 3–8). Token: `confirm migration`. |
+| **Pure-current (v0.6.0)** — canonical files at schema 0.4 with `_managed_by` and topology block; no legacy files; no schema-0.2 files; no schema-0.3-without-topology files | `✓ Compatible` | No-op for migration. Pre-flight continues into the requested operation; applies topology validation and (for spoke roles) stale-spoke detection. |
+| **Pure-topology-upgrade (v0.5.0 → v0.6.0, Scenario F)** — canonical files at schema 0.3 with `_managed_by` but no topology block; no other state present | `⚠ Upgrade Available (v0.5.0 to v0.6.0)` | Route to topology upgrade migration (section 10). Token: `confirm v0.6.0 upgrade`. |
+| **Pure-upgrade (v0.4.0 → v0.5.0)** — canonical filenames at schema 0.2 with no `_managed_by`; no v0.1-era legacy files | `⚠ Upgrade Available` | Route to upgrade migration (section 9). Token: `confirm upgrade`. After section 9, re-invoke for Scenario F to reach schema 0.4. |
+| **Pure-legacy (v0.1-era)** — one or more legacy files; no v0.6.0 canonical files | `⚠ Legacy` | Route to legacy migration (sections 3–8). Token: `confirm migration`. Operator declares topology role as part of migration interview; migration produces schema-0.4 files directly. |
 | **Coexistence (legacy + v0.5.0)** — one or more legacy files AND one or more canonical v0.5.0 files | `⚠ Legacy` (with completion guidance) | Route to legacy migration. The migration merges legacy content into the existing v0.5.0 files (using the same classifier and scoring as a normal session). The operator's safety net is the brief's `download → verify → delete old → upload new` ordering: nothing is deleted from the Project until the operator has reviewed the merged output. |
 | **Partial v0.5.0 state** — some canonical files present, others missing | `⚠ Partial State` | Surface to operator with two options (rebuild missing from active records OR treat as fresh). No auto-resolution. |
 
@@ -335,9 +352,155 @@ If the operator partially upgraded (e.g., uploaded the new `project-context.md` 
 | Three canonical filenames present but mixed schema_versions (e.g., one at 0.2, one at 0.3, one missing) | `⚠ Partial State`. Surface to operator with rebuild-or-fresh choice. |
 | Upgrade fails mid-write (e.g., second of three files cannot be written) | Post-flight emits `✗ Failed` verdict with diagnostic. Operator instructions for partial-state recovery: re-run upgrade migration; idempotency (9.7) handles already-upgraded files. |
 
-## 10. Cross-references (all migrations)
+---
+
+## 10. Topology upgrade migration (v0.5.0 → v0.6.0, Scenario F)
+
+The topology upgrade migration is the new path introduced in v0.6.0. It handles projects that already have a v0.5.0 three-file system (`project-context.md`, `entities.md`, `project-context-archive.md` at schema "0.3" with `_managed_by`) and need to be brought to schema "0.4" so the v0.6.0 topology block, audit trigger, and stale-spoke detection work.
+
+The migration adds the topology block (with `role: "unclassified"` default and all relationship fields null) and bumps the schema_version literal. All other frontmatter and body content is preserved verbatim. The operator declares the topology role in a follow-up exchange after the upgrade completes; the skill prompts using LOCKED TEXT 1 (per `references/preflight.md` section 13).
+
+### 10.1 Detection criteria
+
+Per section 1 step 2: pre-flight identifies Scenario F files by all three signals:
+
+- `_managed_by: project-context-skill` in frontmatter.
+- `schema_version: "0.3"` in frontmatter.
+- No `topology` block in frontmatter.
+
+When all three canonical files match these signals, pre-flight emits verdict `⚠ Upgrade Available (v0.5.0 to v0.6.0)` and proposes Scenario F migration. If only some of the three canonical files match (e.g., `project-context.md` and `entities.md` at 0.3 without topology but `project-context-archive.md` missing), pre-flight emits `⚠ Partial State` instead and surfaces the partial state to the operator per `references/preflight.md`.
+
+### 10.2 Operator confirmation
+
+Token: `confirm v0.6.0 upgrade`. Matching is case-insensitive and whitespace-tolerant per `references/preflight.md`. No fuzzy matching. The pre-flight report block surfaces the token to the operator before any write occurs.
+
+### 10.3 Write algorithm
+
+For each of the three canonical files (`project-context.md`, `entities.md`, `project-context-archive.md`), in this order:
+
+1. **Read** the file from project knowledge.
+2. **Parse** the YAML frontmatter and the body.
+3. **Add** a `topology` block to the frontmatter with skill-default values:
+
+   ```yaml
+   topology:
+     role: "unclassified"
+     hub_reference: null
+     hub_version: null
+     last_hub_sync: null
+     parent: null
+     declared_by: "skill-default"
+     declared_at: <current ISO 8601 timestamp>
+   ```
+
+   Place the topology block adjacent to `_managed_by` and `schema_version` for legibility (top of frontmatter, after `name`/`file_role` if present).
+
+4. **Change** `schema_version: "0.3"` → `schema_version: "0.4"`.
+5. **Preserve all other frontmatter fields and all body content unchanged.** No record-level fields are modified, no records are added or removed, no `update_count` increment, no `last_merged` update — the upgrade is metadata-only. `generated_by.version` is explicitly preserved unchanged; the field records the skill version that originally produced the records, not the upgrade.
+6. **Emit** the modified file as a proposed write.
+7. **After all three files write successfully:** emit LOCKED TEXT 1 (per `references/preflight.md` section 13.1) as a follow-up prompt to solicit the operator's topology role declaration. The skill does not infer a role; it waits for the operator's reply.
+
+### 10.4 Post-flight summary
+
+Per `references/preflight.md` section 9.3, the post-flight summary for Scenario F migration takes this shape:
+
+```
+## Post-flight Summary ✓ Upgrade Complete (v0.5.0 to v0.6.0)
+
+**Files upgraded to schema 0.4:**
+- project-context.md (added topology block with unclassified default,
+  bumped schema_version from 0.3 to 0.4)
+- entities.md (added topology block with unclassified default,
+  bumped schema_version from 0.3 to 0.4)
+- project-context-archive.md (added topology block with unclassified
+  default, bumped schema_version from 0.3 to 0.4)
+
+**Skill version:** 0.6.0
+**Records:** preserved unchanged (no content modifications, only schema
+  upgrade and topology block addition)
+**Operation performed:** in-place schema upgrade to 0.4 with unclassified
+  topology default
+
+**Topology:** defaults to 'unclassified'; declare role to complete migration.
+
+**Operator action required:** declare topology role to complete migration.
+  The skill will prompt with the role-declaration prompt (preflight.md
+  section 13).
+```
+
+### 10.5 Operator brief (topology upgrade)
+
+Unlike legacy migration, the topology upgrade rewrites the three canonical files in place with the same filenames. There is no legacy-file-deletion step. The brief uses the simpler download-and-replace pattern:
+
+```
+Upgrade complete (v0.5.0 to v0.6.0).
+
+The three files were rewritten in place with the new schema "0.4"
+marker and a topology metadata block (role: unclassified by default).
+All records, all timestamps, all audit metadata, and all body content
+are unchanged. Only the frontmatter was touched.
+
+Download these three files from this chat:
+   - project-context.md
+   - entities.md
+   - project-context-archive.md
+
+Upload them to your Project, replacing the existing schema-0.3 versions.
+   In Claude.ai: Project > Knowledge > Upload file > confirm replace.
+
+No legacy files to delete — the upgrade kept the same canonical filenames.
+
+Next step: declare the topology role for this project. The skill will
+prompt with the role-declaration prompt. Reply with one of: hub,
+spoke-dev, spoke-solution, or standalone.
+```
+
+### 10.6 Role declaration follow-up
+
+After the file writes complete and the operator confirms the upload, the skill emits LOCKED TEXT 1 (per `references/preflight.md` section 13.1) to solicit a role declaration. The operator replies with a role name. The skill then writes the declared role to `topology.role` in `project-context.md`:
+
+- **role: hub** — Write `role: hub`, set `declared_by: "operator"` and `declared_at: <current timestamp>`. Create an empty `## Spoke Inventory` section in the body of `project-context.md` immediately after frontmatter (per `references/topology.md` section 3).
+- **role: spoke-dev** or **role: spoke-solution** — If the operator's reply includes `hub_reference` and `hub_version`, write those values plus `last_hub_sync: <current timestamp>`, `declared_by: "operator"`, `declared_at: <current timestamp>`. If hub_reference or hub_version is missing, emit LOCKED TEXT 2 (per `references/preflight.md` section 13.2) and wait for both.
+- **role: standalone** — Write `role: standalone` with all relationship fields remaining null, `declared_by: "operator"`, `declared_at: <current timestamp>`.
+
+The skill never writes a partial spoke topology. If the operator declines or does not respond, the topology stays `unclassified`; the skill prompts again on next invocation.
+
+### 10.7 What topology upgrade migration deliberately does NOT do
+
+- It does NOT modify any record content. Every record's `content`, `source_quote`, `audit`, `links`, `importance`, lifecycle fields are preserved verbatim.
+- It does NOT declare a role on the operator's behalf. The default is `unclassified` and the skill always asks.
+- It does NOT increment `update_count`. The schema upgrade is structural, not a content event.
+- It does NOT add a checkpoint to the archive's `checkpoints` array.
+- It does NOT change the `last_merged` timestamp. The schema-version bump is the audit marker for the upgrade event. `generated_by.version` is preserved unchanged — it records the skill version that originally produced the records, not the upgrade.
+- It does NOT alter the `created` timestamp.
+- It does NOT populate the spoke inventory (Hub case) or hub_reference/hub_version (spoke case) without an explicit operator declaration.
+
+### 10.8 Idempotency (topology upgrade migration)
+
+If pre-flight is invoked again on a project that has already been upgraded (schema "0.4" with `_managed_by` and topology block present on all three files), step 1 of the detection routes the project to `✓ Compatible` and no upgrade migration runs. Re-running Scenario F against an already-upgraded project is a no-op by classification.
+
+If the operator partially upgraded (e.g., uploaded the new `project-context.md` but kept the old `entities.md`), pre-flight will see mixed states: one file matches step 1 (CURRENT), two match step 2 (UPGRADE_AVAILABLE_TOPOLOGY). This is a partial state. Resolution: re-run Scenario F migration, which will leave the already-upgraded file untouched (step 1 routes it to CURRENT, the operation does not re-modify it) and complete the remaining files.
+
+If the operator did not respond to the role-declaration prompt after a previous Scenario F upgrade, the topology stays `unclassified`. The skill re-prompts on next invocation. This is a transitional state, not a corruption.
+
+### 10.9 Edge cases (topology upgrade migration)
+
+| Edge case | Behavior |
+|---|---|
+| Operator does not respond to role-declaration prompt | Topology remains `unclassified`. Skill prompts again on next invocation. No data corruption; skill operates normally with unclassified topology. |
+| Operator declares `role: spoke-*` but does not provide hub_reference or hub_version | Skill emits LOCKED TEXT 2 (per `references/preflight.md` section 13.2) and waits for both. Skill will not write a partial spoke topology. |
+| Operator declares `role: hub` after upgrade | Skill creates empty `## Spoke Inventory` section in body of `project-context.md`. Operator populates manually. |
+| Operator declares `role: spoke-solution` and later wants to add child Dev spokes | Standard spoke inventory management on the parent Solution; child spokes declare `parent: <solution-name>` in their own topology. |
+| Schema 0.3 file with `_managed_by` but with a stray `topology` block (operator hand-edit, or third-party tool partial upgrade) | Pre-flight surfaces ambiguity. Treat the file as malformed; halt and ask the operator (per section 1 disambiguation notes). |
+| Three canonical filenames present but mixed schemas (e.g., one at 0.4-with-topology, one at 0.3-without-topology, one missing) | `⚠ Partial State`. Surface to operator with rebuild-or-fresh choice. |
+| Upgrade fails mid-write (e.g., second of three files cannot be written) | Post-flight emits `✗ Failed` verdict with diagnostic. Operator instructions for partial-state recovery: re-run Scenario F upgrade; idempotency (10.8) handles already-upgraded files. |
+| Operator declares `role: spoke-dev` with `parent` (hybrid topology, child of a Solution) | Skill writes `parent: <solution-name>` to the topology block alongside hub_reference and hub_version. Validates that `parent` is not null only for `spoke-dev`. |
+
+## 11. Cross-references (all migrations)
 
 - Schema definition and validation checklist: `references/schema.md`.
 - Schema-changelog and Supported Schemas matrix: `references/schema-changelog.md`.
 - Pre-flight algorithm, report block, token catalog, post-flight summary: `references/preflight.md`.
+- Topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, validation rules: `references/topology.md`.
+- Role-declaration prompts (LOCKED TEXT 1 and 2): `references/preflight.md` section 13.
 - Scoring algorithm driving the legacy migration's active/archive split: `references/scoring.md`.

@@ -35,9 +35,9 @@ has emitted its report and any required confirmation has been received.
 
 A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` above), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration documentation, and the pre-flight / post-flight protocol live in `references/`.
 
-v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`); the two modes (generate, consolidate) became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. v0.5.0 inherits all of that architecture and closes the protocol-enforcement gap documented in the 2026-05-19 postmortem: pre-flight is now a structural gate, schema bumps to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. See `CHANGELOG.md` for the full change history.
+v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`); the two modes (generate, consolidate) became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. v0.5.0 closed the protocol-enforcement gap documented in the 2026-05-19 postmortem: pre-flight became a structural gate, schema bumped to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closed the audit loop. v0.6.0 inherits all of that architecture and adds hub-spoke governance awareness: schema bumps to "0.4" with a new REQUIRED `topology` block, an audit trigger phrase invokable in Hub projects, stale-spoke detection on spoke projects, and a Scenario F migration path from v0.5.0 (schema 0.3) to v0.6.0 (schema 0.4). See `CHANGELOG.md` for the full change history.
 
-Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, report block format, token catalog, post-flight summary), `references/schema.md` (data shape, `schema_version: "0.3"`), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration and the new v0.4.0 → v0.5.0 upgrade migration), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables).
+Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, report block format, token catalog, post-flight summary, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts), `references/schema.md` (data shape, `schema_version: "0.4"`), `references/topology.md` (topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration, v0.4.0 to v0.5.0 upgrade migration, and the new v0.5.0 to v0.6.0 topology upgrade migration), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables), `references/platform-specific-parameters.md` (per-platform capability and limit parameters).
 
 ## Model-assumption disclosure
 
@@ -58,16 +58,18 @@ project-context/
 │   ├── compact.md                                   (aggressively demote weak active records)
 │   └── rebuild.md                                   (rebuild active file from archive; mandatory pre-commit review)
 └── references/
-    ├── preflight.md                                 (pre-flight algorithm, report block, token catalog, post-flight summary)
-    ├── schema.md                                    (file-level + per-record schema, schema_version "0.3", _managed_by field)
+    ├── preflight.md                                 (pre-flight algorithm, report block, token catalog, post-flight summary, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts)
+    ├── schema.md                                    (file-level + per-record schema, schema_version "0.4", _managed_by field, topology block)
     ├── schema-changelog.md                          (version-by-version schema history, Supported Schemas matrix, drift detection)
+    ├── topology.md                                  (v0.6.0: topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules)
     ├── scoring.md                                   (the formula, coefficients, demotion threshold, worked examples)
     ├── operations.md                                (cross-operation runtime logic and post-pre-flight steps)
-    ├── migration.md                                 (legacy v0.1-era migration + v0.4.0 → v0.5.0 upgrade migration)
+    ├── migration.md                                 (legacy v0.1-era migration + v0.4.0 to v0.5.0 upgrade + v0.5.0 to v0.6.0 topology upgrade)
     ├── defaults.md                                  (single source of truth for every configurable default)
     ├── governance.md                                (governance metadata framework)
-    ├── user-config-template.md                      (per-user override layer; cross-skill convention)
-    ├── org-config-template.md                       (org-scope override layer)
+    ├── user-config.md.template                      (v0.6.0: per-user override layer; cross-skill convention)
+    ├── org-config.md.template                       (v0.6.0: org-scope override layer)
+    ├── platform-specific-parameters.md              (v0.6.0: per-platform capability and limit parameters; consumed by project-creator skill)
     └── examples/
         ├── example-project-context.md
         ├── example-entities.md
@@ -89,7 +91,7 @@ When the skill is invoked, the router:
    | `compact` | "compact", "compact this", "compact the project context", "trim the project context", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context" |
    | `rebuild` | "rebuild", "rebuild from archive", "reset from archive", "reset project context", "regenerate project context" |
 
-   All 19 of the v0.1.0 trigger phrases preserved verbatim above. The v0.1.0 `consolidate` phrases route to v0.5.0 `compact` (the closest behavioral analog) — the operator can override during pre-flight if they intended `rebuild` instead.
+   All 19 of the v0.1.0 trigger phrases preserved verbatim above. The v0.1.0 `consolidate` phrases route to v0.6.0 `compact` (the closest behavioral analog) — the operator can override during pre-flight if they intended `rebuild` instead. The six v0.6.0 audit trigger phrases (`audit spoke projects`, `audit the spokes`, `which spokes are stale`, `show me spoke staleness`, `spoke inventory audit`, `run spoke audit`) are registered in the description field above and route to the audit trigger handler in `references/preflight.md` section 12. The audit handler refuses on non-Hub projects.
 
 3. **Loads the operation file** (`operations/<operation>.md`) and runs its body to completion.
 4. **Applies configuration overrides** by loading `user-config.md` and `org-config.md` if present in the project; resolution order is user > org > skill defaults from `references/defaults.md`.
@@ -121,9 +123,35 @@ project-context is **not** designed for Claude Code. Claude Code uses filesystem
 
 Once the surface guard passes, hand off to the pre-flight protocol in `references/preflight.md`. The post-surface-guard runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4.
 
+### Scenario F (v0.5.0 to v0.6.0 upgrade)
+
+v0.6.0 introduces a new pre-flight scenario for projects already running v0.5.0 (schema "0.3" with `_managed_by` present, but no topology block yet). Pre-flight detects this state and emits the `⚠ Upgrade Available (v0.5.0 to v0.6.0)` verdict, gating the upgrade on the operator's confirmation token `confirm v0.6.0 upgrade`. The upgrade rewrites the three canonical files in place: adds a `topology` block with `role: "unclassified"` default (all relationship fields null, `declared_by: "skill-default"`) and bumps `schema_version: "0.3"` → `schema_version: "0.4"`. All other frontmatter and body content is preserved unchanged. After the upgrade, the skill emits the role-declaration prompt (LOCKED TEXT 1 per `references/preflight.md` section 13.1) to solicit the operator's topology role. The full algorithm lives in `references/migration.md` section 10; the verdict glyph and example block live in `references/preflight.md` section 4.4.
+
+Example pre-flight report block for Scenario F:
+
+```
+## Pre-flight Report ⚠ Upgrade Available (v0.5.0 to v0.6.0)
+
+**Project:** [project name]
+**Existing system:** project-context.md, entities.md, project-context-archive.md
+  (schema 0.3, _managed_by present, generated by v0.5.0, no topology block)
+**Executing skill:** v0.6.0
+**Proposing:** in-place upgrade to schema 0.4 (adds topology metadata block
+  with unclassified defaults, bumps schema_version, no content changes).
+  After upgrade, operator will be prompted to declare topology role.
+
+**To proceed:** type `confirm v0.6.0 upgrade`
+```
+
+### Stale Spoke verdict (informational)
+
+On `role: spoke-*` projects, pre-flight performs stale-spoke detection (per `references/preflight.md` section 11): it reads `topology.hub_version` from `project-context.md` frontmatter and compares it against the version parsed from an attached `ai-engineering-hub-instructions-v*.md` file. When the file version is newer than the spoke's declared version, pre-flight emits the `⚠ Stale Spoke` informational verdict. The verdict is not blocking; the proposed operation proceeds normally. Post-flight surfaces a one-line note recommending project-creator upgrade mode. Two adjacent informational verdicts handle related edge cases: `⚠ Hub Source Behind` (file version is older than the spoke's declared version, rare) and `⚠ Hub Source Missing` (no Hub instructions file is attached). All three are informational; none block operation.
+
+The skill never auto-upgrades the Hub reference. The upgrade flow lives in the project-creator skill (Workstream 3); v0.6.0 surfaces the staleness signal but does not act on it.
+
 ## Output behavior
 
-Operations write three markdown files to the session's output location and present them via the available file-presentation mechanism so the operator can download and re-upload them to the Project. The skill does not have a programmatic path to add files to a Claude Project in v0.5.0 (awaiting platform API capability; tracked in `ROADMAP.md`).
+Operations write three markdown files to the session's output location and present them via the available file-presentation mechanism so the operator can download and re-upload them to the Project. The skill does not have a programmatic path to add files to a Claude Project in v0.6.0 (awaiting platform API capability; tracked in `ROADMAP.md`).
 
 The skill does not commit, push, or transmit output anywhere. Distribution is the operator's responsibility.
 

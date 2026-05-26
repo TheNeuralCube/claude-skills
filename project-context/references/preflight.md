@@ -1,16 +1,16 @@
 ---
 file_role: skill-reference
 topic: preflight
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Pre-flight and post-flight (project-context v0.5.0)
+# Pre-flight and post-flight (project-context v0.6.0)
 
-This file is the authoritative specification for the pre-flight protocol and the symmetric post-flight summary introduced in v0.5.0. SKILL.md's `## Protocol` section structurally gates every operation on the completion of pre-flight as defined here. Operation files (`operations/default.md`, `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`) cite this file in their pre-flight prerequisite notes.
+This file is the authoritative specification for the pre-flight protocol and the symmetric post-flight summary introduced in v0.5.0 and extended in v0.6.0 with topology awareness, Scenario F (v0.5.0 to v0.6.0 upgrade), stale-spoke detection, and the audit trigger handler. SKILL.md's `## Protocol` section structurally gates every operation on the completion of pre-flight as defined here. Operation files (`operations/default.md`, `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`) cite this file in their pre-flight prerequisite notes.
 
 Naming: pre-flight is the dominant operation (search, classify, surface, await confirmation); post-flight is the symmetric closing block (report what was actually written). Both live in this file for protocol cohesion — they share a verdict-glyph convention, a structured-fields convention, and a "skippability is a protocol violation" rule.
 
@@ -40,27 +40,31 @@ Downstream implications:
 
 ## 3. Pre-flight algorithm
 
-Pre-flight is a six-step classification preceded by a three-tier search strategy. The full sequence:
+Pre-flight is a six-step classification preceded by a four-tier search strategy. The full sequence:
 
-### 3.1 Three-tier search strategy
+### 3.1 Four-tier search strategy
 
 The search strategy is sequential; each tier runs only if the prior returned nothing relevant. Relevance means: a `project_knowledge_search` result chunk that includes actual frontmatter signals (not merely references to the filenames or fields in some other context like recap files or design specs).
 
-1. **Primary search:** `project_knowledge_search` for the literal `_managed_by: project-context-skill`.
-   - **Purpose:** directly find files under skill management at schema "0.3".
-   - **Hit signal:** chunks containing actual frontmatter with this field present and `schema_version: "0.3"` nearby.
+1. **Primary search:** `project_knowledge_search` for the literal `_managed_by: project-context-skill` AND `schema_version: "0.4"`.
+   - **Purpose:** directly find files under skill management at the v0.6.0 current schema.
+   - **Hit signal:** chunks containing actual frontmatter with `_managed_by: project-context-skill` AND `schema_version: "0.4"` AND a `topology:` block.
 
-2. **Secondary search (if primary returns nothing relevant):** `project_knowledge_search` for `schema_version: "0.2"`.
-   - **Purpose:** find v0.4.0 files (no `_managed_by` marker yet, needs upgrade migration).
+2. **Secondary search (if primary returns nothing relevant):** `project_knowledge_search` for `_managed_by: project-context-skill` (any schema, no topology constraint).
+   - **Purpose:** find v0.5.0-managed files at schema "0.3" that need Scenario F (v0.5.0 to v0.6.0 upgrade adding topology block).
+   - **Hit signal:** chunks containing actual frontmatter with `_managed_by: project-context-skill` AND `schema_version: "0.3"` AND no `topology:` block.
+
+3. **Tertiary search (if primary and secondary both return nothing relevant):** `project_knowledge_search` for `schema_version: "0.2"`.
+   - **Purpose:** find v0.4.0 files (no `_managed_by` marker yet, needs Scenario E upgrade migration to schema "0.3"; operator must then re-invoke for Scenario F to reach schema "0.4").
    - **Hit signal:** chunks containing frontmatter with `schema_version: "0.2"` on a file whose filename matches the canonical set (`project-context.md`, `entities.md`, `project-context-archive.md`).
 
-3. **Tertiary search (if primary and secondary both return nothing relevant):** legacy patterns.
+4. **Quaternary search (if primary, secondary, and tertiary all return nothing relevant):** legacy patterns.
    - `project_knowledge_search` for `schema_version: v0.1` (covers v0.1.x unquoted-skill-version literals).
    - File-name searches for dated legacy patterns (`*-project-context*.md`, including `-consolidated[-N]` variants).
-   - **Purpose:** find v0.1-era files (legacy migration candidates).
+   - **Purpose:** find v0.1-era files (Scenario D legacy migration candidates; v0.6.0 retargets legacy migration to produce schema "0.4" directly per `references/migration.md`).
    - **Hit signal:** chunks containing frontmatter that matches the legacy regex `^"?v?0\.(1|2|3)(\.\d+)?"?$` per `references/migration.md`.
 
-4. **If all three searches return nothing relevant:** classify as fresh project.
+5. **If all four searches return nothing relevant:** classify as fresh project.
 
 ### 3.2 Six-step classification
 
@@ -68,22 +72,25 @@ From the chunks returned by the search tiers, perform classification:
 
 1. **Parse YAML frontmatter** wherever present in the returned chunks. Identify files where the filename matches canonical or legacy patterns.
 2. **Disregard chunks that merely reference the files** (e.g., recap files quoting frontmatter, design specs describing the schema). Require actual frontmatter signals — the chunk must contain a YAML document with `schema_version` or `_managed_by` as keys.
-3. **Apply the four-branch classification from `references/migration.md` section 1** to each file's frontmatter:
-   - `_managed_by: project-context-skill` AND `schema_version: "0.3"` → CURRENT.
-   - Canonical filename AND `schema_version: "0.2"` AND no `_managed_by` → UPGRADE_AVAILABLE.
+3. **Apply the five-branch classification from `references/migration.md` section 1** to each file's frontmatter:
+   - `_managed_by: project-context-skill` AND `schema_version: "0.4"` AND `topology` block present → CURRENT.
+   - `_managed_by: project-context-skill` AND `schema_version: "0.3"` AND no `topology` block → UPGRADE_AVAILABLE_TOPOLOGY (Scenario F: v0.5.0 to v0.6.0).
+   - Canonical filename AND `schema_version: "0.2"` AND no `_managed_by` → UPGRADE_AVAILABLE (Scenario E: v0.4.0 to v0.5.0).
    - `schema_version` matches legacy regex (not caught by above) → LEGACY.
    - Else → UNKNOWN.
 4. **Identify project state** by combining per-file classifications:
-   - All three canonical files CURRENT → ✓ Compatible.
-   - All three canonical files UPGRADE_AVAILABLE → ⚠ Upgrade Available.
-   - Legacy files only → ⚠ Legacy.
+   - All three canonical files CURRENT → ✓ Compatible. Apply topology validation per section 10 and (if `role: spoke-*`) stale-spoke detection per section 11.
+   - All three canonical files UPGRADE_AVAILABLE_TOPOLOGY → ⚠ Upgrade Available (v0.5.0 to v0.6.0). Scenario F.
+   - All three canonical files UPGRADE_AVAILABLE → ⚠ Upgrade Available. Scenario E.
+   - Legacy files only → ⚠ Legacy. Scenario D.
    - Legacy AND canonical files both present → ⚠ Legacy (with migration completion guidance).
    - Some canonical files CURRENT, others missing → ⚠ Partial State.
-   - Some canonical files UPGRADE_AVAILABLE, others missing → ⚠ Partial State.
+   - Some canonical files UPGRADE_AVAILABLE_TOPOLOGY or UPGRADE_AVAILABLE, others missing → ⚠ Partial State.
    - Frontmatter present but unparseable → ✗ Parse Error.
+   - Topology block present but invalid per section 10 validation rules → ✗ Parse Error (topology diagnostic).
    - Multiple canonical-name files (should not occur) → ✗ Parse Error (with ambiguity diagnostic).
-   - Newer schema (e.g., a "0.4" produced by a future skill version) → ✗ MISMATCH: project newer than skill.
-   - Search succeeded but returned nothing → ✓ Fresh Project.
+   - Newer schema (e.g., a "0.5" produced by a future skill version) → ✗ MISMATCH: project newer than skill.
+   - Search succeeded but returned nothing → ✓ Fresh Project. Prompt operator for topology role per section 13 (LOCKED TEXT 1) before auto-proceeding.
    - Search failed (`project_knowledge_search` errored) → ✗ Infrastructure Failure.
 5. **Emit the pre-flight report block** (section 4) with the verdict and operation proposal as the FIRST content of the response.
 6. **Wait for operator confirmation token** (or auto-proceed if Scenario A fresh). Do not generate output, do not write to project knowledge, do not propose files until the matching token is received or auto-proceed conditions are met.
@@ -92,11 +99,12 @@ From the chunks returned by the search tiers, perform classification:
 
 | Scenario | Project state | Skill state | Verdict | Operation |
 |---|---|---|---|---|
-| A. Fresh | No project-context files | v0.5.0 | ✓ Fresh Project | fresh generation, auto-proceeds |
-| B. Matched | Schema "0.3" with `_managed_by` | v0.5.0 | ✓ Compatible | default / compact / rebuild (operator picks) |
-| C. Skill-too-old | Schema "0.3" project | v0.4.x or earlier | ✗ MISMATCH | refuse; surface resolution options |
-| D. Legacy | v0.1-era dated files | v0.5.0 | ⚠ Legacy | legacy migration to schema "0.3" |
-| E. v0.4.0 Upgrade | Schema "0.2", no `_managed_by` | v0.5.0 | ⚠ Upgrade Available | in-place upgrade to schema "0.3" |
+| A. Fresh | No project-context files | v0.6.0 | ✓ Fresh Project | prompt operator for topology role (LOCKED TEXT 1), then fresh generation at schema 0.4 with declared role |
+| B. Matched | Schema "0.4" with `_managed_by` and topology block | v0.6.0 | ✓ Compatible | default / compact / rebuild (operator picks); apply topology validation and (for spoke roles) stale-spoke detection |
+| C. Skill-too-old | Schema "0.4" project | v0.5.x or earlier | ✗ MISMATCH | refuse; surface resolution options |
+| D. Legacy | v0.1-era dated files | v0.6.0 | ⚠ Legacy | legacy migration to schema "0.4" directly; operator declares role as part of migration interview |
+| E. v0.4.0 Upgrade | Schema "0.2", no `_managed_by` | v0.6.0 | ⚠ Upgrade Available | in-place upgrade to schema "0.3"; operator re-invokes for Scenario F to reach schema "0.4" |
+| F. v0.5.0 Upgrade | Schema "0.3" with `_managed_by`, no topology block | v0.6.0 | ⚠ Upgrade Available (v0.5.0 to v0.6.0) | in-place upgrade to schema "0.4" adding topology block (unclassified default); operator declares role in follow-up exchange |
 
 ## 4. Pre-flight report block format
 
@@ -114,13 +122,17 @@ From the chunks returned by the search tiers, perform classification:
 
 | Verdict | Meaning |
 |---|---|
-| `✓ Compatible` | v0.5.0 project, schema "0.3", `_managed_by` present, executing skill v0.5.0 |
-| `✓ Fresh Project` | No existing project-context system; safe to auto-proceed |
-| `⚠ Legacy` | v0.1-era files detected; legacy migration available |
-| `⚠ Upgrade Available` | v0.4.0 schema "0.2" files detected; in-place upgrade available |
+| `✓ Compatible` | v0.6.0 project, schema "0.4", `_managed_by` present, topology block present, executing skill v0.6.0 |
+| `✓ Fresh Project` | No existing project-context system; prompt for topology role then proceed |
+| `⚠ Legacy` | v0.1-era files detected; legacy migration available (Scenario D) |
+| `⚠ Upgrade Available` | v0.4.0 schema "0.2" files detected; in-place upgrade to schema "0.3" available (Scenario E) |
+| `⚠ Upgrade Available (v0.5.0 to v0.6.0)` | v0.5.0-managed schema "0.3" files detected with no topology block; in-place upgrade to schema "0.4" available (Scenario F). Informational; gates the Scenario F upgrade. |
+| `⚠ Stale Spoke` | Informational, not blocking. On a `role: spoke-*` project, `topology.hub_version` does not match the version parsed from the attached Hub instructions filename. Operation proceeds normally; post-flight surfaces a one-line note recommending project-creator upgrade mode. |
+| `⚠ Hub Source Behind` | Informational, not blocking. Rare. On a `role: spoke-*` project, the attached Hub instructions filename version is OLDER than `topology.hub_version`. Suggests the source file was not updated when the topology version was. Operation proceeds normally. |
+| `⚠ Hub Source Missing` | Informational, not blocking. On a `role: spoke-*` project, no `ai-engineering-hub-instructions-v*.md` file is attached to project knowledge. Staleness comparison is skipped. Operation proceeds normally. |
 | `⚠ Partial State` | Some canonical files present, others missing |
 | `✗ MISMATCH: Refusing to Proceed` | Project newer than skill, or schema mismatch; refuse to write |
-| `✗ Parse Error` | Frontmatter present but unparseable |
+| `✗ Parse Error` | Frontmatter present but unparseable, OR topology block present but invalid per section 10 validation rules |
 | `✗ Infrastructure Failure` | `project_knowledge_search` errored or returned nothing parseable |
 
 ### 4.3 Required fields
@@ -211,11 +223,28 @@ legacy files to delete from the project after upload-and-verify.
 **Project:** [project name]
 **Existing system:** project-context.md, entities.md, project-context-archive.md
   (schema 0.2, generated by v0.4.0, no _managed_by field)
-**Executing skill:** v0.5.0
+**Executing skill:** v0.6.0
 **Proposing:** in-place upgrade to schema 0.3 (adds _managed_by marker,
-  bumps schema_version, no content changes)
+  bumps schema_version, no content changes). After upgrade, re-invoke
+  the skill to reach schema 0.4 via Scenario F.
 
 **To proceed:** type `confirm upgrade`
+```
+
+**Scenario F — v0.5.0 upgrade (v0.6.0 NEW):**
+
+```
+## Pre-flight Report ⚠ Upgrade Available (v0.5.0 to v0.6.0)
+
+**Project:** [project name]
+**Existing system:** project-context.md, entities.md, project-context-archive.md
+  (schema 0.3, _managed_by present, generated by v0.5.0, no topology block)
+**Executing skill:** v0.6.0
+**Proposing:** in-place upgrade to schema 0.4 (adds topology metadata block
+  with unclassified defaults, bumps schema_version, no content changes).
+  After upgrade, operator will be prompted to declare topology role.
+
+**To proceed:** type `confirm v0.6.0 upgrade`
 ```
 
 ### 4.5 Pressure tests
@@ -233,12 +262,13 @@ legacy files to delete from the project after upload-and-verify.
 
 | Scenario / Operation | Token |
 |---|---|
-| Scenario A (fresh) | none — auto-proceeds |
+| Scenario A (fresh) | none — auto-proceeds after topology role declaration |
 | Scenario B — default (merge) | `confirm merge` |
 | Scenario B — compact | `confirm compact` |
 | Scenario B — rebuild | `confirm rebuild` |
 | Scenario D (legacy migration) | `confirm migration` |
 | Scenario E (v0.4.0 upgrade) | `confirm upgrade` |
+| Scenario F (v0.5.0 to v0.6.0 upgrade) | `confirm v0.6.0 upgrade` |
 | Partial state — rebuild missing | `confirm rebuild missing` |
 | Partial state — treat as fresh | `confirm treat as fresh` |
 | Override — version mismatch | `override version mismatch and proceed` |
@@ -324,8 +354,8 @@ Mirrors pre-flight: rendered markdown, verdict glyph in heading, structured fiel
 |---|---|
 | Verdict (in header) | Outcome at a glance |
 | Files written | List of files with brief operation summary (records added/updated/etc.) |
-| Schema | Schema version of files just written (always "0.3" for v0.5.0 writes) |
-| Skill version | Version that performed the write (always "0.5.0" for v0.5.0 writes) |
+| Schema | Schema version of files just written (always "0.4" for v0.6.0 writes) |
+| Skill version | Version that performed the write (always "0.6.0" for v0.6.0 writes) |
 | Operation performed | The operation that actually ran; flag if it diverged from pre-flight's proposal |
 | Operator action required | Only when migration produces legacy files to delete or other follow-up needed |
 | Token state | Active file's position relative to soft ceiling (informational) |
@@ -338,13 +368,13 @@ Mirrors pre-flight: rendered markdown, verdict glyph in heading, structured fiel
 ## Post-flight Summary ✓ Complete
 
 **Files written:**
-- project-context.md (fresh generation, 8 records)
+- project-context.md (fresh generation, 8 records, role: <declared>)
 - entities.md (fresh generation, 3 entities)
 - project-context-archive.md (fresh generation, empty)
 
-**Schema:** 0.3
-**Skill version:** 0.5.0
-**Operation performed:** fresh generation
+**Schema:** 0.4
+**Skill version:** 0.6.0
+**Operation performed:** fresh generation with topology declaration
 ```
 
 **Scenario B — Matched, default merge:**
@@ -357,8 +387,8 @@ Mirrors pre-flight: rendered markdown, verdict glyph in heading, structured fiel
 - entities.md (1 entity added, 0 updated)
 - project-context-archive.md (1 record appended via supersession)
 
-**Schema:** 0.3
-**Skill version:** 0.5.0
+**Schema:** 0.4
+**Skill version:** 0.6.0
 **Operation performed:** default (merge)
 
 Active file at 23% of soft token ceiling (15.4K / 50K).
@@ -369,13 +399,13 @@ Active file at 23% of soft token ceiling (15.4K / 50K).
 ```
 ## Post-flight Summary ✓ Migration Complete
 
-**Files written (new schema 0.3 format):**
+**Files written (new schema 0.4 format):**
 - project-context.md
 - entities.md
 - project-context-archive.md
 
-**Skill version:** 0.5.0
-**Operation performed:** legacy migration
+**Skill version:** 0.6.0
+**Operation performed:** legacy migration with topology declaration
 
 **Operator action required:** delete the following legacy files from the
 project after verifying the new files have uploaded correctly:
@@ -393,9 +423,37 @@ project after verifying the new files have uploaded correctly:
 - entities.md (added _managed_by marker, bumped schema_version)
 - project-context-archive.md (added _managed_by marker, bumped schema_version)
 
-**Skill version:** 0.5.0
+**Skill version:** 0.6.0
 **Records:** preserved unchanged (no content modifications, only schema upgrade)
 **Operation performed:** in-place schema upgrade
+
+**Operator action required:** re-invoke the skill to reach schema 0.4 via
+Scenario F (adds topology block).
+```
+
+**Scenario F — v0.5.0 to v0.6.0 upgrade (v0.6.0 NEW):**
+
+```
+## Post-flight Summary ✓ Upgrade Complete (v0.5.0 to v0.6.0)
+
+**Files upgraded to schema 0.4:**
+- project-context.md (added topology block with unclassified default,
+  bumped schema_version from 0.3 to 0.4)
+- entities.md (added topology block with unclassified default,
+  bumped schema_version from 0.3 to 0.4)
+- project-context-archive.md (added topology block with unclassified
+  default, bumped schema_version from 0.3 to 0.4)
+
+**Skill version:** 0.6.0
+**Records:** preserved unchanged (no content modifications, only schema
+  upgrade and topology block addition)
+**Operation performed:** in-place schema upgrade to 0.4 with unclassified
+  topology default
+
+**Topology:** defaults to 'unclassified'; declare role to complete migration.
+
+**Operator action required:** declare topology role to complete migration.
+  The skill will prompt with the role-declaration prompt (section 13).
 ```
 
 ### 9.4 Failure handling
@@ -423,11 +481,179 @@ migration. See file-writes list for full account.
 
 The deviation note is mandatory whenever execution diverges from the pre-flight proposal. Silent deviation is a protocol violation.
 
-## 10. Cross-references
+## 10. Topology validation (v0.6.0 NEW)
+
+After classification identifies a `✓ Compatible` verdict, pre-flight applies topology validation to the project's `project-context.md` frontmatter. The authoritative schema, role definitions, and validation rules live in `references/topology.md`; this section specifies how pre-flight applies them.
+
+### 10.1 Validation sequence
+
+1. **Parse the topology block** from `project-context.md` frontmatter. If the block is absent on a schema 0.4 file, this is a Parse Error (schema 0.4 requires the topology block per `references/topology.md` section 6).
+2. **Validate `role`** is one of the five enum values (`hub`, `spoke-dev`, `spoke-solution`, `standalone`, `unclassified`). Lowercase only. Any deviation is a Parse Error.
+3. **Validate `declared_by`** is one of (`operator`, `skill-default`). Any deviation is a Parse Error.
+4. **Validate `declared_at`** parses as ISO 8601 (full timestamp or date-only shorthand). Any deviation is a Parse Error.
+5. **Apply required-by-role rules** per `references/topology.md` section 6.1:
+   - `role: hub` requires `hub_reference`, `hub_version`, `last_hub_sync`, `parent` all null.
+   - `role: spoke-dev` requires `hub_reference`, `hub_version`, `last_hub_sync` non-null. `parent` may be null (direct-Hub spoke) or non-null (child of a Solution spoke).
+   - `role: spoke-solution` requires `hub_reference`, `hub_version`, `last_hub_sync` non-null. `parent` must be null.
+   - `role: standalone` requires `hub_reference`, `hub_version`, `last_hub_sync`, `parent` all null.
+   - `role: unclassified` permits all relationship fields null; no required non-null fields.
+6. **Apply no-empty-fields rule:** every field present in the topology block must have a confident value, an explicit null (where the role permits or requires null), or an explicit placeholder. A literally empty field is a Parse Error with message: "Topology field `<field>` is empty; expected confident value, explicit placeholder, or null with reason."
+7. **For `role: spoke-*` projects:** proceed to stale-spoke detection (section 11).
+8. **For `role: unclassified` projects:** emit a follow-up prompt with LOCKED TEXT 1 (section 13) on each invocation until the operator declares a role.
+
+### 10.2 Validation failure
+
+If any validation step fails, pre-flight emits `✗ Parse Error` with a topology diagnostic and refuses the proposed operation. The diagnostic names the offending field and the rule that failed. Operator paths:
+- Repair the topology block in `project-context.md` and re-invoke.
+- Override path: `override parse error and treat as fresh` (DESTRUCTIVE; loses topology context).
+
+### 10.3 Validation success
+
+A valid topology block enables downstream behaviors:
+- For `role: hub`: enables the audit trigger handler (section 12).
+- For `role: spoke-*`: invokes stale-spoke detection (section 11).
+- For `role: standalone` and `role: unclassified`: no additional pre-flight processing beyond standard verdict emission.
+
+## 11. Stale-spoke detection (v0.6.0 NEW)
+
+Stale-spoke detection runs on `role: spoke-*` projects after topology validation succeeds. It compares the spoke's declared Hub version against the attached Hub instructions file and emits one of three informational verdicts. None of the three blocks the proposed operation; they are informational signals to the operator.
+
+### 11.1 Detection algorithm
+
+1. **Read `topology.hub_version`** from `project-context.md` frontmatter (e.g., `"v0.9"`).
+2. **Search project knowledge** for files matching the pattern `ai-engineering-hub-instructions-v*.md`. Use `project_knowledge_search` with the filename pattern.
+3. **Parse the version** from the filename of the most recently attached match. Convention: `ai-engineering-hub-instructions-v0-9.md` parses to `v0.9` (dash separator in filename normalizes to dot in version string).
+4. **Compare versions** using semantic version arithmetic on minor/patch components:
+   - File version equals `topology.hub_version` → no informational verdict; proceed silently.
+   - File version is newer than `topology.hub_version` → emit `⚠ Stale Spoke`.
+   - File version is older than `topology.hub_version` → emit `⚠ Hub Source Behind` (rare).
+5. **If no Hub instructions file is attached:** emit `⚠ Hub Source Missing`.
+
+### 11.2 Verdict block format
+
+When a stale-spoke informational verdict fires, the pre-flight report includes these additional structured fields immediately under the standard pre-flight report fields:
+
+```
+**Hub reference:** <topology.hub_reference>
+**Spoke source-version:** <topology.hub_version>
+**Attached Hub file version:** <parsed from filename, or "(no file attached)">
+**Sync state:** stale (recommend project-creator upgrade mode) | hub source behind | hub source missing
+```
+
+### 11.3 Post-flight one-liner
+
+When a `⚠ Stale Spoke` verdict fires and the operation proceeds, post-flight appends a one-line note:
+
+```
+**Spoke sync:** Spoke is at <topology.hub_version>; current Hub version is <file version>.
+  Consider running project-creator upgrade mode.
+```
+
+The skill never auto-upgrades the Hub reference. The upgrade flow lives in the project-creator skill (Workstream 3).
+
+### 11.4 Severity classification
+
+v0.6.0 reports drift without severity. A spoke 4 minor versions behind and a spoke 1 minor version behind both render as `⚠ Stale Spoke` with their respective version stamps. Operators decide priority. Future releases may add severity thresholds; v0.6.0 does not pre-empt that design.
+
+## 12. Audit trigger handler (v0.6.0 NEW)
+
+The audit trigger is a read-only operation invokable in Hub projects only. It produces a staleness report comparing each spoke's source Hub version against the current Hub instructions file version. The trigger does not modify project files.
+
+### 12.1 Trigger phrases
+
+The skill matches any of these phrases (case-insensitive, whitespace-tolerant) in the operator's invocation:
+
+- `audit spoke projects`
+- `audit the spokes`
+- `which spokes are stale`
+- `show me spoke staleness`
+- `spoke inventory audit`
+- `run spoke audit`
+
+### 12.2 Pre-flight gate
+
+When pre-flight detects an audit trigger phrase, the gate runs before any read of project knowledge beyond the topology validation:
+
+1. Validate the current project's `topology.role`.
+2. **If `role: hub`:** proceed to audit execution (section 12.3).
+3. **If `role` is any other value (spoke-dev, spoke-solution, standalone, unclassified):** emit the refusal message verbatim:
+
+   ```
+   Audit trigger valid only in Hub projects.
+   ```
+
+   End the turn. No further operation runs.
+
+### 12.3 Audit execution
+
+1. **Read the spoke inventory** from the body of `project-context.md` (section `## Spoke Inventory` per `references/topology.md` section 3).
+2. **Parse the current Hub instructions version** from the filename of an attached `ai-engineering-hub-instructions-v*.md` file. If absent, render the audit report with a placeholder note in place of the current version and emit the inventory rows without Status comparison.
+3. **For each spoke row:** compare the `Source Hub Version` cell against the parsed current Hub version.
+   - Match → Status `current`.
+   - Mismatch (file newer) → Status `STALE`. Compute drift expression on minor/major arithmetic.
+4. **Sort:** STALE spokes alphabetical, then current spokes alphabetical.
+5. **Emit the audit report block** per `references/topology.md` section 4.4.
+
+### 12.4 Audit is read-only
+
+The audit trigger does not write to `project-context.md`. The Status column in the persistent spoke inventory is operator-maintained between audits. A future trigger (`refresh spoke inventory`, out of scope for v0.6.0) will own write-back.
+
+The audit trigger does not invoke upgrades. The project-creator skill's upgrade mode (Workstream 3) owns the upgrade flow.
+
+### 12.5 Audit report format
+
+See `references/topology.md` section 4.4 for the full audit report block format. Pre-flight emits the audit report block in place of the standard pre-flight report block when the audit trigger fires; the post-flight summary is omitted (audit is read-only, nothing was written).
+
+## 13. Role-declaration prompts (v0.6.0 NEW)
+
+When the skill needs the operator to declare a topology role — fresh project (Scenario A) or after Scenario F upgrade — it emits a role-declaration prompt. Two locked-text prompts apply to specific situations. The skill may prepend scenario-specific framing (e.g., "Setting up a fresh project." or "Topology defaults to unclassified after upgrade.") before each locked prompt.
+
+### 13.1 LOCKED TEXT 1 — Role declaration
+
+Emit verbatim in Scenario A upfront role solicitation and in Scenario F follow-up role solicitation:
+
+```
+Declare this project's topology role to enable correct semantics
+for audit, migration, and governance. Options: hub (owns a spoke
+inventory), spoke-dev (a development artifact like a skill
+referencing a hub), spoke-solution (a delivered solution
+referencing a hub), or standalone (no hub relationship). Reply
+with the role name.
+```
+
+The prompt is not paraphrased. The four operator-selectable role values (`hub`, `spoke-dev`, `spoke-solution`, `standalone`) must remain in the order shown. The fifth role value `unclassified` is the skill-default that fires when the operator does not declare; the skill never offers `unclassified` as an option in this prompt. The skill never declares a role on the operator's behalf; it waits for the operator's reply.
+
+### 13.2 LOCKED TEXT 2 — Missing hub_reference
+
+Emit verbatim when an operator declares `role: spoke-dev` or `role: spoke-solution` but does not provide `hub_reference` and `hub_version`:
+
+```
+Spoke roles require hub_reference and hub_version. Reply with
+both: the hub project name and the current hub instructions
+version, e.g., "AI Engineering Hub, v0.9".
+```
+
+The example in the prompt is canonical and must be preserved as-is. The skill does not infer hub_reference from project metadata; it asks.
+
+### 13.3 Role-declaration parsing
+
+When the operator replies with a role declaration, the skill:
+
+1. Parse the role from the operator's reply. Accept any of: `hub`, `spoke-dev`, `spoke-solution`, `standalone`. Case-insensitive.
+2. If the parsed role is `spoke-dev` or `spoke-solution` and the reply does not include hub_reference and hub_version, emit LOCKED TEXT 2 and wait again.
+3. If the parsed role is `hub`: write `role: hub` to `topology.role` with `declared_by: "operator"` and `declared_at: <current ISO 8601>`. Create an empty `## Spoke Inventory` section in the body of `project-context.md` immediately after the frontmatter per `references/topology.md` section 3.
+4. If the parsed role is `spoke-dev` or `spoke-solution`: write `role`, `hub_reference`, `hub_version`, set `last_hub_sync` to current timestamp, `declared_by: "operator"`, `declared_at: <current ISO 8601>`.
+5. If the parsed role is `standalone`: write `role: standalone` with all relationship fields null, `declared_by: "operator"`, `declared_at: <current ISO 8601>`.
+6. If the operator declines or does not respond: leave topology as `unclassified`. The skill prompts again on next invocation.
+
+The skill never writes a partial spoke topology. If hub_reference or hub_version is missing for a declared spoke role, LOCKED TEXT 2 fires until both are provided.
+
+## 14. Cross-references
 
 - Schema definition and validation: `references/schema.md`.
 - Schema-changelog and Supported Schemas matrix: `references/schema-changelog.md`.
-- Migration paths (legacy and upgrade): `references/migration.md`.
+- Migration paths (legacy, v0.4.0 upgrade, and v0.5.0 to v0.6.0 upgrade): `references/migration.md`.
+- Topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules: `references/topology.md`.
 - Operation-level pre-flight prerequisite notes: `operations/default.md`, `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`.
 - SKILL.md `## Protocol` section: the structural gate that cites this file.
 - The release-trigger postmortem documenting the v0.4.0 protocol-enforcement gap: `2026-05-19-postmortem-project-context-skill-schema-mismatch.md` (in the v0.5.0 build inputs).
