@@ -260,7 +260,7 @@ Every field in the topology block must have one of:
 - An explicit `null` (where the role permits or requires null per section 6.1).
 - An explicit placeholder like `[tbd]` (permitted only in template files, not in active project files).
 
-A literally empty field (e.g., `hub_reference:` with no value) is a Parse Error. The skill emits: "Topology field `<field>` is empty; expected confident value, explicit null, or explicit placeholder."
+A literally empty field (e.g., `hub_reference:` with no value) is a Parse Error. The skill emits: "Topology field `<field>` is empty; expected confident value, explicit placeholder, or null with reason."
 
 ### 6.3 Role-value validation
 

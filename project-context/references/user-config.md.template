@@ -1,11 +1,6 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
-<!--
-  This SPDX header applies to this .template source file itself. When the
-  skill renders this template into an operator project as user-config.md,
-  the rendered file does not inherit this SPDX header: the placeholder
-  content becomes the operator's work product, not licensable source.
--->
+<!-- Rendered (operator-deployed) user-config.md files do not inherit the SPDX header because the placeholder content is the operator's work product, not licensable source. -->
 
 # user-config.md template (project-context v0.6.0, schema 0.4)
 
