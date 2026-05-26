@@ -102,5 +102,5 @@ In addition to the failure modes in `operations/default.md` section 10:
 - Scoring formula and coefficients: `references/scoring.md`.
 - Defaults: `references/defaults.md`.
 - Migration from legacy files (invoked from pre-flight): `references/migration.md`.
-- Configuration overrides: `references/user-config-template.md`, `references/org-config-template.md`.
+- Configuration overrides: `references/user-config.md.template`, `references/org-config.md.template`.
 - Other operations: `operations/compact.md`, `operations/rebuild.md`.

@@ -190,5 +190,5 @@ Identical to `default` except step 2: parse the **attached file** instead of the
 - Scoring: `references/scoring.md`.
 - Defaults: `references/defaults.md`.
 - Migration: `references/migration.md`.
-- User-tunable overrides: `references/user-config-template.md`.
+- User-tunable overrides: `references/user-config.md.template`.
 - Per-operation entry points: `operations/default.md`, `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`.

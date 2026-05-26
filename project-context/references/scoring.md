@@ -12,7 +12,7 @@ skill_version: "0.6.0"
 
 This file is the authoritative restatement of the scoring algorithm used by the project-context skill to decide which records stay in the active file (`project-context.md`) and which are proposed for demotion to the archive (`project-context-archive.md`).
 
-Operations reference this file. The user can tune the algorithm in `user-config.md` (see `references/user-config-template.md`). Defaults come from `references/defaults.md`.
+Operations reference this file. The user can tune the algorithm in `user-config.md` (see `references/user-config.md.template`). Defaults come from `references/defaults.md`.
 
 ## 1. The weight formula
 
@@ -108,5 +108,5 @@ The user can override the score on a per-record basis via the diff-and-approve f
 
 - Schema for `times_seen`, `importance`, `first_seen_update`, `last_seen_update`, `first_seen_at`: see `references/schema.md`.
 - Where the formula is invoked: `operations/default.md` (end-of-session pass), `operations/compact.md` (on-demand batch), `operations/rebuild.md` (rebuild from archive).
-- Where defaults can be overridden: `references/user-config-template.md`, `references/org-config-template.md`.
+- Where defaults can be overridden: `references/user-config.md.template`, `references/org-config.md.template`.
 - Single-source-of-truth defaults table: `references/defaults.md`.

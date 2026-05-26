@@ -16,7 +16,7 @@ The operations in this document apply only after pre-flight (`references/preflig
 
 This is the default operation: triggered when the operator invokes the skill with no specific operation named. It parses the current conversation, classifies candidate records against the existing three-file system, applies the hybrid brake, surfaces gated proposals for approval, writes the updated files, and emits the operator brief.
 
-Schema reference: `references/schema.md`. Scoring reference: `references/scoring.md`. Classifier and cross-operation logic: `references/operations.md`. Defaults: `references/defaults.md`. Configuration overrides: `references/user-config-template.md`, `references/org-config-template.md`.
+Schema reference: `references/schema.md`. Scoring reference: `references/scoring.md`. Classifier and cross-operation logic: `references/operations.md`. Defaults: `references/defaults.md`. Configuration overrides: `references/user-config.md.template`, `references/org-config.md.template`.
 
 ## 1. Pre-flight prologue
 
@@ -284,5 +284,5 @@ Brief fields adapt to session content:
 - Common operation logic and classifier: `references/operations.md`.
 - Defaults: `references/defaults.md`.
 - Migration: `references/migration.md`.
-- Configuration: `references/user-config-template.md`, `references/org-config-template.md`.
+- Configuration: `references/user-config.md.template`, `references/org-config.md.template`.
 - Other operations: `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`.
