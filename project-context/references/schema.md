@@ -1,16 +1,18 @@
 ---
 file_role: skill-reference
 topic: schema
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Schema (project-context v0.5.0, schema_version "0.3")
+# Schema (project-context v0.6.0, schema_version "0.4")
 
-This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.4.0` for the v0.5.0 build) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
+This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.5.0` for the v0.6.0 build) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
+
+Schema "0.4" extends schema "0.3" with one new REQUIRED block in frontmatter (`topology`) and one new REQUIRED body section (`## Spoke Inventory`, present only when `topology.role: hub`). All other schema "0.3" mechanics carry forward unchanged. The topology block's full schema, role definitions, spoke inventory format, and validation rules are specified canonically in `references/topology.md`; this file references that authority rather than restating it.
 
 ## 1. The three files
 
@@ -20,7 +22,7 @@ This file is the authoritative restatement of the data schema for every file the
 | `entities.md` | `entities` | Stable reference data: people, places, things, organizations, datasets. Looked up by name; no automatic decay. | No fixed ceiling; loaded selectively. |
 | `project-context-archive.md` | `archive` | Append-only history of superseded and demoted records, plus per-session checkpoints in frontmatter. | No fixed ceiling; loaded selectively (on rebuild, restore, historical lookup). |
 
-`user-config.md` and `org-config.md` are configuration files, not data files. Their schema lives in `references/user-config-template.md` and `references/org-config-template.md`.
+`user-config.md` and `org-config.md` are configuration files, not data files. Their schema lives in `references/user-config.md.template` and `references/org-config.md.template`.
 
 ## 2. File-level YAML frontmatter
 
@@ -29,9 +31,19 @@ Every file the skill writes begins with this frontmatter. Fields marked OPTIONAL
 ```yaml
 ---
 # Schema identification
-schema_version: "0.3"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
-_managed_by: project-context-skill               # REQUIRED in schema 0.3. String literal. Registry marker used by pre-flight detection — see references/preflight.md. The leading underscore signals internal metadata, not user-facing data.
+schema_version: "0.4"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
+_managed_by: project-context-skill               # REQUIRED in schema 0.3+. String literal. Registry marker used by pre-flight detection — see references/preflight.md. The leading underscore signals internal metadata, not user-facing data.
 file_role: project-context | entities | archive  # REQUIRED
+
+# Topology (v0.6.0, schema 0.4+) — full schema, role definitions, and validation rules in references/topology.md
+topology:                                        # REQUIRED block in schema 0.4+. Universal across all roles.
+  role: "hub" | "spoke-dev" | "spoke-solution" | "standalone" | "unclassified"   # REQUIRED, one of five enum values
+  hub_reference: <string|null>                   # REQUIRED, populated for spoke-* roles; null otherwise
+  hub_version: <string|null>                     # REQUIRED, populated for spoke-* roles; null otherwise
+  last_hub_sync: <ISO-8601|null>                 # REQUIRED, populated for spoke-* roles; null otherwise
+  parent: <string|null>                          # REQUIRED, populated for child spokes in hybrid topology; null otherwise
+  declared_by: "operator" | "skill-default"      # REQUIRED
+  declared_at: <ISO-8601>                        # REQUIRED
 
 # Project identification
 project: <human-readable project name>           # REQUIRED, string
@@ -88,9 +100,10 @@ generated_by:
 
 | Field | Required | Notes |
 |---|---|---|
-| `schema_version` | yes | The data-shape contract. v0.5.0 writes `"0.3"`. Bumps only when fields change; see `references/schema-changelog.md`. |
+| `schema_version` | yes | The data-shape contract. v0.6.0 writes `"0.4"`. Bumps only when fields change; see `references/schema-changelog.md`. |
 | `_managed_by` | yes (schema 0.3+) | String literal `project-context-skill`. Registry marker. Makes pre-flight detection reliable: `project_knowledge_search` for this distinctive YAML field returns only chunks from files under skill management. See `references/preflight.md`. |
 | `file_role` | yes | One of `project-context`, `entities`, `archive`. Must match the filename. |
+| `topology` | yes (schema 0.4+) | Block-level frontmatter field carrying the project's topology role and Hub relationship. Universal across all projects; every role has its own required-non-null and required-null field set per `references/topology.md` section 6.1. Validation rules (role enum check, declared_by enum check, ISO 8601 check, no-empty-fields) live in `references/topology.md` section 6 and are applied at pre-flight per `references/preflight.md` section 10. |
 | `project` | yes | Human-readable project name. |
 | `project_id` | yes | kebab-case slug used for cross-file references. |
 | `created` | yes | ISO-8601 with timezone; the date this file was first written. |
@@ -109,7 +122,7 @@ generated_by:
 | `custom_governance` | yes | Free-form object, may be `{}`. |
 | `checkpoints` | only on archive | Ordered list of per-merge checkpoint objects. See section 5.3. |
 | `generated_by.skill` | yes | Always `project-context`. |
-| `generated_by.version` | yes | The skill version that originally generated the records in this file (e.g., `"0.5.0"`). Independent of `schema_version`. Preserved unchanged across upgrade migrations — the field records original generation, not subsequent metadata-only rewrites. |
+| `generated_by.version` | yes | The skill version that originally generated the records in this file (e.g., `"0.6.0"`). Independent of `schema_version`. Preserved unchanged across upgrade migrations — the field records original generation, not subsequent metadata-only rewrites. |
 | `generated_by.model` | yes | The model that originally generated the records in this file (e.g., `claude-opus-4-7`). Preserved unchanged across upgrade migrations — the field records original generation, not subsequent metadata-only rewrites. |
 | `generated_by.generation_date` | yes | ISO-8601 timestamp marking when the records in this file were originally generated. Preserved unchanged across upgrade migrations — the field records original generation, not subsequent metadata-only rewrites. Upgrade traceability is the `schema_version` bump, not this field. |
 
@@ -265,29 +278,32 @@ Reading agents that want "what happened in the last N updates" parse `checkpoint
 
 ## 6. Validation checklist
 
-A file conforms to schema "0.3" when:
+A file conforms to schema "0.4" when:
 
 1. Frontmatter is valid YAML and includes every REQUIRED field above.
-2. `schema_version` is exactly `"0.3"`.
+2. `schema_version` is exactly `"0.4"`.
 3. `_managed_by` is present and equals exactly the string `project-context-skill`.
 4. `file_role` matches the filename.
-5. `id_prefix_legend` is present and includes all eight prefixes.
-6. The body uses the `read_order` defined for the file's `file_role`.
-7. Empty sections contain exactly `_No records in this section._`
-8. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
-9. Every record's ID prefix matches the section/file per the prefix table.
-10. `status` is one of `active`, `superseded`, `archived`.
-11. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
-12. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
+5. `topology` block is present in frontmatter and conforms to the topology schema and validation rules in `references/topology.md` (role is one of the five enum values; required-by-role fields per section 6.1; no empty fields; `declared_by` is `operator` or `skill-default`; `declared_at` parses as ISO 8601).
+6. `id_prefix_legend` is present and includes all eight prefixes.
+7. The body uses the `read_order` defined for the file's `file_role`.
+8. Empty sections contain exactly `_No records in this section._`
+9. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
+10. Every record's ID prefix matches the section/file per the prefix table.
+11. `status` is one of `active`, `superseded`, `archived`.
+12. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
+13. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
+14. For `project-context.md` files with `topology.role: hub`, the body includes a `## Spoke Inventory` section immediately after frontmatter, formatted per `references/topology.md` section 3 (Name | Role | Artifact Type | Source Hub Version | Status | Parent). Empty spoke inventory renders as the heading plus column header row only.
 
 Operations reference this checklist in their final validation pass.
 
 ## 7. Cross-references
 
 - Skill-version vs schema-version decoupling, schema-changelog, Supported Schemas matrix: `references/schema-changelog.md`.
-- Pre-flight algorithm, report block, token catalog, post-flight summary: `references/preflight.md`.
+- Pre-flight algorithm, report block, token catalog, post-flight summary, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts: `references/preflight.md`.
+- Topology block schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules: `references/topology.md`.
 - Scoring inputs (`times_seen`, `importance`, etc.): `references/scoring.md`.
-- Migration from schema "0.1" (v0.1-era) and "0.2" (v0.4.0 upgrade): `references/migration.md`.
+- Migration from schema "0.1" (v0.1-era, Scenario D), "0.2" (v0.4.0 upgrade, Scenario E), and "0.3" (v0.5.0 topology upgrade, Scenario F): `references/migration.md`.
 - Default values for every overridable field: `references/defaults.md`.
-- Configuration overrides: `references/user-config-template.md`, `references/org-config-template.md`.
+- Configuration overrides: `references/user-config.md.template`, `references/org-config.md.template`.
 - Worked examples: `references/examples/`.

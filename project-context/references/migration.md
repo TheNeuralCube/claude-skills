@@ -185,41 +185,77 @@ For each legacy file found, in chronological order by file `created` (oldest fir
         approver: null
     ```
 
-11. **Write the three v0.5.0 files** with `update_count: 0`, `record_count` set to actual counts, `schema_version: "0.3"`, and `_managed_by: project-context-skill` in the frontmatter of every file. v0.5.0 retargets legacy migration to produce schema "0.3" directly — operators with v0.1-era projects skip schema "0.2" entirely.
+11. **Solicit the topology role declaration** as part of the migration interview, before any file write. Emit LOCKED TEXT 1 (per `references/preflight.md` section 13.1) verbatim. Wait for the operator's reply.
+
+    - If the operator declares `role: hub`: capture the declaration. No additional fields are needed; the topology block's relationship fields (`hub_reference`, `hub_version`, `last_hub_sync`, `parent`) will be null.
+    - If the operator declares `role: spoke-dev` or `role: spoke-solution`: if the reply does not already include hub_reference and hub_version, emit LOCKED TEXT 2 (per `references/preflight.md` section 13.2) verbatim and wait for both values.
+    - If the operator declares `role: standalone`: capture the declaration. The topology block's relationship fields will be null.
+    - If the operator declines or does not respond within the migration session: fall back to `role: "unclassified"` with `declared_by: "skill-default"`. The skill will re-prompt on next invocation (per `references/preflight.md` section 13). The migration still proceeds; the topology block is written with the unclassified default.
+
+    The skill never writes a partial spoke topology. If hub_reference or hub_version is missing for a declared spoke role, LOCKED TEXT 2 fires until both are provided. The skill does not declare a role on the operator's behalf when the operator engages.
+
+12. **Write the three v0.6.0 files** with `update_count: 0`, `record_count` set to actual counts, `schema_version: "0.4"`, `_managed_by: project-context-skill`, and a `topology` block populated from the operator's declaration in step 11. v0.6.0 retargets legacy migration to produce schema "0.4" directly — operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely. The topology block shape per `references/topology.md` section 1:
+
+    ```yaml
+    topology:
+      role: <operator-declared role, or "unclassified" if operator did not engage>
+      hub_reference: <operator-provided hub project name | null for hub/standalone/unclassified>
+      hub_version: <operator-provided hub version | null for hub/standalone/unclassified>
+      last_hub_sync: <migration timestamp for spoke-* | null otherwise>
+      parent: <operator-provided parent spoke for hybrid topology | null otherwise>
+      declared_by: <"operator" if the operator engaged in step 11 | "skill-default" if they declined>
+      declared_at: <migration timestamp>
+    ```
+
+    If the operator declared `role: hub`, also create an empty `## Spoke Inventory` section in the body of `project-context.md` immediately after frontmatter (per `references/topology.md` section 3). The operator populates the inventory manually as spokes are added.
 
 ## 4. The operator brief (legacy migration)
 
-Legacy migration is surfaced via the operator brief as a distinct flow. The skill **does not** delete legacy files automatically (Claude Project APIs do not expose file deletion in May 2026). The brief instructs the operator with the required order of operations:
+Legacy migration is surfaced via the operator brief as a distinct flow. The skill **does not** delete legacy files automatically (Claude Project APIs do not expose file deletion in May 2026). The brief instructs the operator with the required order of operations.
+
+The topology role declaration (step 11 of the algorithm) fires during the interview before the brief is emitted, so by the time the brief appears the three new files already carry the operator-declared role in their `topology` block. The brief reminds the operator of the declared role for confirmation.
+
+Brief format:
 
 ```
-✅ Migration complete.
+Migration complete.
+
+Topology role declared during migration: <declared role>
+  - For hub: an empty Spoke Inventory section was created in
+    project-context.md. Populate it as you add spokes.
+  - For spoke-dev or spoke-solution: hub_reference and hub_version
+    are stamped on each new file's topology block.
+  - For standalone or unclassified: no Hub relationship; topology
+    relationship fields are null.
 
 Order matters: (a) download new, (b) verify, (c) delete old, (d) upload new.
 Doing this out of order risks losing the source if the migration was wrong.
 
-📥 (a) Download these three new files from this chat:
-   • project-context.md       (N records imported)
-   • entities.md              (M records imported)
-   • project-context-archive.md  (K records, including L dropped under DEMOTE)
+(a) Download these three new files from this chat:
+   - project-context.md       (N records imported, schema 0.4, role: <declared role>)
+   - entities.md              (M records imported, schema 0.4)
+   - project-context-archive.md  (K records, including L dropped under DEMOTE, schema 0.4)
 
-🔍 (b) Verify the new files look correct.
+(b) Verify the new files look correct.
    Open each one and confirm the records match what you expected.
+   Confirm the topology block in project-context.md shows the role you
+   declared.
    The migration is reversible until you delete the old files in step (c).
 
-🗑 (c) Delete the following old dated files from your Project AFTER verification:
-   • 2026-04-15-project-context.md
-   • 2026-04-22-project-context-segmentation.md
-   • 2026-05-03-project-context-revenue-baseline.md
-   • [...exact filename list, one per detected legacy file...]
+(c) Delete the following old dated files from your Project AFTER verification:
+   - 2026-04-15-project-context.md
+   - 2026-04-22-project-context-segmentation.md
+   - 2026-05-03-project-context-revenue-baseline.md
+   - [...exact filename list, one per detected legacy file...]
 
-📂 (d) Upload the three new files to your Project.
-   In Claude.ai: Project → Knowledge → Upload file (for each one).
+(d) Upload the three new files to your Project.
+   In Claude.ai: Project > Knowledge > Upload file (for each one).
 
-🔔 If anything looks off, do NOT delete the legacy files. Tell me what's
-   wrong and I can re-run migration from the archived versions.
+If anything looks off, do NOT delete the legacy files. Tell me what's
+wrong and I can re-run migration from the archived versions.
 ```
 
-The skill always lists each legacy file by its **exact filename**, not generic guidance like "the old files." This is a workshop-locked decision (design spec §5.3 revision 2026-05-18).
+The skill always lists each legacy file by its **exact filename**, not generic guidance like "the old files." This is a workshop-locked decision (design spec §5.3 revision 2026-05-18). The schema-0.4 output target and the topology-declaration interview step are v0.6.0 changes per design spec §7.3.
 
 ## 5. What legacy migration deliberately does NOT do
 
@@ -233,9 +269,9 @@ The skill always lists each legacy file by its **exact filename**, not generic g
 
 Pre-flight behavior on a project that may have been partially or fully migrated:
 
-1. **Pure-current state** (only v0.5.0 files with `_managed_by` and `schema_version: "0.3"`; no legacy files). Pre-flight classifies as `✓ Compatible`, finds no legacy files, and skips migration silently. The requested operation proceeds.
-2. **Coexistence state** (the operator downloaded the new files and uploaded them but has not yet deleted the legacy files). Per section 2, legacy migration runs again — but this time it finds the legacy content already present in the v0.5.0 files and most candidates classify as NOOP (reinforcement) or are dropped as duplicates. The brief reminds the operator to delete the named legacy files. This is safe re-entry, not a separate prompt.
-3. **Pure-legacy state** (operator skipped the upload step or is running migration for the first time). Migration produces the three new v0.5.0 files; the brief lists the legacy files for deletion.
+1. **Pure-current state** (only v0.6.0 files with `_managed_by`, `schema_version: "0.4"`, and topology block; no legacy files). Pre-flight classifies as `✓ Compatible`, finds no legacy files, and skips migration silently. The requested operation proceeds.
+2. **Coexistence state** (the operator downloaded the new files and uploaded them but has not yet deleted the legacy files). Per section 2, legacy migration runs again — but this time it finds the legacy content already present in the v0.6.0 files and most candidates classify as NOOP (reinforcement) or are dropped as duplicates. The brief reminds the operator to delete the named legacy files. This is safe re-entry, not a separate prompt. The topology role declaration step (step 11 of the algorithm) is skipped on re-entry because the topology block is already present and populated; the migration carries forward the existing role.
+3. **Pure-legacy state** (operator skipped the upload step or is running migration for the first time). Migration produces the three new v0.6.0 files at schema "0.4" with topology block populated from the operator's role declaration; the brief lists the legacy files for deletion.
 
 ## 7. Edge cases (legacy migration)
 
@@ -251,7 +287,9 @@ Pre-flight behavior on a project that may have been partially or fully migrated:
 ## 8. Cross-references (legacy migration)
 
 - Schema "0.1" field set: `references/schema-changelog.md`.
-- Schema "0.3" target: `references/schema.md`.
+- Schema "0.4" target: `references/schema.md`.
+- Topology block schema (target output for v0.6.0 legacy migration): `references/topology.md`.
+- Role-declaration prompts (LOCKED TEXT 1 and 2 emitted in step 11): `references/preflight.md` section 13.
 - Scoring driving the active/archive split: `references/scoring.md`.
 - Pre-flight invoking migration: `references/preflight.md`.
 

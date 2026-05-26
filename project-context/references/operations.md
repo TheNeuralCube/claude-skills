@@ -1,14 +1,14 @@
 ---
 file_role: skill-reference
 topic: operations
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Operations (project-context v0.5.0)
+# Operations (project-context v0.6.0)
 
 This file documents the **logic** of the four operations and the merge classifier they share. The actual operation entry points live in `operations/default.md`, `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`. SKILL.md routes invocation to one of those four files. This file is the cross-operation reference each of those files cites.
 
@@ -79,9 +79,9 @@ See `references/scoring.md` for the `weight()` formula.
 
 ### 2.3 Wellhead taxonomy mapping
 
-For operators who come from the operator's prior wellhead skill, the v0.5.0 classifier maps to their five-class taxonomy:
+For operators who come from the operator's prior wellhead skill, the v0.6.0 classifier (unchanged from v0.4.0) maps to their five-class taxonomy:
 
-| Wellhead class | v0.5.0 operation |
+| Wellhead class | v0.6.0 operation |
 |---|---|
 | novel | `ADD` |
 | duplicate | `NOOP` |
@@ -106,7 +106,7 @@ Under `merge_policy: gate`, every output is gated. Under `merge_policy: auto`, e
 
 ## 4. Common pre-flight prologue
 
-**v0.5.0 pointer.** The authoritative pre-flight protocol (the three-tier search strategy, the six-step classification, the report block format, the confirmation token catalog, the token matching rules, the completion criteria, the infrastructure-failure handling, and the symmetric post-flight summary) lives in `references/preflight.md`. SKILL.md's `## Protocol` section structurally gates every operation on the completion of that protocol. This section describes the post-pre-flight runtime steps each operation performs once pre-flight has classified the project state — it is not a complete pre-flight specification.
+**Pre-flight pointer (current as of v0.6.0).** The authoritative pre-flight protocol (the four-tier search strategy, the six-step classification, the report block format including v0.6.0's topology validation, stale-spoke detection, and audit trigger handler, the confirmation token catalog including `confirm v0.6.0 upgrade` for Scenario F, the token matching rules, the completion criteria, the infrastructure-failure handling, and the symmetric post-flight summary) lives in `references/preflight.md`. SKILL.md's `## Protocol` section structurally gates every operation on the completion of that protocol. This section describes the post-pre-flight runtime steps each operation performs once pre-flight has classified the project state — it is not a complete pre-flight specification.
 
 Every operation begins with a pre-flight check. The runtime sequence operation files consume:
 
@@ -118,13 +118,13 @@ Every operation begins with a pre-flight check. The runtime sequence operation f
 
 2. **Project detection.** Identify the project container. If the conversation is not in a Project, ask the operator before proceeding (the output has no natural home as a project file).
 
-3. **File discovery and schema verification.** Defer to `references/preflight.md` for the three-tier search strategy and the four-branch classification (CURRENT, UPGRADE_AVAILABLE, LEGACY, UNKNOWN per `references/migration.md` section 1). The classification's resulting state snapshot is the input to steps 5–7 below.
+3. **File discovery and schema verification.** Defer to `references/preflight.md` for the four-tier search strategy and the five-branch classification (CURRENT, UPGRADE_AVAILABLE, UPGRADE_AVAILABLE_TOPOLOGY, LEGACY, UNKNOWN per `references/migration.md` section 1). The classification's resulting state snapshot is the input to steps 5–7 below.
 
 4. *(Reserved — see step 3.)*
 
 5. **Conflict detection.** If multiple files claim the same `file_role`, prompt the operator to identify the canonical one.
 
-6. **Migration trigger.** If pre-flight classified the project state as `⚠ Legacy` or `⚠ Upgrade Available`, initiate the corresponding migration flow per `references/migration.md` (legacy migration in sections 3–8; upgrade migration in section 9). Follow the corresponding migration brief's file-management ordering as the review gate — legacy uses `download → verify → delete old → upload new` (section 4); upgrade uses `download → upload (replace)` with no deletion step (section 9.5). Pre-flight does not add a separate coexistence prompt. Only the pure-current state (canonical v0.5.0 files present, no legacy or schema-0.2 files) skips migration.
+6. **Migration trigger.** If pre-flight classified the project state as `⚠ Legacy`, `⚠ Upgrade Available`, or `⚠ Upgrade Available (v0.5.0 to v0.6.0)`, initiate the corresponding migration flow per `references/migration.md` (legacy migration in sections 3–8; v0.4.0-to-v0.5.0 upgrade in section 9; v0.5.0-to-v0.6.0 topology upgrade in section 10). Follow the corresponding migration brief's file-management ordering as the review gate — legacy uses `download → verify → delete old → upload new` (section 4); both upgrade paths use `download → upload (replace)` with no deletion step (section 9.5 for Scenario E, section 10.5 for Scenario F). Pre-flight does not add a separate coexistence prompt. Only the pure-current state (canonical v0.6.0 files present at schema "0.4" with `_managed_by` and topology block, no legacy or schema-0.2 or schema-0.3-without-topology files) skips migration.
 
 7. **Configuration resolution.** Load `user-config.md` and `org-config.md` if present. Apply layered resolution per `references/defaults.md` to determine effective settings.
 
