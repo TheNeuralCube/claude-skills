@@ -1,14 +1,14 @@
 ---
 file_role: skill-reference
 topic: scoring
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Scoring algorithm (project-context v0.5.0)
+# Scoring algorithm (project-context v0.6.0)
 
 This file is the authoritative restatement of the scoring algorithm used by the project-context skill to decide which records stay in the active file (`project-context.md`) and which are proposed for demotion to the archive (`project-context-archive.md`).
 
