@@ -159,6 +159,12 @@ No existing project-context system detected. Executing skill v0.6.0.
 Proposing fresh generation at schema 0.4 with operator-declared topology
 role. The skill will prompt for the topology role declaration (LOCKED
 TEXT 1 per section 13.1) before writing the three files.
+
+**Configuration auto-creation:**
+- user-config.md auto-created with placeholder defaults; populate to
+  enable full personalization.
+- org-config.md auto-created with placeholder defaults; populate to set
+  org-scope governance and tunables.
 ```
 
 **Scenario B — Matched:**
