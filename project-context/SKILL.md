@@ -1,7 +1,7 @@
 ---
 name: project-context
-version: 0.5.0
-description: Capture forward-grounding context from the current chat into the three-file project-context system (active, entities, archive) so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", "project-context skill", "compact this", "trim the project context", "rebuild", or "regenerate project context". v0.5.0 uses four operations (default, merge_external, compact, rebuild) and a five-op merge classifier. Optimized for top-tier thinking models.
+version: 0.6.0
+description: Capture forward-grounding context from the current chat into the three-file project-context system (active, entities, archive) so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", "project-context skill", "compact this", "trim the project context", "rebuild", or "regenerate project context". v0.6.0 adds audit triggers (Hub projects only): "audit spoke projects", "audit the spokes", "which spokes are stale", "show me spoke staleness", "spoke inventory audit", "run spoke audit".
 ---
 
 ## Protocol
@@ -31,7 +31,7 @@ has emitted its report and any required confirmation has been received.
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# project-context (v0.5.0)
+# project-context (v0.6.0)
 
 A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` above), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration documentation, and the pre-flight / post-flight protocol live in `references/`.
 
