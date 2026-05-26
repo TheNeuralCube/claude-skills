@@ -491,17 +491,14 @@ After classification identifies a `✓ Compatible` verdict, pre-flight applies t
 
 ### 10.1 Validation sequence
 
+The validation rules themselves (role enum, declared_by enum, ISO 8601 timestamps, required-by-role fields, no-empty-fields) are specified canonically in `references/topology.md` section 6. Pre-flight applies those rules; it does not redefine them. This section specifies the application behavior — what pre-flight does at each step and what it emits on success or failure.
+
 1. **Parse the topology block** from `project-context.md` frontmatter. If the block is absent on a schema 0.4 file, this is a Parse Error (schema 0.4 requires the topology block per `references/topology.md` section 6).
-2. **Validate `role`** is one of the five enum values (`hub`, `spoke-dev`, `spoke-solution`, `standalone`, `unclassified`). Lowercase only. Any deviation is a Parse Error.
-3. **Validate `declared_by`** is one of (`operator`, `skill-default`). Any deviation is a Parse Error.
-4. **Validate `declared_at`** parses as ISO 8601 (full timestamp or date-only shorthand). Any deviation is a Parse Error.
-5. **Apply required-by-role rules** per `references/topology.md` section 6.1:
-   - `role: hub` requires `hub_reference`, `hub_version`, `last_hub_sync`, `parent` all null.
-   - `role: spoke-dev` requires `hub_reference`, `hub_version`, `last_hub_sync` non-null. `parent` may be null (direct-Hub spoke) or non-null (child of a Solution spoke).
-   - `role: spoke-solution` requires `hub_reference`, `hub_version`, `last_hub_sync` non-null. `parent` must be null.
-   - `role: standalone` requires `hub_reference`, `hub_version`, `last_hub_sync`, `parent` all null.
-   - `role: unclassified` permits all relationship fields null; no required non-null fields.
-6. **Apply no-empty-fields rule:** every field present in the topology block must have a confident value, an explicit null (where the role permits or requires null), or an explicit placeholder. A literally empty field is a Parse Error with message: "Topology field `<field>` is empty; expected confident value, explicit placeholder, or null with reason."
+2. **Validate `role`** against the enum specified in `references/topology.md` section 6.3. Any deviation is a Parse Error.
+3. **Validate `declared_by`** against the enum specified in `references/topology.md` section 6.5. Any deviation is a Parse Error.
+4. **Validate `declared_at`** as ISO 8601 per `references/topology.md` section 6.4. Any deviation is a Parse Error.
+5. **Apply required-by-role rules** per `references/topology.md` section 6.1 (the per-role required-non-null and required-null field matrix lives there). Any violation is a Parse Error.
+6. **Apply the no-empty-fields rule** per `references/topology.md` section 6.2. On violation, emit the Parse Error message specified in topology.md section 6.2: "Topology field `<field>` is empty; expected confident value, explicit placeholder, or null with reason."
 7. **For `role: spoke-*` projects:** proceed to stale-spoke detection (section 11).
 8. **For `role: unclassified` projects:** emit a follow-up prompt with LOCKED TEXT 1 (section 13) on each invocation until the operator declares a role.
 

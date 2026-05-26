@@ -34,7 +34,7 @@ Allowed values: `open`, `internal`, `confidential`, `restricted`.
 | `confidential` | Limited to specific people, teams, or contracts. |
 | `restricted` | Highly sensitive; access strictly controlled (legal hold, board-level, regulated PII). |
 
-The upstream default is `internal`. `org-config.md` can change the default via `defaults.sensitivity`. `user-config.md` can override per user.
+The upstream default is `internal`. `org-config.md` can change the org-level default via `compliance.default_sensitivity` (per the v0.6.0 schema in `references/org-config.md.template`). `user-config.md` can override per user via `privacy.default_sensitivity` (per `references/user-config.md.template`).
 
 ### `retention`
 
@@ -71,13 +71,15 @@ Empty `{}` by default. Downstream systems consume whatever keys the org puts her
 
 ## Defaults summary
 
+The override columns below cite the actual v0.6.0 config-template field paths. Consult `references/user-config.md.template` and `references/org-config.md.template` for the complete schemas; some frontmatter governance fields (`retention`, `custom_governance`) are not currently exposed as config-template override targets in v0.6.0 and must be set at file frontmatter or chat-time invocation.
+
 | Field | Upstream default | Where to override |
 |---|---|---|
-| `sensitivity` | `internal` | File frontmatter; `org-config.md`'s `defaults.sensitivity`; `user-config.md`. |
-| `retention` (active, entities) | `standard` | File frontmatter; `org-config.md`'s `defaults.retention`; `user-config.md`. |
-| `retention` (archive) | `indefinite` | File frontmatter; `org-config.md`'s `defaults.retention.archive`; `user-config.md`. |
-| `governance_frameworks` | `[]` | File frontmatter; `org-config.md`'s `defaults.governance_frameworks`; `user-config.md`. |
-| `custom_governance` | `{}` | File frontmatter; `org-config.md` (custom keys); `user-config.md` (custom keys). |
+| `sensitivity` | `internal` | File frontmatter; `org-config.md`'s `compliance.default_sensitivity`; `user-config.md`'s `privacy.default_sensitivity`. |
+| `retention` (active, entities) | `standard` | File frontmatter; chat-time operator instruction. Not currently exposed in `org-config.md.template` or `user-config.md.template`; deferred to a future schema bump if operator demand surfaces. |
+| `retention` (archive) | `indefinite` | File frontmatter; chat-time operator instruction. Same template-exposure caveat as above. |
+| `governance_frameworks` | `[]` | File frontmatter; `org-config.md`'s `compliance.regulatory_scope` (rough analog: lists frameworks like `SOX`, `HIPAA`, `ITAR`). `user-config.md` does not expose an analog. |
+| `custom_governance` | `{}` | File frontmatter; chat-time operator instruction. Not currently exposed in either v0.6.0 template; orgs that need custom keys document them via the `compliance` or `methodology_overrides` sections of `org-config.md` per their convention. |
 
 ## Resolution order
 

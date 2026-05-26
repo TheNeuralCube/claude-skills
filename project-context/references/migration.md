@@ -377,9 +377,15 @@ _managed_by marker and run pre-flight reliably.
 
 ### 9.7 Idempotency (upgrade migration)
 
-If pre-flight is invoked again on a project that has already been upgraded (schema "0.3" with `_managed_by` present on all three files), step 1 of the detection routes the project to `✓ Compatible` and no upgrade migration runs. Re-running upgrade against an already-upgraded project is a no-op by classification.
+Scenario E is a two-stage migration path by design in v0.6.0: the first invocation completes Scenario E (0.2 → 0.3), and the second invocation completes Scenario F (0.3 → 0.4 with topology) per `references/preflight.md` section 13. Re-invocation behavior reflects that staging.
 
-If the operator partially upgraded (e.g., uploaded the new `project-context.md` but kept the old `entities.md`), pre-flight will see mixed schema versions: one file matches step 1 (CURRENT), two match step 2 (UPGRADE_AVAILABLE). This is a partial state. Resolution: re-run upgrade migration, which will leave the already-upgraded file untouched (step 1 routes it to CURRENT, the operation does not re-modify it) and complete the remaining files.
+If pre-flight is invoked again on a project that has just completed Scenario E (schema "0.3" with `_managed_by` present on all three files, no `topology` block), step 1 of the detection (per section 1's five-branch classification) does NOT route the project to `✓ Compatible`; instead, step 2 matches (`_managed_by` present + `schema_version: "0.3"` + no topology block) and the project routes to `⚠ Upgrade Available (v0.5.0 to v0.6.0)` (Scenario F). The Scenario E output is ready for Scenario F on next invocation, not "compatible/current" in the v0.6.0 sense. Operator confirmation token for the second stage: `confirm v0.6.0 upgrade`. See section 10.
+
+Re-running Scenario E itself against an already-Scenario-E-upgraded project (i.e., the operator attempts to re-trigger Scenario E by typing `confirm upgrade` when pre-flight has already emitted `⚠ Upgrade Available (v0.5.0 to v0.6.0)`) is a token mismatch: the expected token for the project's current state is `confirm v0.6.0 upgrade`, not `confirm upgrade`. Pre-flight surfaces the token-mismatch error per `references/preflight.md` section 6.1.
+
+If the operator partially completed Scenario E (e.g., uploaded the new `project-context.md` at schema "0.3" with `_managed_by` but kept the old `entities.md` at schema "0.2"), pre-flight will see mixed states: one file matches step 2 (UPGRADE_AVAILABLE_TOPOLOGY: ready for Scenario F), one matches step 3 (UPGRADE_AVAILABLE: still needs Scenario E), and one may be missing. Resolution: re-run Scenario E to bring the remaining schema-0.2 file to schema "0.3"; step 2 then routes all three through Scenario F to reach schema "0.4". The detection's five-branch classification handles each file independently per `references/preflight.md` section 3.2.
+
+A project that has completed both Scenario E and Scenario F (schema "0.4" with `_managed_by` and topology block on all three files) routes to `✓ Compatible` per step 1, with topology validation and (for `role: spoke-*`) stale-spoke detection applied per `references/preflight.md` sections 10 and 11. That is the terminal pure-current v0.6.0 state.
 
 ### 9.8 Edge cases (upgrade migration)
 
