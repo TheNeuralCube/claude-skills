@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
-# Governance metadata framework (project-context v0.5.0)
+# Governance metadata framework (project-context v0.6.0)
 
-The project-context skill ships a governance metadata framework so files can carry the policy attributes enterprise environments care about (sensitivity, retention, applicable frameworks). The framework is **a schema**, not an integration: the skill captures the metadata so downstream systems and future skill versions can act on it. v0.5.0 does not call DLP services, does not enforce retention, and does not apply ACLs.
+The project-context skill ships a governance metadata framework so files can carry the policy attributes enterprise environments care about (sensitivity, retention, applicable frameworks). The framework is **a schema**, not an integration: the skill captures the metadata so downstream systems and future skill versions can act on it. v0.6.0 does not call DLP services, does not enforce retention, and does not apply ACLs.
 
 All governance fields appear in every file's YAML frontmatter and are REQUIRED (though several may carry empty values like `[]` or `{}`). The framework is unchanged from v0.1.0 except for the per-record audit-block addition documented in section 6.
 
@@ -19,7 +19,7 @@ custom_governance: {}
 
 When a file is read by a downstream system or governance scanner, these fields set the baseline for everything in the file.
 
-v0.5.0 does not support per-record governance overrides via inline brackets. The v0.1 inline-bracket form (`[sensitivity: confidential]` after a bullet) is removed. Records that need divergent governance go in a separate file. This is a workshop-locked decision: per-record overrides were rarely used in production and added parsing complexity without operational benefit.
+v0.6.0 does not support per-record governance overrides via inline brackets. The v0.1 inline-bracket form (`[sensitivity: confidential]` after a bullet) is removed. Records that need divergent governance go in a separate file. This is a workshop-locked decision: per-record overrides were rarely used in production and added parsing complexity without operational benefit.
 
 ## The four fields
 
@@ -107,15 +107,15 @@ audit:
 
 The audit block exists so quality issues (especially from auto-mode) can be diagnosed and coached after the fact, not as a blame mechanism. Governance fields (`sensitivity` etc.) describe WHAT the record is. Audit fields describe HOW it got into the file. Both are required.
 
-## What v0.5.0 does and does not do
+## What v0.6.0 does and does not do
 
-**v0.5.0 does:**
+**v0.6.0 does:**
 - Capture file-level governance metadata.
-- Capture per-record audit metadata (new).
+- Capture per-record audit metadata.
 - Apply file-level defaults from upstream, `org-config.md`, and `user-config.md` in resolution order.
 - Carry `custom_governance` keys through unchanged so downstream systems can read them.
 
-**v0.5.0 does not:**
+**v0.6.0 does not:**
 - Call DLP, ACL, or compliance services.
 - Encrypt or redact records based on `sensitivity`.
 - Auto-delete files based on `retention`.

@@ -1,8 +1,8 @@
 ---
 file_role: skill-operation
 operation: default
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -36,7 +36,7 @@ Then stop. Do not proceed to the rest of pre-flight on a non-supported surface.
 
 ### 1.2 Remaining pre-flight
 
-If the surface guard passes, hand off to the pre-flight protocol per `references/preflight.md` for the protocol-enforcement work (three-tier search, four-branch classification, report block, confirmation token). The post-classification runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4. Migration is initiated per `references/migration.md` whenever pre-flight classifies as `⚠ Legacy` or `⚠ Upgrade Available`; pure-current state with no legacy or schema-0.2 files skips migration.
+If the surface guard passes, hand off to the pre-flight protocol per `references/preflight.md` for the protocol-enforcement work (four-tier search, five-branch classification including UPGRADE_AVAILABLE_TOPOLOGY, report block, confirmation token, topology validation, stale-spoke detection). The post-classification runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4. Migration is initiated per `references/migration.md` whenever pre-flight classifies as `⚠ Legacy`, `⚠ Upgrade Available`, or `⚠ Upgrade Available (v0.5.0 to v0.6.0)`; only pure-current state at schema 0.4 with `_managed_by` and topology block skips migration (legacy files, schema-0.2 files, and schema-0.3-without-topology files all trigger their respective migration paths).
 
 ## 2. Parse the conversation
 
@@ -226,7 +226,7 @@ Proceed with auto-mode for this session?
 | Passive (unclear, off-topic, silent) | Auto-mode proceeds (per workshop decision). | `passive` |
 | Explicit dismissal ("whatever", "fine") | Auto-mode proceeds. | `dismissed` |
 
-Activation scope is per-session. The warning fires again on the next session if auto-mode is still configured. Persistent across-session activation is not supported in v0.5.0.
+Activation scope is per-session. The warning fires again on the next session if auto-mode is still configured. Persistent across-session activation is not supported in v0.6.0.
 
 Every record added under auto-mode carries:
 

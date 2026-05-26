@@ -1,8 +1,8 @@
 ---
 file_role: skill-operation
 operation: compact
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -101,7 +101,7 @@ After applying:
 4. Append a checkpoint to the archive's `checkpoints` array: `summary: "Compact: N records demoted."`.
 5. Run the validation checklist from `references/schema.md` section 6 on both files.
 
-`entities.md` is not touched by `compact`. Entity decay is not part of v0.5.0; see `ROADMAP.md`.
+`entities.md` is not touched by `compact`. Entity decay is not part of v0.6.0; see `ROADMAP.md`.
 
 ## 7. Operator brief
 

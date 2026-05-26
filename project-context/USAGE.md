@@ -2,7 +2,7 @@
 <!-- Copyright 2026 Raul J. Soto -->
 # project-context — usage walkthrough
 
-This file is a user-facing walkthrough of the v0.5.0 three-file workflow. It complements `README.md` (which explains what the skill does) and `operations/*.md` (which contain the operation logic) with concrete step-by-step usage. Read this if you are setting up the skill in a new Project for the first time, or returning after using the v0.1.x-v0.3.x version, or upgrading from v0.4.0 (see "Upgrading from v0.4.0" below).
+This file is a user-facing walkthrough of the v0.6.0 three-file workflow. It complements `README.md` (which explains what the skill does) and `operations/*.md` (which contain the operation logic) with concrete step-by-step usage. Read this if you are setting up the skill in a new Project for the first time, or returning after using the v0.1.x-v0.3.x version, or upgrading from v0.4.0 (see "Upgrading from v0.4.0" below) or v0.5.0 (see "Upgrading from v0.5.0" below).
 
 ## Prerequisites
 
@@ -24,12 +24,13 @@ The first time you invoke the skill in a new Project, it creates all three files
    - "save project context"
    - "ground this project"
    - "snapshot project context"
-3. **The skill runs pre-flight.** It detects the Project (correctly identifying you are in one). It finds no existing project-context files, so it does NOT trigger migration. It loads any `user-config.md` or `org-config.md` you have in the Project (none on first run, so it uses upstream defaults).
-4. **The skill parses the conversation.** It produces candidate records (decisions, constraints, current state, etc.).
-5. **The skill applies the hybrid brake.** New records with no similar neighbors auto-apply. (On first run, every record has no neighbors, so they all auto-apply.)
-6. **The skill writes three files.** All three are created with `update_count: 1`, `schema_version: "0.3"`, and frontmatter populated. Records you generated populate the active file (`project-context.md`) and entities file (`entities.md`). The archive (`project-context-archive.md`) is created with one frontmatter checkpoint but no body records yet.
-7. **The skill emits the operator brief.** A summary of what was created, plus instructions: download these three files, upload them to your Project.
-8. **You download and upload.**
+3. **The skill runs pre-flight.** It detects the Project (correctly identifying you are in one). It finds no existing project-context files, so it does NOT trigger migration. It auto-creates `user-config.md` and `org-config.md` from the v0.6.0 templates if they are absent, with `[tbd]` placeholders for operator-supplied fields. Pre-flight emits the `✓ Fresh Project` verdict.
+4. **The skill prompts for topology role declaration (NEW in v0.6.0).** Before generating output, the skill emits LOCKED TEXT 1 (per `references/preflight.md` section 13.1) asking you to declare the project's topology role: `hub` (owns a spoke inventory), `spoke-dev` (a development artifact like a skill referencing a hub), `spoke-solution` (a delivered solution referencing a hub), or `standalone` (no hub relationship). Reply with the role name. If you declare a spoke role, the skill also asks for `hub_reference` and `hub_version` via LOCKED TEXT 2.
+5. **The skill parses the conversation.** It produces candidate records (decisions, constraints, current state, etc.).
+6. **The skill applies the hybrid brake.** New records with no similar neighbors auto-apply. (On first run, every record has no neighbors, so they all auto-apply.)
+7. **The skill writes three files.** All three are created with `update_count: 1`, `schema_version: "0.4"`, the `topology` block populated from your role declaration, and frontmatter populated. Records you generated populate the active file (`project-context.md`) and entities file (`entities.md`). The archive (`project-context-archive.md`) is created with one frontmatter checkpoint but no body records yet. For `role: hub`, an empty `## Spoke Inventory` section appears in the body of `project-context.md` immediately after frontmatter.
+8. **The skill emits the operator brief.** A summary of what was created, plus instructions: download these three files, upload them to your Project.
+9. **You download and upload.**
 
 That's the bootstrap. From here on, every session continues against these three files.
 
@@ -39,7 +40,7 @@ The everyday workflow once you have the three files in place.
 
 1. **Chat as normal.** Have a substantive exchange.
 2. **Invoke the skill.** "create project-context", "save project context", or any equivalent.
-3. **Pre-flight loads the existing three files** and detects their `schema_version: "0.3"`. No migration. Configuration loaded if `user-config.md` is present.
+3. **Pre-flight loads the existing three files** and detects their `schema_version: "0.4"` and `topology` block (the v0.6.0 current contract). No migration. Configuration loaded if `user-config.md` is present. If the project is `role: spoke-*` and the attached Hub instructions filename version differs from the spoke's declared `topology.hub_version`, pre-flight also emits the `⚠ Stale Spoke` informational verdict (not blocking; the operation proceeds and post-flight surfaces a one-line recommendation to use project-creator upgrade mode).
 4. **The skill parses the conversation** for candidates.
 5. **The skill classifies each candidate** against existing records using the five-op merge classifier:
    - **ADD** — no similar neighbor → new record.
@@ -129,49 +130,71 @@ If you used project-context v0.1.x through v0.3.2 in this Project, you have date
 
 1. **Invoke the skill** with any phrase.
 2. **Pre-flight detects the legacy dated files.** It also detects the absence of canonical three-file system (`project-context.md`, `entities.md`, `project-context-archive.md`).
-3. **The skill triggers migration.** It parses every legacy file, stamps lifecycle fields with the legacy `created` date, infers `importance` from tier (`full` → 8, `summary` → 5, `transient` → DROPPED), scores everything, and partitions into active and archive.
-4. **The skill writes the three new files** with `update_count: 0` and a frontmatter `checkpoints` entry summarizing the migration.
-5. **The skill emits a migration brief** listing each legacy file by exact filename with required order of operations:
+3. **The skill triggers migration (Scenario D).** It parses every legacy file, stamps lifecycle fields with the legacy `created` date, infers `importance` from tier (`full` → 8, `summary` → 5, `transient` → DROPPED), scores everything, and partitions into active and archive.
+4. **The skill solicits topology role declaration (NEW in v0.6.0).** Before any file write, the skill emits LOCKED TEXT 1 asking you to declare the project's topology role. Reply with `hub`, `spoke-dev`, `spoke-solution`, or `standalone`. If you declare a spoke role, the skill also asks for `hub_reference` and `hub_version` via LOCKED TEXT 2.
+5. **The skill writes the three new files** at `schema_version: "0.4"` with `update_count: 0`, the operator-declared `topology` block, and a frontmatter `checkpoints` entry summarizing the migration. v0.6.0 retargets legacy migration to produce schema "0.4" directly; v0.1-era projects skip schemas "0.2" and "0.3" entirely.
+6. **The skill emits a migration brief** listing each legacy file by exact filename with required order of operations:
    - **(a)** download the three new files,
-   - **(b)** verify they look correct,
+   - **(b)** verify they look correct (and that the topology block reflects your declaration),
    - **(c)** delete the listed legacy files from the Project,
    - **(d)** upload the three new files.
-6. **Do them in that order.** If you delete first and the migration is wrong, you lose the source. The skill cannot delete files itself.
+7. **Do them in that order.** If you delete first and the migration is wrong, you lose the source. The skill cannot delete files itself.
 
-Migration is one-time. Re-running the skill on a migrated Project skips migration (it detects `schema_version: "0.3"` and `_managed_by: project-context-skill` and proceeds normally).
+Migration is one-time. Re-running the skill on a migrated Project skips migration (it detects `schema_version: "0.4"`, `_managed_by: project-context-skill`, and the `topology` block and proceeds normally).
 
 ## Upgrading from v0.4.0
 
-If your project already has the v0.4.0 three-file system (`project-context.md`, `entities.md`, `project-context-archive.md` at `schema_version: "0.2"` with no `_managed_by` field), pre-flight detects this on first invocation under v0.5.0 and emits the verdict `⚠ Upgrade Available` rather than proceeding with the requested operation.
+If your project already has the v0.4.0 three-file system (`project-context.md`, `entities.md`, `project-context-archive.md` at `schema_version: "0.2"` with no `_managed_by` field), pre-flight detects this on first invocation under v0.6.0 and emits the verdict `⚠ Upgrade Available` (Scenario E) rather than proceeding with the requested operation.
 
-To complete the upgrade, type the confirmation token `confirm upgrade`. The skill then rewrites the three canonical files with two frontmatter changes:
+To complete Scenario E, type the confirmation token `confirm upgrade`. The skill then rewrites the three canonical files with two frontmatter changes:
 
 - Adds `_managed_by: project-context-skill` near `schema_version`.
 - Changes `schema_version: "0.2"` → `schema_version: "0.3"`.
 
 All record content — every `dec-`, `con-`, `csn-`, `opn-`, `trm-`, `ref-`, `ent-`, and `arc-` entry — is preserved verbatim. Lifecycle fields, audit metadata, timestamps, scores, links, the archive's `checkpoints` array: none are modified. The upgrade is frontmatter-only.
 
-After the upgrade, download the three updated files from the chat and re-upload them to your Project, replacing the schema-0.2 versions. The filenames are unchanged, so the upload-replace flow handles file management — there is no legacy-file-deletion step.
+After Scenario E, the files are at schema "0.3" as an intermediate state. **Re-invoke the skill** to reach the current v0.6.0 schema "0.4" via Scenario F (the next section); pre-flight will detect the schema-0.3-without-topology state and emit `⚠ Upgrade Available (v0.5.0 to v0.6.0)`. Download and upload the schema-0.3 files between the two invocations only if your platform requires file refresh between runs.
 
-See `references/preflight.md` for the full pre-flight protocol and `references/migration.md` section 9 for the upgrade migration algorithm.
+See `references/preflight.md` for the full pre-flight protocol and `references/migration.md` section 9 for the Scenario E upgrade migration algorithm.
+
+## Upgrading from v0.5.0
+
+If your project already has the v0.5.0 three-file system (`project-context.md`, `entities.md`, `project-context-archive.md` at `schema_version: "0.3"` with `_managed_by: project-context-skill` but no `topology` block), pre-flight detects this on first invocation under v0.6.0 and emits the verdict `⚠ Upgrade Available (v0.5.0 to v0.6.0)` (Scenario F) rather than proceeding with the requested operation.
+
+To complete Scenario F, type the confirmation token `confirm v0.6.0 upgrade`. The skill then rewrites the three canonical files with two frontmatter changes:
+
+- Adds a `topology` block with `role: "unclassified"` default, all relationship fields null, `declared_by: "skill-default"`, and `declared_at: <current timestamp>`.
+- Changes `schema_version: "0.3"` → `schema_version: "0.4"`.
+
+All record content is preserved verbatim. Lifecycle fields, audit metadata, timestamps, scores, links, the archive's `checkpoints` array, the per-record audit block: none are modified. The upgrade is frontmatter-only.
+
+After the file writes complete, the skill emits LOCKED TEXT 1 (per `references/preflight.md` section 13.1) asking you to declare the project's topology role. Reply with `hub`, `spoke-dev`, `spoke-solution`, or `standalone`. The skill then writes the declared role to `topology.role` in `project-context.md`, sets `declared_by: "operator"`, and (for `role: hub`) creates an empty `## Spoke Inventory` section in the body. If you declare a spoke role, the skill asks for `hub_reference` and `hub_version` via LOCKED TEXT 2; supply both and the skill stamps them onto the topology block.
+
+If you decline to declare a role (no response or off-topic), the topology stays `unclassified` and the skill re-prompts on next invocation. No data corruption; the skill operates normally with an unclassified topology.
+
+After Scenario F, download the three updated files from the chat and re-upload them to your Project, replacing the schema-0.3 versions. The filenames are unchanged, so the upload-replace flow handles file management — there is no legacy-file-deletion step.
+
+See `references/preflight.md` for the full pre-flight protocol (including topology validation in section 10, stale-spoke detection in section 11, audit trigger handler in section 12, and role-declaration prompts in section 13) and `references/migration.md` section 10 for the Scenario F upgrade migration algorithm.
 
 ## Setting up `user-config.md`
 
-If you want to override defaults for your personal workflow:
+In v0.6.0, the skill auto-creates `user-config.md` from [`references/user-config.md.template`](references/user-config.md.template) on first invocation if absent, with `[tbd]` placeholders for operator-supplied required fields. To populate it:
 
-1. **Copy** [`references/user-config-template.md`](references/user-config-template.md) as a starting point.
-2. **Edit it.** Uncomment the settings you want to change. Every setting has a prose comment explaining what it does.
-3. **Upload it to your Project** as `user-config.md`.
+1. **Open the auto-created `user-config.md`** in your Project knowledge.
+2. **Edit the `[tbd]` placeholders** for the three required fields (`operator.primary_name`, `defaults.hub_project_name`, `defaults.preferred_platform`) and any other fields you want to override.
+3. **Re-upload it to your Project**, replacing the auto-created version.
 4. **Next invocation picks it up.**
+
+Pre-flight notes if any required fields still read `[tbd]` so you know what remains to populate.
 
 If your settings conflict with `org-config.md` (when `org-config.md` sets `allow_user_auto: false` and your `user-config.md` sets `merge_policy: auto`), the skill warns you in the brief and falls back to the org policy.
 
 ## Setting up `org-config.md`
 
-If you administer the skill for an organization:
+In v0.6.0, the skill auto-creates `org-config.md` from [`references/org-config.md.template`](references/org-config.md.template) on first invocation if absent. If you administer the skill for an organization:
 
-1. **Copy** [`references/org-config-template.md`](references/org-config-template.md).
-2. **Edit it.** Govern at the org level: governance defaults, scoring tweaks, additional trigger phrases, downstream chaining reminders.
+1. **Open the auto-created `org-config.md`** (or copy the template directly if you want to deploy ahead of first invocation).
+2. **Edit it.** Populate the required `[tbd]` fields (`org.name`, `org.type`, `org.tenant`, `compliance.default_sensitivity`) and govern at the org level: governance defaults, scoring tweaks, additional trigger phrases, downstream chaining reminders.
 3. **Distribute it.** Each user uploads it to their Project alongside the skill folder, or your tenant administrator drops it in the org-level skill deployment if supported.
 
 Org-config is loaded after the skill defaults and before user-config. User overrides win for everything except the `allow_user_auto` veto.
@@ -188,12 +211,14 @@ Org-config is loaded after the skill defaults and before user-config. User overr
 ## Where to learn more
 
 - The schema contract: `references/schema.md`.
+- The topology schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules: `references/topology.md`.
 - The scoring algorithm: `references/scoring.md`.
 - The full operation logic: `operations/*.md`.
 - Default values: `references/defaults.md`.
 - Schema history: `references/schema-changelog.md`.
-- Migration details: `references/migration.md`.
+- Migration details (all three paths: Scenario D legacy, Scenario E v0.4.0 upgrade, Scenario F v0.5.0 to v0.6.0 topology upgrade): `references/migration.md`.
 - Governance metadata: `references/governance.md`.
-- Configuration templates: `references/user-config-template.md`, `references/org-config-template.md`.
+- Configuration templates: `references/user-config.md.template`, `references/org-config.md.template`.
+- Multi-platform parameters (consumed by project-creator skill): `references/platform-specific-parameters.md`.
 - Examples: `references/examples/`.
 - What's on the radar: `ROADMAP.md`.

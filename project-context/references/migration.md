@@ -24,7 +24,7 @@ For the history of what was actually written under "0.1", including the unquoted
 
 Pre-flight scans the project for files matching either:
 
-- The canonical v0.5.0 filenames: `project-context.md`, `entities.md`, `project-context-archive.md`.
+- The canonical project-context filenames: `project-context.md`, `entities.md`, `project-context-archive.md` (introduced in v0.4.0, unchanged through v0.6.0).
 - The legacy filename pattern: `*-project-context*.md` (dated, optionally topic-suffixed, including `-consolidated[-N]` variants).
 - A `file_type: project-context` value in the YAML frontmatter.
 
@@ -34,7 +34,7 @@ For every match, parse the frontmatter and run the **five-branch classification*
 
 **Step 2 — Topology-upgrade-available (v0.5.0 → v0.6.0, Scenario F).** If the file has `_managed_by: project-context-skill` AND `schema_version: "0.3"` AND no `topology` block, the file is a v0.5.0-managed schema-0.3 file eligible for in-place upgrade to schema "0.4". Pre-flight classifies as `⚠ Upgrade Available (v0.5.0 to v0.6.0)` and routes to the topology-upgrade migration in section 10. Operator confirmation token: `confirm v0.6.0 upgrade`. Do NOT evaluate later steps for this file.
 
-**Step 3 — Upgrade-available (v0.4.0 → v0.5.0).** If the file has a canonical v0.5.0 filename AND `schema_version: "0.2"` (the v0.4.0 literal) AND no `_managed_by` field, the file is a v0.4.0 schema-0.2 file eligible for in-place upgrade. Pre-flight classifies as `⚠ Upgrade Available` and routes to the upgrade migration in section 9. Operator confirmation token: `confirm upgrade`. After section 9 completes, the file reaches schema "0.3" with `_managed_by`; pre-flight on the next invocation then matches step 2 and routes through Scenario F to reach schema "0.4". Do NOT evaluate later steps for this file.
+**Step 3 — Upgrade-available (v0.4.0 → v0.5.0).** If the file has a canonical project-context filename AND `schema_version: "0.2"` (the v0.4.0 literal) AND no `_managed_by` field, the file is a v0.4.0 schema-0.2 file eligible for in-place upgrade. Pre-flight classifies as `⚠ Upgrade Available` and routes to the upgrade migration in section 9. Operator confirmation token: `confirm upgrade`. After section 9 completes, the file reaches schema "0.3" with `_managed_by`; pre-flight on the next invocation then matches step 2 and routes through Scenario F to reach schema "0.4". Do NOT evaluate later steps for this file.
 
 **Step 4 — Legacy regex (v0.1-era).** If steps 1, 2, and 3 all did not match, test `schema_version` against the legacy regex `^"?v?0\.(1|2|3)(\.\d+)?"?$`. The regex matches the following forms:
 
@@ -97,7 +97,7 @@ def classify_for_migration(file):
 
 ## 2. Migration trigger (legacy)
 
-Legacy migration runs whenever one or more legacy files are detected, **regardless of whether v0.5.0 files coexist**. The project states pre-flight may observe (full verdict list in `references/preflight.md`):
+Legacy migration runs whenever one or more legacy files are detected, **regardless of whether canonical project-context files coexist**. The project states pre-flight may observe (full verdict list in `references/preflight.md`):
 
 | Project state | Verdict | Trigger |
 |---|---|---|
@@ -105,8 +105,8 @@ Legacy migration runs whenever one or more legacy files are detected, **regardle
 | **Pure-topology-upgrade (v0.5.0 → v0.6.0, Scenario F)** — canonical files at schema 0.3 with `_managed_by` but no topology block; no other state present | `⚠ Upgrade Available (v0.5.0 to v0.6.0)` | Route to topology upgrade migration (section 10). Token: `confirm v0.6.0 upgrade`. |
 | **Pure-upgrade (v0.4.0 → v0.5.0)** — canonical filenames at schema 0.2 with no `_managed_by`; no v0.1-era legacy files | `⚠ Upgrade Available` | Route to upgrade migration (section 9). Token: `confirm upgrade`. After section 9, re-invoke for Scenario F to reach schema 0.4. |
 | **Pure-legacy (v0.1-era)** — one or more legacy files; no v0.6.0 canonical files | `⚠ Legacy` | Route to legacy migration (sections 3–8). Token: `confirm migration`. Operator declares topology role as part of migration interview; migration produces schema-0.4 files directly. |
-| **Coexistence (legacy + v0.5.0)** — one or more legacy files AND one or more canonical v0.5.0 files | `⚠ Legacy` (with completion guidance) | Route to legacy migration. The migration merges legacy content into the existing v0.5.0 files (using the same classifier and scoring as a normal session). The operator's safety net is the brief's `download → verify → delete old → upload new` ordering: nothing is deleted from the Project until the operator has reviewed the merged output. |
-| **Partial v0.5.0 state** — some canonical files present, others missing | `⚠ Partial State` | Surface to operator with two options (rebuild missing from active records OR treat as fresh). No auto-resolution. |
+| **Coexistence (legacy + canonical project-context)** — one or more legacy files AND one or more canonical project-context files | `⚠ Legacy` (with completion guidance) | Route to legacy migration. The migration merges legacy content into the existing canonical files (using the same classifier and scoring as a normal session). The operator's safety net is the brief's `download → verify → delete old → upload new` ordering: nothing is deleted from the Project until the operator has reviewed the merged output. |
+| **Partial canonical state** — some canonical files present, others missing | `⚠ Partial State` | Surface to operator with two options (rebuild missing from active records OR treat as fresh). No auto-resolution. |
 
 Pre-flight does NOT ask a separate coexistence question. The unified ordering of the operator brief (section 4 below) is the review gate; an additional prompt would duplicate that gate without adding safety.
 

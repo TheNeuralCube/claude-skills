@@ -1,12 +1,22 @@
-# Example: `project-context.md` after a routine v0.5.0 session
+# Example: `project-context.md` after a routine v0.6.0 session
 
 The block below is a realistic example of the active grounding file (`project-context.md`) after several sessions. It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers (this file is operator work product, not skill source).
 
+The example uses `topology.role: standalone` (no Hub relationship); see `references/topology.md` for the full topology schema and the four other role options (hub, spoke-dev, spoke-solution, unclassified). A `role: hub` example would additionally carry a `## Spoke Inventory` section in the body immediately after frontmatter.
+
 ```markdown
 ---
-schema_version: "0.3"
+schema_version: "0.4"
 _managed_by: project-context-skill
 file_role: project-context
+topology:
+  role: "standalone"
+  hub_reference: null
+  hub_version: null
+  last_hub_sync: null
+  parent: null
+  declared_by: "operator"
+  declared_at: 2026-05-13T14:00:00-05:00
 project: "Q3 Strategic Review"
 project_id: "q3-strategic-review-2026"
 created: 2026-05-13T14:00:00-05:00
@@ -38,7 +48,7 @@ governance_frameworks: []
 custom_governance: {}
 generated_by:
   skill: project-context
-  version: "0.5.0"
+  version: "0.6.0"
   model: claude-opus-4-7
   generation_date: 2026-05-13T16:42:00-05:00
 ---

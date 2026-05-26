@@ -21,7 +21,9 @@ The skill ships with four named operations:
 - **`compact`** — score all active records, propose batch DEMOTE for records below the demotion threshold. Manual cleanup when the active file approaches the soft warning.
 - **`rebuild`** — regenerate the active file from the archive using the current scoring algorithm. Recovery operation. Mandatory pre-commit review.
 
-v0.4.0 was the architectural pivot from v0.1.x-v0.3.x (dated-single-file model and two modes replaced by the rolling three-file system and four operations). v0.5.0 inherits all of that and closes the protocol-enforcement gap: a mandatory pre-flight protocol structurally gates every operation, schema bumps to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. See `CHANGELOG.md`.
+v0.4.0 was the architectural pivot from v0.1.x-v0.3.x (dated-single-file model and two modes replaced by the rolling three-file system and four operations). v0.5.0 closed the protocol-enforcement gap: a mandatory pre-flight protocol structurally gates every operation, schema bumped to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. v0.6.0 inherits all of that and adds hub-spoke governance awareness: schema bumps to "0.4" with a new REQUIRED `topology` block (role: hub, spoke-dev, spoke-solution, standalone, or unclassified), an audit trigger phrase invokable in Hub projects (`audit spoke projects` and variants), stale-spoke detection on spoke projects, and a new Scenario F migration path from v0.5.0 (schema 0.3) to v0.6.0 (schema 0.4). See `CHANGELOG.md`.
+
+The v0.6.0 first principle (P1): a project's topology relationship to other projects is part of its active state. Every project answers "what is your role?" before any other operation. The full topology schema lives in `references/topology.md`.
 
 ## Who this skill is for
 
@@ -62,9 +64,9 @@ The skill is triggered by phrases in your chat. The full list lives in `SKILL.md
 - Attach a file in the chat (the skill detects the attachment).
 - Or: "merge this into project context", "process this attached file", "import this session-recap".
 
-All 19 trigger phrases from v0.1.0 are preserved verbatim in v0.5.0 and route to the closest behavioral equivalent.
+All 19 trigger phrases from v0.1.0 are preserved verbatim in v0.6.0 and route to the closest behavioral equivalent. v0.6.0 adds six audit trigger phrases (`audit spoke projects`, `audit the spokes`, `which spokes are stale`, `show me spoke staleness`, `spoke inventory audit`, `run spoke audit`) invokable only in Hub projects; in any other project the audit handler refuses with "Audit trigger valid only in Hub projects."
 
-The pre-flight check runs first regardless of phrase. In v0.5.0 pre-flight is a structural gate (`## Protocol` section of `SKILL.md`): the skill emits an operator-visible pre-flight report block (verdicts: `✓ Compatible`, `✓ Fresh Project`, `⚠ Legacy`, `⚠ Upgrade Available`, `⚠ Partial State`, `✗ MISMATCH`, `✗ Parse Error`, `✗ Infrastructure Failure`) and waits for a confirmation token (e.g., `confirm merge`, `confirm migration`, `confirm upgrade`) before generating output. See [`references/preflight.md`](references/preflight.md) for the full protocol. A symmetric post-flight summary closes the audit loop after writes complete.
+The pre-flight check runs first regardless of phrase. In v0.6.0 pre-flight is a structural gate (`## Protocol` section of `SKILL.md`): the skill emits an operator-visible pre-flight report block (verdicts: `✓ Compatible`, `✓ Fresh Project`, `⚠ Legacy`, `⚠ Upgrade Available`, `⚠ Upgrade Available (v0.5.0 to v0.6.0)`, `⚠ Stale Spoke`, `⚠ Hub Source Behind`, `⚠ Hub Source Missing`, `⚠ Partial State`, `✗ MISMATCH`, `✗ Parse Error`, `✗ Infrastructure Failure`) and waits for a confirmation token (e.g., `confirm merge`, `confirm migration`, `confirm upgrade`, `confirm v0.6.0 upgrade`) before generating output. See [`references/preflight.md`](references/preflight.md) for the full protocol. A symmetric post-flight summary closes the audit loop after writes complete.
 
 ## Output format
 
@@ -72,8 +74,9 @@ The skill writes three markdown files with YAML frontmatter and structured-YAML 
 
 Highlights:
 
-- Every file carries `schema_version: "0.3"` (the data-shape contract — decoupled from the skill version).
+- Every file carries `schema_version: "0.4"` (the data-shape contract — decoupled from the skill version).
 - Every file carries `_managed_by: project-context-skill` (registry marker introduced in schema "0.3"; makes pre-flight detection reliable).
+- Every file carries a `topology` block (introduced in schema "0.4"; role + Hub relationship + declared_by/declared_at; see [`references/topology.md`](references/topology.md) for the full schema, role definitions, spoke inventory format, and validation rules).
 - Every file carries an `id_prefix_legend` map so a reader has the full eight-prefix legend regardless of which file is loaded.
 - Every record carries lifecycle fields (`first_seen_update`, `last_seen_update`, `first_seen_at`, `last_seen_at`, `times_seen`), a numeric `importance` (1-10), a `status` (`active`, `superseded`, `archived`), provenance (`source_quote`, `source_kind`, `source_ref`), `links`, and an `audit` block.
 - The archive's `checkpoints` array lives in frontmatter (per-merge log); its body is a flat `## Records` list discriminated by `status`.
@@ -95,7 +98,7 @@ org-config.md           (optional, org-scope overrides)
 
 ## Customization with user-config.md and org-config.md
 
-The skill follows a **three-layer configuration model** (introduced in v0.4.0, preserved in v0.5.0):
+The skill follows a **three-layer configuration model** (introduced in v0.4.0, preserved through v0.6.0):
 
 | Layer | Source | Scope | Priority |
 |---|---|---|---|
@@ -103,22 +106,23 @@ The skill follows a **three-layer configuration model** (introduced in v0.4.0, p
 | Org | `org-config.md` | All users in the org | Middle |
 | Skill | `references/defaults.md` | Universal | Lowest |
 
-- The user layer was new in v0.4.0. The template is at [`references/user-config-template.md`](references/user-config-template.md). Drop it in your Project, uncomment the settings you want to override, and the skill will pick them up. This is the canonical example of the **`user-config.md` cross-skill convention** that future skills in the monorepo will adopt.
-- The org layer is unchanged from v0.1.0. The template is at [`references/org-config-template.md`](references/org-config-template.md). Copy it to `org-config.md` in your Project's deployment if you want org-scope governance defaults, scoring tweaks, trigger-phrase additions, or downstream chaining reminders.
+- The user layer was new in v0.4.0; the v0.6.0 schema 0.4 template is at [`references/user-config.md.template`](references/user-config.md.template). The skill auto-creates `user-config.md` in your Project with placeholder defaults on first invocation if absent; populate the `[tbd]` fields and the skill picks up the values on the next run. This is the canonical example of the **`user-config.md` cross-skill convention** that future skills in the monorepo will adopt.
+- The org layer is unchanged from v0.1.0; the v0.6.0 schema 0.4 template is at [`references/org-config.md.template`](references/org-config.md.template). The skill auto-creates `org-config.md` with placeholder defaults on first invocation if absent; populate it to set org-scope governance defaults, scoring tweaks, trigger-phrase additions, or downstream chaining reminders.
 - The skill layer is the source of truth for unset values, documented in [`references/defaults.md`](references/defaults.md).
 
 What the config layers can change: merge policy, proposal cap, token budgets, scoring coefficients and threshold, governance defaults, user identifier (for audit trail), brief format, additional trigger phrases, downstream chaining.
 
-What they cannot change: schema validity. The three files, eight ID prefixes, six body sections of `project-context.md`, five sub-sections of `entities.md`, archive's `status`-discriminated body, the `audit` block, and the `_managed_by` registry marker are all part of the `schema_version: "0.3"` contract.
+What they cannot change: schema validity. The three files, eight ID prefixes, six body sections of `project-context.md`, five sub-sections of `entities.md`, archive's `status`-discriminated body, the `audit` block, the `_managed_by` registry marker, and the `topology` block are all part of the `schema_version: "0.4"` contract.
 
-## Migration from v0.1.x-v0.3.x (legacy) or v0.4.0 (upgrade)
+## Migration from v0.1.x-v0.3.x (legacy), v0.4.0, or v0.5.0
 
-v0.5.0 supports two migration paths, both routed by pre-flight:
+v0.6.0 supports three migration paths, all routed by pre-flight:
 
-- **Legacy migration** (v0.1.x-v0.3.x dated files → schema "0.3"). Pre-flight detects legacy `*-project-context*.md` files and emits `⚠ Legacy`. Confirmation token: `confirm migration`. The skill parses legacy records, stamps lifecycle fields, scores them, partitions into active and archive, and writes the three new files directly at schema "0.3" (skipping schema "0.2" entirely). The operator brief lists each legacy file by exact filename for manual deletion (the skill cannot delete Project files in v0.5.0 — no platform API). Required order of operations: download new → verify → delete old → upload new.
-- **Upgrade migration** (v0.4.0 schema "0.2" files → schema "0.3", NEW in v0.5.0). Pre-flight detects canonical filenames with `schema_version: "0.2"` and no `_managed_by` field and emits `⚠ Upgrade Available`. Confirmation token: `confirm upgrade`. The skill rewrites the three canonical files adding `_managed_by: project-context-skill` and bumping `schema_version: "0.2"` → `"0.3"`. All record content preserved verbatim — frontmatter-only modification. No legacy-file deletion (filenames are unchanged).
+- **Legacy migration (Scenario D)** — v0.1.x-v0.3.x dated files → schema "0.4" directly. Pre-flight detects legacy `*-project-context*.md` files and emits `⚠ Legacy`. Confirmation token: `confirm migration`. The skill parses legacy records, stamps lifecycle fields, scores them, partitions into active and archive, solicits a topology role declaration from the operator (LOCKED TEXT 1 per `references/preflight.md` section 13.1), and writes the three new files directly at schema "0.4" with the operator-declared topology block. v0.6.0 retargets legacy migration to produce schema "0.4" directly; operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely. The operator brief lists each legacy file by exact filename for manual deletion (the skill cannot delete Project files in v0.6.0 — no platform API). Required order of operations: download new → verify → delete old → upload new.
+- **Upgrade migration (Scenario E)** — v0.4.0 schema "0.2" files → schema "0.3" (intermediate state). Pre-flight detects canonical filenames with `schema_version: "0.2"` and no `_managed_by` field and emits `⚠ Upgrade Available`. Confirmation token: `confirm upgrade`. The skill rewrites the three canonical files adding `_managed_by: project-context-skill` and bumping `schema_version: "0.2"` → `"0.3"`. All record content preserved verbatim — frontmatter-only modification. After Scenario E, operators re-invoke the skill to reach schema "0.4" via Scenario F. No legacy-file deletion (filenames are unchanged).
+- **Topology upgrade migration (Scenario F, NEW in v0.6.0)** — v0.5.0 schema "0.3" files → schema "0.4". Pre-flight detects canonical filenames with `_managed_by: project-context-skill`, `schema_version: "0.3"`, and no `topology` block and emits `⚠ Upgrade Available (v0.5.0 to v0.6.0)`. Confirmation token: `confirm v0.6.0 upgrade`. The skill rewrites the three canonical files adding the topology block (with `role: "unclassified"` default and all relationship fields null) and bumping `schema_version: "0.3"` → `"0.4"`. All record content preserved verbatim — frontmatter-only modification. After the upgrade, the skill prompts the operator to declare topology role via LOCKED TEXT 1.
 
-See [`references/migration.md`](references/migration.md) for the full algorithm and [`references/preflight.md`](references/preflight.md) for the pre-flight protocol that routes between the two paths.
+See [`references/migration.md`](references/migration.md) for the full algorithm of each path and [`references/preflight.md`](references/preflight.md) for the pre-flight protocol that routes between the three.
 
 ## Cross-skill awareness
 
@@ -144,7 +148,7 @@ The two skills do not depend on each other. The `user-config.md` convention intr
 
 ## Roadmap
 
-Parking-lot items, post-v0.5.0 plans, and platform dependencies are tracked in `ROADMAP.md`. Highlights: programmatic Project-file management (awaiting platform API), multi-collaborator audit, archive compaction / cold-storage tier, A-MEM-style link evolution, Zep-style bi-temporal tracking, MCP server packaging, the nc3-meta-skill-forge skill that will absorb the user-config and `_managed_by` conventions.
+Parking-lot items, post-v0.6.0 plans, and platform dependencies are tracked in `ROADMAP.md`. Highlights: programmatic Project-file management (awaiting platform API), multi-collaborator audit, archive compaction / cold-storage tier, A-MEM-style link evolution, Zep-style bi-temporal tracking, MCP server packaging, the nc3-meta-skill-forge skill that will absorb the user-config and `_managed_by` conventions, the project-creator skill (Workstream 3) that consumes the v0.6.0 topology block and `platform-specific-parameters.md`, severity classification for stale-spoke and audit reports.
 
 ## License
 

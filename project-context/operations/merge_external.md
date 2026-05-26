@@ -1,8 +1,8 @@
 ---
 file_role: skill-operation
 operation: merge_external
-schema_version_documented: "0.3"
-skill_version: "0.5.0"
+schema_version_documented: "0.4"
+skill_version: "0.6.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
