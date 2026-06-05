@@ -1,0 +1,115 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 Raul J. Soto -->
+<!-- Rendered (operator-deployed) redaction-policy.md files do not inherit the SPDX header because the placeholder content is the deploying organization's or operator's work product, not licensable source. -->
+
+# redaction-policy.md template (session-handoff v0.1.0, schema 0.1)
+
+This file is a **template**. The session-handoff skill renders it into your project space as `config/redaction-policy.md` (or `config-redaction-policy.md` on flat surfaces) on first invocation if you do not already have one. share-sanitize loads it; if absent, share-sanitize falls back to the public defaults in `references/defaults.md`.
+
+To configure interactively, load the rendered file and tell your AI "walk me through configuring this." It runs the shared interview (`references/configure.md`), uses the FIELD GUIDE below, and writes a new version for approval before saving. Changes to redaction categories, `sensitivity_rules`, or `redaction_provider` are flagged as compliance-relevant.
+
+This policy keys off the `compliance` taxonomy in `config/org-config.md`. The two layer; they do not duplicate. Mechanics live in `references/redaction.md`.
+
+The rendered file is the content inside the fenced block below: everything from the `---` frontmatter through the final config key. On first run the skill auto-extracts exactly that fenced block (not this SPDX header or surrounding prose) and writes it as `config/redaction-policy.md`. To do it by hand, copy everything inside the fence into `config/redaction-policy.md`:
+
+```yaml
+---
+schema_version: "0.1"
+_managed_by: session-handoff-skill
+config_type: redaction-policy
+config_editable: true
+configure_with: references/configure.md
+---
+# To configure: load this file and tell your AI "walk me through configuring this."
+# It runs the shared interview (references/configure.md), uses the FIELD GUIDE below,
+# and writes a new version of this file for approval before saving.
+#
+# ============================================================
+# session-handoff - redaction policy (v0.1.0, schema 0.1)
+# ============================================================
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: redaction_provider  (COMPLIANCE-RELEVANT)
+# -----------------------------------------------------------
+# The seam, not the engine. share-sanitize runs against a stable
+# contract (in: handoff + policy; out: redacted copy + manifest).
+#
+# built-in (default): the minimal model-driven redactor runs the
+#   masking and PII-flagging steps.
+# document-sanitizer (reserved): when that sister skill ships,
+#   set this value to route masking/flagging to it without
+#   changing share-sanitize's shape.
+# -----------------------------------------------------------
+redaction_provider: built-in
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: pii_flagging
+# -----------------------------------------------------------
+# Assistive PII detection. Distinct from redaction: it FLAGS for
+# review, it never auto-removes, and it never claims to find all
+# PII (honesty guardrail, references/redaction.md section 5).
+#
+# enabled: default true (the secure-by-default exception).
+# categories: which PII kinds to flag.
+# mode: flag-for-review only in v0.1.0.
+# -----------------------------------------------------------
+pii_flagging:
+  enabled: true
+  categories: [name, email, phone, address, gov_id, account_number]
+  mode: flag-for-review
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: categories  (COMPLIANCE-RELEVANT)
+# -----------------------------------------------------------
+# The full vocabulary of redaction categories share-sanitize can
+# mask. sensitivity_rules below selects which fire per sensitivity.
+# -----------------------------------------------------------
+categories: [pii, financials, client_names, internal_names, credentials]
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: masking_style
+# -----------------------------------------------------------
+# How masked spans render.
+#   redact -> [REDACTED]
+#   tag    -> [REDACTED:category]   (default; keeps the kind)
+#   hash   -> a stable token so repeats stay co-referenced
+# -----------------------------------------------------------
+masking_style: tag
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: sensitivity_rules  (COMPLIANCE-RELEVANT)
+# -----------------------------------------------------------
+# The categories forced for each handoff sensitivity. share-
+# sanitize masks sensitivity_rules[handoff.sensitivity] plus any
+# categories named at invocation. More restrictive sensitivities
+# force more categories.
+# -----------------------------------------------------------
+sensitivity_rules:
+  open:         []
+  internal:     [credentials]
+  confidential: [credentials, pii, client_names]
+  restricted:   [credentials, pii, client_names, financials, internal_names]
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: custom_patterns
+# -----------------------------------------------------------
+# Optional org-specific descriptors or regex for categories the
+# defaults do not cover. Empty by default. Keep descriptive.
+# -----------------------------------------------------------
+custom_patterns: []
+```
+
+## What does not belong in redaction-policy.md
+
+- The compliance taxonomy itself; that lives in `config/org-config.md` and this policy keys off it.
+- Secrets or credential values. Patterns describe what to redact; they do not store the secrets.
+
+## Honesty guardrail
+
+Redaction is assistive and model-based under `redaction_provider: built-in`. It is not guaranteed to find or remove all sensitive content. The manifest carries this disclaimer on every run, and the operator should review the redacted output before sharing. See `references/redaction.md`.

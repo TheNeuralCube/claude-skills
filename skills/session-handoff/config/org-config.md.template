@@ -1,0 +1,136 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 Raul J. Soto -->
+<!-- Rendered (operator-deployed) org-config.md files do not inherit the SPDX header because the placeholder content is the deploying organization's work product, not licensable source. -->
+
+# org-config.md template (session-handoff v0.1.0, schema 0.1)
+
+This file is a **template**. The session-handoff skill renders it into your project space as `config/org-config.md` (or `config-org-config.md` on flat surfaces) on first invocation if you do not already have one. Your organization then populates the `[tbd]` placeholders.
+
+To configure interactively, load the rendered file and tell your AI "walk me through configuring this." It runs the shared interview (`references/configure.md`), uses the FIELD GUIDE below, and writes a new version for approval before saving. Changes touching governance fields are flagged as compliance-relevant in the approval summary.
+
+Resolution order at runtime: `config/user-config.md` > `config/org-config.md` > skill defaults in `references/defaults.md`. For consolidated handoffs, most-restrictive governance derivation from the sources takes precedence (`references/lineage.md` section 4).
+
+org-config holds the compliance taxonomy configured once; `config/redaction-policy.md` holds the redaction rules that key off this taxonomy. They layer; they do not duplicate. This org-config is also intended to be honored by the sister skill project-context, so an organization configures compliance once across both skills.
+
+The rendered file is the content inside the fenced block below: everything from the `---` frontmatter through the final config key. On first run the skill auto-extracts exactly that fenced block (not this SPDX header or surrounding prose) and writes it as `config/org-config.md`. To do it by hand, copy everything inside the fence into `config/org-config.md` and fill the `[tbd]` fields:
+
+```yaml
+---
+schema_version: "0.1"
+_managed_by: session-handoff-skill
+config_type: org
+config_editable: true
+configure_with: references/configure.md
+---
+# To configure: load this file and tell your AI "walk me through configuring this."
+# It runs the shared interview (references/configure.md), uses the FIELD GUIDE below,
+# and writes a new version of this file for approval before saving.
+#
+# ============================================================
+# session-handoff - org configuration (v0.1.0, schema 0.1)
+# ============================================================
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: org
+# -----------------------------------------------------------
+# Organization identity stamped where the skill records org
+# scope.
+#
+# name (REQUIRED): the organization name.
+# type: free-form, e.g. "public-company", "private", "agency".
+# tenant: an optional tenant or workspace identifier.
+# -----------------------------------------------------------
+org:
+  name: "[tbd]"
+  type: "[tbd]"
+  tenant: null
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: compliance  (COMPLIANCE-RELEVANT)
+# -----------------------------------------------------------
+# The compliance taxonomy, configured once and keyed off by
+# the redaction policy. Changes here are flagged as
+# compliance-relevant in the configure interview.
+#
+# default_sensitivity: the org default sensitivity for new
+#   handoffs. One of: open | internal | confidential | restricted
+# regulatory_scope: frameworks that apply org-wide, stamped
+#   into governance_frameworks, e.g. ["SOX","ITAR"].
+# sensitivity_levels: the org's sensitivity vocabulary if it
+#   differs from the default four; leave as the default unless
+#   your org uses different labels.
+# -----------------------------------------------------------
+compliance:
+  default_sensitivity: "internal"
+  regulatory_scope: []
+  sensitivity_levels: ["open", "internal", "confidential", "restricted"]
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: sanctioned_destinations  (COMPLIANCE-RELEVANT)
+# -----------------------------------------------------------
+# Sanctioned-destination awareness (governance feature 4). When
+# a list is set, pre-flight checks a handoff's stated or detected
+# destination against it.
+#
+# enabled: false leaves the check inert (public default).
+# enforcement: "warn" (pre-flight warns) or "block" (pre-flight
+#   refuses an unsanctioned destination).
+# allowed: the list of sanctioned platforms, tools, or recipients.
+#   Empty until your org defines it; the skill never invents one.
+# -----------------------------------------------------------
+sanctioned_destinations:
+  enabled: false
+  enforcement: "warn"
+  allowed: []
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: governance_overrides
+# -----------------------------------------------------------
+# Org-level overrides of skill defaults.
+#
+# sanitization_prompt: override the gate org-wide. An enterprise
+#   may set "always" for a sanitize prompt on every run.
+#   One of: always | on-signal | never
+# prior_handoffs_entry_shape: the consolidation ledger entry
+#   shape. "id-string" (public default) or "enriched-object"
+#   ({ id, kind, sensitivity }) for self-auditing enterprises.
+# consolidate_cap_mode: "soft" or "hard".
+# consolidate_max_sources: the soft review-batch guardrail.
+# -----------------------------------------------------------
+governance_overrides:
+  sanitization_prompt: "on-signal"
+  prior_handoffs_entry_shape: "id-string"
+  consolidate_cap_mode: "soft"
+  consolidate_max_sources: 3
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: methodology_hooks
+# -----------------------------------------------------------
+# Optional org methodology hooks the skill may surface after a
+# write (e.g. a downstream capture step). Free-form list of
+# short instruction strings; empty by default. Keep these
+# descriptive; orchestration stays in the trusted skill.
+# -----------------------------------------------------------
+methodology_hooks: []
+```
+
+## Required fields
+
+- `org.name`
+
+Other fields carry safe defaults. A rendered file with `org.name` still `[tbd]` is permitted but pre-flight notes it.
+
+## What does not belong in org-config.md
+
+- Per-user preferences; those live in `config/user-config.md`.
+- The redaction rules themselves; those live in `config/redaction-policy.md`, which keys off the `compliance` taxonomy here.
+- Secrets or credentials.
+
+## Cross-skill convention
+
+This org-config is intended to be shared with the sister skill project-context so an organization configures compliance once. See `README.md`.

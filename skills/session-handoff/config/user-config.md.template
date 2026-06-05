@@ -1,0 +1,149 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 Raul J. Soto -->
+<!-- Rendered (operator-deployed) user-config.md files do not inherit the SPDX header because the placeholder content is the operator's work product, not licensable source. -->
+
+# user-config.md template (session-handoff v0.1.0, schema 0.1)
+
+This file is a **template**. The session-handoff skill renders it into your project space as `config/user-config.md` (or `config-user-config.md` on flat surfaces) on first invocation if you do not already have one. You then populate the `[tbd]` placeholders.
+
+To configure interactively, load the rendered file and tell your AI "walk me through configuring this." It runs the shared interview (`references/configure.md`), uses the FIELD GUIDE below, and writes you a new version for approval before saving. The skill never silent-overwrites a config file.
+
+Resolution order at runtime: `config/user-config.md` > `config/org-config.md` > skill defaults in `references/defaults.md`.
+
+The rendered file is the content inside the fenced block below: everything from the `---` frontmatter through the final config key. On first run the skill auto-extracts exactly that fenced block (not this SPDX header or surrounding prose) and writes it as `config/user-config.md`. To do it by hand, copy everything inside the fence into `config/user-config.md` and fill the `[tbd]` fields:
+
+```yaml
+---
+schema_version: "0.1"
+_managed_by: session-handoff-skill
+config_type: user
+config_editable: true
+configure_with: references/configure.md
+---
+# To configure: load this file and tell your AI "walk me through configuring this."
+# It runs the shared interview (references/configure.md), uses the FIELD GUIDE below,
+# and writes you a new version of this file for approval before saving.
+#
+# ============================================================
+# session-handoff - user configuration (v0.1.0, schema 0.1)
+# ============================================================
+# Populate the [tbd] fields. Fields with values shown are skill
+# defaults; override them only if you want different behavior.
+# Reload by re-uploading this file to your project space.
+# ============================================================
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: operator
+# -----------------------------------------------------------
+# Identity used in the audit block the skill writes
+# (audit.approved_by). It is self-asserted, NOT platform-verified
+# (see references/schema.md section 4.1).
+#
+# primary_name (REQUIRED): your name as you want it on handoffs
+#   you approve. The skill does not pull this from the platform;
+#   you declare it here.
+# preferred_aliases (OPTIONAL): short-forms the skill may use
+#   when space is tight.
+# -----------------------------------------------------------
+operator:
+  primary_name: "[tbd]"
+  preferred_aliases: []
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: defaults
+# -----------------------------------------------------------
+# Cross-project defaults applied when not overridden by
+# org-config or chat-time instructions.
+#
+# preferred_platform (REQUIRED): the surface you use as your
+#   primary destination. Drives the destination-aware length
+#   budget (config/platform-parameters.md).
+#   One of: claude-ai | claude-code | cowork |
+#           chatgpt-enterprise | m365-copilot
+# -----------------------------------------------------------
+defaults:
+  preferred_platform: "claude-ai"
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: conventions
+# -----------------------------------------------------------
+# Stylistic conventions for skill-generated content. Skill
+# defaults shown; override only to diverge.
+#
+# date_format: ISO 8601 date format. "YYYY-MM-DD" is the
+#   default and only supported value in v0.1.0.
+# filename_slug_style: slug style for skill-generated
+#   filenames. "kebab-case" is the default.
+# em_dashes_allowed: whether the skill may use em dashes in
+#   generated prose. Default false.
+# preferred_table_density: how tightly the skill packs tables
+#   in operator-facing output. One of: high | medium | low
+# default_response_register: tonal register for operator-facing
+#   prose. One of: strategic-peer | professor | collaborative
+# -----------------------------------------------------------
+conventions:
+  date_format: "YYYY-MM-DD"
+  filename_slug_style: "kebab-case"
+  em_dashes_allowed: false
+  preferred_table_density: "high"
+  default_response_register: "strategic-peer"
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: privacy  (COMPLIANCE-RELEVANT)
+# -----------------------------------------------------------
+# Privacy posture applied to skill-written handoffs. Changes
+# here are flagged as compliance-relevant in the configure
+# interview (references/configure.md section 6).
+#
+# default_sensitivity: the default sensitivity label stamped on
+#   new handoffs unless overridden by org-config or chat-time
+#   instruction. One of: open | internal | confidential | restricted
+# sanitization_prompt: when the BLOCKING sanitize question
+#   fires. The locked sanitization-surfacing line always emits
+#   regardless of this setting. One of:
+#     always    - fire on every invocation (stricter enterprises set this)
+#     on-signal - fire when sharing or sensitive content is
+#                 detected (default)
+#     never     - never fire the blocking question
+# pii_flagging_enabled: whether assistive PII flagging runs.
+#   Default true (the one secure-by-default exception). PII
+#   flagging is assistive and never claims completeness.
+# -----------------------------------------------------------
+privacy:
+  default_sensitivity: "internal"
+  sanitization_prompt: "on-signal"
+  pii_flagging_enabled: true
+
+
+# -----------------------------------------------------------
+# FIELD GUIDE: contact
+# -----------------------------------------------------------
+# Where feedback about the skill's behavior should be routed.
+# Free-form: a URL, email, channel, or null.
+# -----------------------------------------------------------
+contact:
+  feedback_channel: "[tbd]"
+```
+
+## Required fields
+
+The following are REQUIRED and must be populated before the rendered `user-config.md` is considered complete:
+
+- `operator.primary_name`
+- `defaults.preferred_platform`
+
+A rendered file with any required field still `[tbd]` is permitted (the skill operates with placeholder values) but pre-flight notes: "user-config.md has unpopulated required fields: [list]. Populate to complete personalization."
+
+## What does not belong in user-config.md
+
+- Anything specific to a single session; use chat-time instructions.
+- Anything that changes schema validity. The fields above are the schema 0.1 contract for `config_type: user`.
+- Secrets or credentials. The skill does not need them, and config files may end up in shared infrastructure.
+
+## Cross-skill convention
+
+This file's format (markdown with a YAML body, kebab-case keys, every field documented with rationale, a single shared interview procedure) is part of the config-layer convention shared with the sister skill project-context and proposed as a cross-skill standard. See `README.md`.
