@@ -1,22 +1,24 @@
 ---
 file_role: skill-reference
 topic: topology
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Topology (project-context v0.6.0)
+# Topology (project-context v0.7.0)
+
+The topology block and the `## Spoke Inventory` section are carried verbatim from schema 0.4 into schema 0.5; this file is unchanged in substance for v0.7.0. The only adjustment is that the managed context file is now named `pc-NNNN-context.md` (the active context file of the current generation) rather than `project-context.md`; references below use the `pc-NNNN-context.md` name.
 
 This file is the authoritative specification for the topology metadata introduced in v0.6.0 (schema 0.4). Every project the skill manages has a topology relationship to other projects, and that relationship is part of the project's active state. Operations, pre-flight, and the audit trigger reference this file.
 
-The v0.6.0 first principle (P1) is: a project's topology relationship to other projects is part of its active state. v0.5.0 and earlier described what a project was about; v0.6.0 also describes how it relates to other projects.
+The first principle (P1) is: a project's topology relationship to other projects is part of its active state. v0.5.0 and earlier described what a project was about; v0.6.0 also describes how it relates to other projects.
 
 ## 1. Topology metadata schema
 
-Lives in the YAML frontmatter of every file the skill writes (`project-context.md`, `entities.md`, `project-context-archive.md`). Required for schema 0.4.
+Lives in the YAML frontmatter of every file the skill writes (`pc-NNNN-context.md`, `pc-NNNN-entities.md`, `pc-NNNN-archive.md`). Required for schema 0.4.
 
 ```yaml
 topology:
@@ -55,7 +57,7 @@ The canonical project that holds methodology, conventions, and posture for its d
 - `hub_version`: null
 - `last_hub_sync`: null
 - `parent`: null
-- Body of `project-context.md` includes a `## Spoke Inventory` section (see section 3).
+- Body of `pc-NNNN-context.md` includes a `## Spoke Inventory` section (see section 3).
 
 ### 2.2 `spoke-dev`
 
@@ -73,7 +75,7 @@ A customer or internal solution project. Inherits governance from a Hub. May own
 - `hub_reference`: required, non-null
 - `hub_version`: required, non-null
 - `last_hub_sync`: required, non-null
-- `parent`: null (Solution spokes do not nest under other Solutions in v0.6.0)
+- `parent`: null (Solution spokes do not nest under other Solutions)
 
 ### 2.4 `standalone`
 
@@ -94,11 +96,11 @@ Backward-compatibility default for projects upgrading from v0.5.0 (schema 0.3) t
 - `declared_by`: `"skill-default"` until the operator declares.
 - Persistent: an unclassified project keeps operating normally; the skill re-prompts on each invocation until the operator declares.
 
-`unclassified` is a transitional state, not a target state. v0.6.0 does not force a deadline for declaration.
+`unclassified` is a transitional state, not a target state. The skill does not force a deadline for declaration.
 
 ## 3. Spoke inventory format (Hub projects only)
 
-Required for `role: hub`. Lives in the body of `project-context.md` immediately after the YAML frontmatter and before any other body content. Format:
+Required for `role: hub`. Lives in the body of `pc-NNNN-context.md` immediately after the YAML frontmatter and before any other body content. Format:
 
 ```markdown
 ## Spoke Inventory
@@ -145,13 +147,13 @@ The skill matches any of these phrases (case-insensitive, whitespace-tolerant):
 ### 4.2 Pre-flight gate
 
 1. Pre-flight detects the audit trigger phrase.
-2. Skill validates `topology.role == "hub"` in the current project's `project-context.md` frontmatter.
+2. Skill validates `topology.role == "hub"` in the current project's `pc-NNNN-context.md` frontmatter.
 3. If role is not `hub`: skill refuses with the message "Audit trigger valid only in Hub projects" and exits the operation.
 4. If role is `hub`: skill proceeds to audit execution.
 
 ### 4.3 Audit execution
 
-1. Read the spoke inventory from the body of `project-context.md`.
+1. Read the spoke inventory from the body of `pc-NNNN-context.md`.
 2. Search project knowledge for files matching the pattern `ai-engineering-hub-instructions-v*.md`.
 3. Parse the current Hub instructions version from the attached filename (e.g., `ai-engineering-hub-instructions-v0-9.md` parses to `v0.9`).
 4. For each spoke row in the inventory:
@@ -197,15 +199,15 @@ Implementation notes:
 
 ### 4.5 Audit is read-only
 
-The audit trigger does not modify `project-context.md`. It does not write the updated Status column back to the spoke inventory. A future trigger (`refresh spoke inventory`, out of scope for v0.6.0) will own write-back. For v0.6.0, the operator updates the Status column manually after reading the audit report if they want the inventory column to reflect the audit's findings.
+The audit trigger does not modify `pc-NNNN-context.md`. It does not write the updated Status column back to the spoke inventory. A future trigger (`refresh spoke inventory`, not yet implemented) will own write-back. The operator updates the Status column manually after reading the audit report if they want the inventory column to reflect the audit's findings.
 
 The audit trigger does not invoke upgrades. The project-creator skill in Workstream 3 owns the upgrade flow.
 
 ### 4.6 Severity classification
 
-v0.6.0 reports drift without severity classification. A spoke 4 minor versions behind and a spoke 1 minor version behind both render as `STALE` with their respective drift expressions. The operator decides priority.
+The skill reports drift without severity classification. A spoke 4 minor versions behind and a spoke 1 minor version behind both render as `STALE` with their respective drift expressions. The operator decides priority.
 
-A future release may add severity (e.g., critical, warning, info) based on Hub-defined thresholds. v0.6.0 does not pre-empt that design.
+A future release may add severity (e.g., critical, warning, info) based on Hub-defined thresholds. The skill does not pre-empt that design.
 
 ## 5. Hybrid topology rules
 
@@ -232,7 +234,7 @@ Rules:
 - Only Dev spokes (`role: spoke-dev`) can have a parent.
 - Hub projects are never parents in the `topology.parent` sense; Hub appears as the ultimate ancestor via every spoke's `hub_reference`.
 - Standalone projects are never parents and never have a parent.
-- Nesting beyond Hub > Solution > Dev (e.g., Hub > Solution > Solution > Dev) is out of scope for v0.6.0. If operator demand surfaces, a future release will reconsider.
+- Nesting beyond Hub > Solution > Dev (e.g., Hub > Solution > Solution > Dev) is out of scope. If operator demand surfaces, a future release will reconsider.
 
 In a Hub's spoke inventory, child spokes appear with their parent's name in the `Parent` column. The audit trigger treats child spokes the same as direct-Hub spokes for staleness comparison: each child spoke declares its own `hub_version`, and the audit compares that value against the Hub instructions version. The `parent` relationship is informational in the inventory; it does not change staleness math.
 
@@ -282,7 +284,7 @@ When the skill defaults a role (only on Scenario F upgrade, where the operator h
 
 ### 6.6 Hub-reference / spoke-inventory consistency
 
-The skill does not enforce bidirectional consistency between a spoke's `hub_reference` and the Hub project's spoke inventory in v0.6.0. The spoke inventory is operator-maintained (per section 3); the skill writes the spoke side correctly but does not auto-update the Hub side. Inconsistency between the two surfaces is an operator-maintenance concern and is surfaced (not silently fixed) by the audit trigger.
+The skill does not enforce bidirectional consistency between a spoke's `hub_reference` and the Hub project's spoke inventory. The spoke inventory is operator-maintained (per section 3); the skill writes the spoke side correctly but does not auto-update the Hub side. Inconsistency between the two surfaces is an operator-maintenance concern and is surfaced (not silently fixed) by the audit trigger.
 
 ## 7. Cross-references
 

@@ -8,11 +8,11 @@
 
 The project-context skill captures the decisions, constraints, current state, open items, terminology, external references, and entities from your chats into a **three-file system** the operator adds to their Claude Project (or ChatGPT Project / Copilot M365 Project). Future chats inside the same project load those files and start grounded — without the operator re-explaining context they already established.
 
-The three files:
+The three files (versioned, prefix-unified naming in v0.7.0; `NNNN` is the shared-set `generation` counter, first generation `pc-0001-*`):
 
-- **`project-context.md`** — active grounding file. Decisions, constraints, current state, open items, terminology, external references. Soft ceiling 50K tokens, hard ceiling 80K.
-- **`entities.md`** — stable reference data. People, places, things, organizations, datasets. Looked up by name. No automatic decay.
-- **`project-context-archive.md`** — append-only history. Superseded and demoted records plus per-merge checkpoint log. Loaded selectively (rebuild, restore, historical lookup), not on every chat.
+- **`pc-NNNN-context.md`** — active grounding file. Decisions, constraints, current state, open items, terminology, external references. Soft ceiling 50K tokens, hard ceiling 80K.
+- **`pc-NNNN-entities.md`** — stable reference data. People, places, things, organizations, datasets. Looked up by name. No automatic decay.
+- **`pc-NNNN-archive.md`** — append-only history. Superseded and demoted records plus per-merge checkpoint log. Loaded selectively (rebuild, restore, historical lookup), not on every chat.
 
 The skill ships with four named operations:
 
@@ -21,9 +21,9 @@ The skill ships with four named operations:
 - **`compact`** — score all active records, propose batch DEMOTE for records below the demotion threshold. Manual cleanup when the active file approaches the soft warning.
 - **`rebuild`** — regenerate the active file from the archive using the current scoring algorithm. Recovery operation. Mandatory pre-commit review.
 
-v0.4.0 was the architectural pivot from v0.1.x-v0.3.x (dated-single-file model and two modes replaced by the rolling three-file system and four operations). v0.5.0 closed the protocol-enforcement gap: a mandatory pre-flight protocol structurally gates every operation, schema bumped to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. v0.6.0 inherits all of that and adds hub-spoke governance awareness: schema bumps to "0.4" with a new REQUIRED `topology` block (role: hub, spoke-dev, spoke-solution, standalone, or unclassified), an audit trigger phrase invokable in Hub projects (`audit spoke projects` and variants), stale-spoke detection on spoke projects, and a new Scenario F migration path from v0.5.0 (schema 0.3) to v0.6.0 (schema 0.4). See `CHANGELOG.md`.
+v0.4.0 was the architectural pivot from v0.1.x-v0.3.x (dated-single-file model and two modes replaced by the rolling three-file system and four operations). v0.5.0 closed the protocol-enforcement gap: a mandatory pre-flight protocol structurally gates every operation, schema bumped to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closes the audit loop. v0.6.0 inherits all of that and adds hub-spoke governance awareness: schema bumps to "0.4" with a new REQUIRED `topology` block (role: hub, spoke-dev, spoke-solution, standalone, or unclassified), an audit trigger phrase invokable in Hub projects (`audit spoke projects` and variants), stale-spoke detection on spoke projects, and a new Scenario F migration path from v0.5.0 (schema 0.3) to v0.6.0 (schema 0.4). v0.7.0 inherits all of that and adds versioned, prefix-unified file identity (`pc-NNNN-*` with a `generation` field; schema bumps to "0.5"; `update_count` retained as the separate scoring counter), an operation-start model advisory and two-tier confirmation gate, the config/references separation, an expanded `config/platform-specific-parameters.md`, and a new Scenario G migration path from v0.6.0 (schema 0.4) to v0.7.0 (schema 0.5). See `CHANGELOG.md`.
 
-The v0.6.0 first principle (P1): a project's topology relationship to other projects is part of its active state. Every project answers "what is your role?" before any other operation. The full topology schema lives in `references/topology.md`.
+The first principle (P1): a project's topology relationship to other projects is part of its active state. Every project answers "what is your role?" before any other operation. The full topology schema lives in `references/topology.md`.
 
 ## Who this skill is for
 
@@ -66,7 +66,7 @@ The skill is triggered by phrases in your chat. The full list lives in `SKILL.md
 
 All 19 trigger phrases from v0.1.0 are preserved verbatim in v0.6.0 and route to the closest behavioral equivalent. v0.6.0 adds six audit trigger phrases (`audit spoke projects`, `audit the spokes`, `which spokes are stale`, `show me spoke staleness`, `spoke inventory audit`, `run spoke audit`) invokable only in Hub projects; in any other project the audit handler refuses with "Audit trigger valid only in Hub projects."
 
-The pre-flight check runs first regardless of phrase. In v0.6.0 pre-flight is a structural gate (`## Protocol` section of `SKILL.md`): the skill emits an operator-visible pre-flight report block (verdicts: `✓ Compatible`, `✓ Fresh Project`, `⚠ Legacy`, `⚠ Upgrade Available`, `⚠ Upgrade Available (v0.5.0 to v0.6.0)`, `⚠ Stale Spoke`, `⚠ Hub Source Behind`, `⚠ Hub Source Missing`, `⚠ Partial State`, `✗ MISMATCH`, `✗ Parse Error`, `✗ Infrastructure Failure`) and waits for a confirmation token (e.g., `confirm merge`, `confirm migration`, `confirm upgrade`, `confirm v0.6.0 upgrade`) before generating output. See [`references/preflight.md`](references/preflight.md) for the full protocol. A symmetric post-flight summary closes the audit loop after writes complete.
+The pre-flight check runs first regardless of phrase. Pre-flight is a structural gate (`## Protocol` section of `SKILL.md`): the skill emits an operator-visible pre-flight report block (verdicts: `✓ Compatible`, `✓ Fresh Project`, `⚠ Legacy`, `⚠ Upgrade Available`, `⚠ Upgrade Available (v0.5.0 to v0.6.0)`, `⚠ Stale Spoke`, `⚠ Hub Source Behind`, `⚠ Hub Source Missing`, `⚠ Partial State`, `✗ MISMATCH`, `✗ Parse Error`, `✗ Infrastructure Failure`) and waits for a confirmation token (e.g., `confirm merge`, `confirm migration`, `confirm upgrade`, `confirm v0.6.0 upgrade`) before generating output. See [`references/preflight.md`](references/preflight.md) for the full protocol. A symmetric post-flight summary closes the audit loop after writes complete.
 
 ## Output format
 
@@ -74,7 +74,8 @@ The skill writes three markdown files with YAML frontmatter and structured-YAML 
 
 Highlights:
 
-- Every file carries `schema_version: "0.4"` (the data-shape contract — decoupled from the skill version).
+- Every file carries `schema_version: "0.5"` (the data-shape contract — decoupled from the skill version).
+- The three context files carry a `generation` integer matching the `pc-NNNN-*` filename (identity counter), and retain `update_count` as the separate scoring counter.
 - Every file carries `_managed_by: project-context-skill` (registry marker introduced in schema "0.3"; makes pre-flight detection reliable).
 - Every file carries a `topology` block (introduced in schema "0.4"; role + Hub relationship + declared_by/declared_at; see [`references/topology.md`](references/topology.md) for the full schema, role definitions, spoke inventory format, and validation rules).
 - Every file carries an `id_prefix_legend` map so a reader has the full eight-prefix legend regardless of which file is loaded.
@@ -86,14 +87,14 @@ For complete examples, see [`references/examples/example-project-context.md`](re
 
 ## Filename convention
 
-Rolling filenames (no date in the filename — date lives in `last_merged` frontmatter):
+Versioned, prefix-unified filenames for the three context files (no date in the filename — date lives in `last_merged` frontmatter; `NNNN` is the shared-set `generation` counter, first generation `pc-0001-*`). Config files keep stable base names and live in `config/`:
 
 ```
-project-context.md
-entities.md
-project-context-archive.md
-user-config.md          (optional, per-user overrides)
-org-config.md           (optional, org-scope overrides)
+pc-NNNN-context.md
+pc-NNNN-entities.md
+pc-NNNN-archive.md
+config/user-config.md          (optional, per-user overrides)
+config/org-config.md           (optional, org-scope overrides)
 ```
 
 ## Customization with user-config.md and org-config.md
@@ -106,23 +107,24 @@ The skill follows a **three-layer configuration model** (introduced in v0.4.0, p
 | Org | `org-config.md` | All users in the org | Middle |
 | Skill | `references/defaults.md` | Universal | Lowest |
 
-- The user layer was new in v0.4.0; the v0.6.0 schema 0.4 template is at [`references/user-config.md.template`](references/user-config.md.template). The skill auto-creates `user-config.md` in your Project with placeholder defaults on first invocation if absent; populate the `[tbd]` fields and the skill picks up the values on the next run. This is the canonical example of the **`user-config.md` cross-skill convention** that future skills in the monorepo will adopt.
-- The org layer is unchanged from v0.1.0; the v0.6.0 schema 0.4 template is at [`references/org-config.md.template`](references/org-config.md.template). The skill auto-creates `org-config.md` with placeholder defaults on first invocation if absent; populate it to set org-scope governance defaults, scoring tweaks, trigger-phrase additions, or downstream chaining reminders.
+- The user layer was new in v0.4.0; the v0.7.0 schema 0.5 template is at [`config/user-config.md.template`](config/user-config.md.template) (operator-editable files live in `config/`; the skill reads by base name). The skill auto-creates `user-config.md` in your Project with placeholder defaults on first invocation if absent; populate the `[tbd]` fields (or reconfigure via `references/configure.md`) and the skill picks up the values on the next run. This is the canonical example of the **`user-config.md` cross-skill convention** and of the **config/references separation** that future skills in the monorepo will adopt.
+- The org layer is unchanged in shape from v0.1.0; the v0.7.0 schema 0.5 template is at [`config/org-config.md.template`](config/org-config.md.template). The skill auto-creates `org-config.md` with placeholder defaults on first invocation if absent; populate it to set org-scope governance defaults, scoring tweaks, trigger-phrase additions, or downstream chaining reminders.
 - The skill layer is the source of truth for unset values, documented in [`references/defaults.md`](references/defaults.md).
 
 What the config layers can change: merge policy, proposal cap, token budgets, scoring coefficients and threshold, governance defaults, user identifier (for audit trail), brief format, additional trigger phrases, downstream chaining.
 
-What they cannot change: schema validity. The three files, eight ID prefixes, six body sections of `project-context.md`, five sub-sections of `entities.md`, archive's `status`-discriminated body, the `audit` block, the `_managed_by` registry marker, and the `topology` block are all part of the `schema_version: "0.4"` contract.
+What they cannot change: schema validity. The three files, the `pc-NNNN-*` naming scheme and `generation` counter, eight ID prefixes, six body sections of `pc-NNNN-context.md`, five sub-sections of `pc-NNNN-entities.md`, archive's `status`-discriminated body, the `audit` block, the `_managed_by` registry marker, the retained `update_count` scoring counter, and the `topology` block are all part of the `schema_version: "0.5"` contract.
 
-## Migration from v0.1.x-v0.3.x (legacy), v0.4.0, or v0.5.0
+## Migration from v0.1.x-v0.3.x (legacy), v0.4.0, v0.5.0, or v0.6.0
 
-v0.6.0 supports three migration paths, all routed by pre-flight:
+The skill supports four migration paths, all routed by pre-flight. Each older path chains forward to the next, ending at the current schema 0.5 with `pc-NNNN-*` naming:
 
-- **Legacy migration (Scenario D)** — v0.1.x-v0.3.x dated files → schema "0.4" directly. Pre-flight detects legacy `*-project-context*.md` files and emits `⚠ Legacy`. Confirmation token: `confirm migration`. The skill parses legacy records, stamps lifecycle fields, scores them, partitions into active and archive, solicits a topology role declaration from the operator (LOCKED TEXT 1 per `references/preflight.md` section 13.1), and writes the three new files directly at schema "0.4" with the operator-declared topology block. v0.6.0 retargets legacy migration to produce schema "0.4" directly; operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely. The operator brief lists each legacy file by exact filename for manual deletion (the skill cannot delete Project files in v0.6.0 — no platform API). Required order of operations: download new → verify → delete old → upload new.
-- **Upgrade migration (Scenario E)** — v0.4.0 schema "0.2" files → schema "0.3" (intermediate state). Pre-flight detects canonical filenames with `schema_version: "0.2"` and no `_managed_by` field and emits `⚠ Upgrade Available`. Confirmation token: `confirm upgrade`. The skill rewrites the three canonical files adding `_managed_by: project-context-skill` and bumping `schema_version: "0.2"` → `"0.3"`. All record content preserved verbatim — frontmatter-only modification. After Scenario E, operators re-invoke the skill to reach schema "0.4" via Scenario F. No legacy-file deletion (filenames are unchanged).
-- **Topology upgrade migration (Scenario F, NEW in v0.6.0)** — v0.5.0 schema "0.3" files → schema "0.4". Pre-flight detects canonical filenames with `_managed_by: project-context-skill`, `schema_version: "0.3"`, and no `topology` block and emits `⚠ Upgrade Available (v0.5.0 to v0.6.0)`. Confirmation token: `confirm v0.6.0 upgrade`. The skill rewrites the three canonical files adding the topology block (with `role: "unclassified"` default and all relationship fields null) and bumping `schema_version: "0.3"` → `"0.4"`. All record content preserved verbatim — frontmatter-only modification. After the upgrade, the skill prompts the operator to declare topology role via LOCKED TEXT 1.
+- **Legacy migration (Scenario D)**: v0.1.x-v0.3.x dated files → schema "0.4" directly. Pre-flight detects legacy `*-project-context*.md` files and emits `⚠ Legacy`. Confirmation token: `confirm migration`. The skill parses legacy records, stamps lifecycle fields, scores them, partitions into active and archive, solicits a topology role declaration from the operator (LOCKED TEXT 1 per `references/preflight.md` section 13.1), and writes the three new files directly at schema "0.4" with the operator-declared topology block. v0.6.0 retargets legacy migration to produce schema "0.4" directly; operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely. The operator brief lists each legacy file by exact filename for manual deletion (the skill cannot delete Project files; no platform API). Required order of operations: download new → verify → delete old → upload new.
+- **Upgrade migration (Scenario E)**: v0.4.0 schema "0.2" files → schema "0.3" (intermediate state). Pre-flight detects canonical filenames with `schema_version: "0.2"` and no `_managed_by` field and emits `⚠ Upgrade Available`. Confirmation token: `confirm upgrade`. The skill rewrites the three canonical files adding `_managed_by: project-context-skill` and bumping `schema_version: "0.2"` → `"0.3"`. All record content preserved verbatim (frontmatter-only modification). After Scenario E, operators re-invoke for Scenario F to reach schema "0.4", then for Scenario G to reach the current schema "0.5". No legacy-file deletion at the Scenario E or F stages (filenames are unchanged); Scenario G performs the rename.
+- **Topology upgrade migration (Scenario F, NEW in v0.6.0)**: v0.5.0 schema "0.3" files → schema "0.4". Pre-flight detects canonical filenames with `_managed_by: project-context-skill`, `schema_version: "0.3"`, and no `topology` block and emits `⚠ Upgrade Available (v0.5.0 to v0.6.0)`. Confirmation token: `confirm v0.6.0 upgrade`. The skill rewrites the three canonical files adding the topology block (with `role: "unclassified"` default and all relationship fields null) and bumping `schema_version: "0.3"` → `"0.4"`. All record content preserved verbatim (frontmatter-only modification). After the upgrade, the skill prompts the operator to declare topology role via LOCKED TEXT 1. Then re-invoke for Scenario G to reach the current schema "0.5" and `pc-NNNN-*` naming.
+- **Generation/naming upgrade migration (Scenario G, NEW in v0.7.0)**: v0.6.0 schema "0.4" files (old canonical names, topology present, no `pc-NNNN-*` files) to schema "0.5". Pre-flight detects this and emits `⚠ Upgrade Available (v0.6.0 to v0.7.0)`. Confirmation token: `confirm v0.7.0 upgrade` (destructive-tier; the gate confirms model setup). The skill renames the three files to `pc-0001-context.md`, `pc-0001-entities.md`, `pc-0001-archive.md`, adds `generation: 1`, bumps `schema_version: "0.4"` to `"0.5"`, retains `update_count` and all per-record counters verbatim, carries the topology block verbatim, and applies the config treatment (config header plus relocation to `config/`). Post-flight instructs deletion of the old-named files.
 
-See [`references/migration.md`](references/migration.md) for the full algorithm of each path and [`references/preflight.md`](references/preflight.md) for the pre-flight protocol that routes between the three.
+See [`references/migration.md`](references/migration.md) for the full algorithm of each path and [`references/preflight.md`](references/preflight.md) for the pre-flight protocol that routes between the four.
 
 ## Cross-skill awareness
 
@@ -138,7 +140,7 @@ The two skills do not depend on each other. The `user-config.md` convention intr
 
 **The active file is approaching 50K tokens.** Invoke `compact` to demote weak records to the archive. If the file is over 80K, the skill will push harder on DEMOTE proposals in the default operation, but you should be running `compact` proactively.
 
-**A demoted record was needed after all.** It lives in `project-context-archive.md` with a `restore_command` field. Invoke `restore arc-NNN` in a future session.
+**A demoted record was needed after all.** It lives in `pc-NNNN-archive.md` with a `restore_command` field. Invoke `restore arc-NNN` in a future session.
 
 **The active file got corrupted or manually mis-edited.** Invoke `rebuild` to regenerate from the archive. The rebuild has a mandatory pre-commit review gate.
 

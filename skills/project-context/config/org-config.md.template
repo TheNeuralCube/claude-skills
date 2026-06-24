@@ -2,31 +2,39 @@
 <!-- Copyright 2026 Raul J. Soto -->
 <!-- Rendered (operator-deployed) org-config.md files do not inherit the SPDX header because the placeholder content is the operator's work product, not licensable source. -->
 
-# org-config.md template (project-context v0.6.0, schema 0.4)
+# org-config.md template (project-context v0.7.0, schema 0.5)
 
-This file is a **template**. The project-context skill renders it into the operator's project knowledge as `org-config.md` on first invocation if the project does not already have one. The operator (typically the org admin or workspace owner) then populates the `[tbd]` placeholders.
+This file is a **template**. It ships in `config/` inside the `.skill` archive. The project-context skill renders it into the operator's project space as `org-config.md` on first invocation if the project does not already have one. The operator (typically the org admin or workspace owner) then populates the `[tbd]` placeholders.
+
+`org-config.md` is operator-editable. On filesystem platforms it lives in `config/`; on flat platforms the operator uploads it and the skill reads it by base name (`org-config.md`), never by a hardcoded `config/` path.
+
+**To configure this file:** load it and ask the assistant to walk you through it. The assistant runs the shared interview in `references/configure.md` and uses the FIELD GUIDE comments below. Config regeneration always produces a diff for your approval before saving; it never overwrites silently. Changes to governance fields (`sanctioned_tools`, `default_sensitivity`, `regulatory_scope`) are flagged compliance-relevant in the change summary.
 
 Resolution order at runtime: `user-config.md` > `org-config.md` (this file's render) > skill defaults in `references/defaults.md`.
 
-The skill never writes to `org-config.md` after auto-creation. It is operator-owned. The upstream skill does not ship a populated `org-config.md`; the template renders with placeholders and the deploying org fills them in.
+The skill never writes to `org-config.md` outside the operator-approved configure flow. It is operator-owned. The upstream skill does not ship a populated `org-config.md`; the template renders with placeholders and the deploying org fills them in.
 
 ## What goes in org-config.md
 
-The fields below are the v0.6.0 schema for the organization configuration layer. Per design spec §4.5, the schema_version on a rendered `org-config.md` is `"0.4"` and `_managed_by` is `project-context-skill`.
+The fields below are the current schema for the organization configuration layer. The schema_version on a rendered `org-config.md` is `"0.5"`, `_managed_by` is `project-context-skill`, and the schema 0.5 config header (`config_editable`, `configure_with`) is present.
 
 ```yaml
 ---
-schema_version: "0.4"
+schema_version: "0.5"
 _managed_by: project-context-skill
 config_type: org
+config_editable: true
+configure_with: references/configure.md
 ---
 
 # ============================================================
-# project-context — organization configuration (v0.6.0, schema 0.4)
+# project-context — organization configuration (v0.7.0, schema 0.5)
 # ============================================================
 # Populate the [tbd] fields. Fields with values shown are skill
 # defaults; override them only if the org's posture differs.
-# Reload by re-uploading this file to your Project.
+# To reconfigure, load this file and ask to be walked through it
+# (the assistant runs references/configure.md). Reload by
+# re-uploading this file to your Project.
 # ============================================================
 
 
@@ -61,6 +69,7 @@ org:
 # applies). Listing a tool here does not enable any
 # integration; it is informational metadata used by the
 # operator brief to note tool availability.
+# (governance field: changes are flagged compliance-relevant)
 # -----------------------------------------------------------
 sanctioned_tools: []
 
@@ -78,10 +87,12 @@ sanctioned_tools: []
 #   stamps on new files unless overridden by user-config or
 #   chat-time instructions. Must be a value in
 #   data_classifications above.
+#   (governance field: changes are flagged compliance-relevant)
 # regulatory_scope: free-form list of compliance frameworks
 #   the org operates under (e.g., "SOX", "HIPAA", "ITAR",
 #   "GDPR", "ISO-27001"). Empty list permitted (no
 #   regulatory frameworks declared).
+#   (governance field: changes are flagged compliance-relevant)
 # -----------------------------------------------------------
 compliance:
   data_classifications:
@@ -113,7 +124,7 @@ methodology_overrides:
 
 ## Required fields
 
-Per design spec §4.5, the following fields are REQUIRED and must be populated before the rendered `org-config.md` is considered complete:
+The following fields are REQUIRED and must be populated before the rendered `org-config.md` is considered complete:
 
 - `org.name`
 - `org.type`
@@ -125,12 +136,12 @@ A rendered file with any required field still set to `[tbd]` is permitted (the s
 ## What does not belong in org-config.md
 
 - Anything specific to a single user — use `user-config.md` instead.
-- Anything that would change schema validity. The fields above are part of the schema 0.4 contract for `config_type: org` files.
+- Anything that would change schema validity. The fields above are part of the schema 0.5 contract for `config_type: org` files.
 - Secrets or credentials. The skill does not need them, and `org-config.md` may end up in shared infrastructure.
 
 ## How the skill loads this file
 
-1. On invocation, after the surface guard and project detection, the skill scans the project for `org-config.md`.
+1. On invocation, after the surface guard and project detection, the skill scans the project for `org-config.md` by base name (in `config/` on filesystem platforms; in flat project knowledge on web).
 2. If absent, the skill renders this template into the project as `org-config.md` with `[tbd]` placeholders and notes the auto-creation in the pre-flight report.
 3. If present, the skill parses the YAML frontmatter and body.
 4. Any value here overrides the corresponding upstream default but is itself overridable by `user-config.md` (resolution order: user > org > defaults).

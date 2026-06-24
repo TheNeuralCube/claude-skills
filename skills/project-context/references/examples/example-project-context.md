@@ -1,13 +1,14 @@
-# Example: `project-context.md` after a routine v0.6.0 session
+# Example: `pc-0014-context.md` (schema 0.5) after a routine v0.7.0 session
 
-The block below is a realistic example of the active grounding file (`project-context.md`) after several sessions. It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers (this file is operator work product, not skill source).
+The block below is a realistic example of the active grounding file after several sessions. The file is named `pc-0014-context.md`: `NNNN` is the shared-set `generation` counter (here 14), distinct from `update_count` (the scoring counter, also 14 here because the context file was written in every generation; the two need not coincide). It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers (this file is operator work product, not skill source). In the legend and reader instructions below, `pc-NNNN-*` is shown generically; the actual files in this set are `pc-0014-context.md`, `pc-0014-entities.md`, and `pc-0014-archive.md`.
 
 The example uses `topology.role: standalone` (no Hub relationship); see `references/topology.md` for the full topology schema and the four other role options (hub, spoke-dev, spoke-solution, unclassified). A `role: hub` example would additionally carry a `## Spoke Inventory` section in the body immediately after frontmatter.
 
 ```markdown
 ---
-schema_version: "0.4"
+schema_version: "0.5"
 _managed_by: project-context-skill
+generation: 14
 file_role: project-context
 topology:
   role: "standalone"
@@ -28,17 +29,17 @@ how_to_read: |
   This is the active project context for the Q3 Strategic Review project.
   Read decisions and constraints in full. Treat current state as evolving.
   Open items are pending decisions. Look up terminology and external
-  references by need. Entities live in entities.md; historical records
-  live in project-context-archive.md.
+  references by need. Entities live in pc-NNNN-entities.md; historical records
+  live in pc-NNNN-archive.md.
 id_prefix_legend:
-  dec: "Decision (in project-context.md)"
-  con: "Constraint (in project-context.md)"
-  csn: "Current State (in project-context.md)"
-  opn: "Open Item (in project-context.md)"
-  trm: "Terminology (in project-context.md)"
-  ref: "External Reference (in project-context.md)"
-  ent: "Entity (in entities.md)"
-  arc: "Archived Record (in project-context-archive.md)"
+  dec: "Decision (in pc-NNNN-context.md)"
+  con: "Constraint (in pc-NNNN-context.md)"
+  csn: "Current State (in pc-NNNN-context.md)"
+  opn: "Open Item (in pc-NNNN-context.md)"
+  trm: "Terminology (in pc-NNNN-context.md)"
+  ref: "External Reference (in pc-NNNN-context.md)"
+  ent: "Entity (in pc-NNNN-entities.md)"
+  arc: "Archived Record (in pc-NNNN-archive.md)"
 authors: []
 related_session_recap: null
 related_files: []
@@ -48,8 +49,8 @@ governance_frameworks: []
 custom_governance: {}
 generated_by:
   skill: project-context
-  version: "0.6.0"
-  model: claude-opus-4-7
+  version: "0.7.0"
+  model: claude-opus-4-8
   generation_date: 2026-05-13T16:42:00-05:00
 ---
 

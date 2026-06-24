@@ -1,18 +1,18 @@
 ---
 file_role: skill-reference
 topic: scoring
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Scoring algorithm (project-context v0.6.0)
+# Scoring algorithm (project-context v0.7.0)
 
-This file is the authoritative restatement of the scoring algorithm used by the project-context skill to decide which records stay in the active file (`project-context.md`) and which are proposed for demotion to the archive (`project-context-archive.md`).
+This file is the authoritative restatement of the scoring algorithm used by the project-context skill to decide which records stay in the active file (`pc-NNNN-context.md`) and which are proposed for demotion to the archive (`pc-NNNN-archive.md`).
 
-Operations reference this file. The user can tune the algorithm in `user-config.md` (see `references/user-config.md.template`). Defaults come from `references/defaults.md`.
+Operations reference this file. The user can tune the algorithm in `user-config.md` (see `config/user-config.md.template`). Defaults come from `references/defaults.md`.
 
 ## 1. The weight formula
 
@@ -108,5 +108,5 @@ The user can override the score on a per-record basis via the diff-and-approve f
 
 - Schema for `times_seen`, `importance`, `first_seen_update`, `last_seen_update`, `first_seen_at`: see `references/schema.md`.
 - Where the formula is invoked: `operations/default.md` (end-of-session pass), `operations/compact.md` (on-demand batch), `operations/rebuild.md` (rebuild from archive).
-- Where defaults can be overridden: `references/user-config.md.template`, `references/org-config.md.template`.
+- Where defaults can be overridden: `config/user-config.md.template`, `config/org-config.md.template`.
 - Single-source-of-truth defaults table: `references/defaults.md`.

@@ -1,11 +1,12 @@
-# Example: `entities.md` after a few sessions
+# Example: `pc-0014-entities.md` (schema 0.5) after a few sessions
 
-The block below is a realistic example of the entities reference file. It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers.
+The block below is a realistic example of the entities reference file (part of the `pc-0014-*` generation set). It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers. `pc-NNNN-*` in the legend is generic; the actual file is `pc-0014-entities.md`.
 
 ```markdown
 ---
-schema_version: "0.4"
+schema_version: "0.5"
 _managed_by: project-context-skill
+generation: 14
 file_role: entities
 topology:
   role: "standalone"
@@ -27,14 +28,14 @@ how_to_read: |
   by name; this file does not undergo automatic decay. New entries are added
   as entities are mentioned in conversations.
 id_prefix_legend:
-  dec: "Decision (in project-context.md)"
-  con: "Constraint (in project-context.md)"
-  csn: "Current State (in project-context.md)"
-  opn: "Open Item (in project-context.md)"
-  trm: "Terminology (in project-context.md)"
-  ref: "External Reference (in project-context.md)"
-  ent: "Entity (in entities.md)"
-  arc: "Archived Record (in project-context-archive.md)"
+  dec: "Decision (in pc-NNNN-context.md)"
+  con: "Constraint (in pc-NNNN-context.md)"
+  csn: "Current State (in pc-NNNN-context.md)"
+  opn: "Open Item (in pc-NNNN-context.md)"
+  trm: "Terminology (in pc-NNNN-context.md)"
+  ref: "External Reference (in pc-NNNN-context.md)"
+  ent: "Entity (in pc-NNNN-entities.md)"
+  arc: "Archived Record (in pc-NNNN-archive.md)"
 authors: []
 related_session_recap: null
 related_files: []
@@ -44,8 +45,8 @@ governance_frameworks: []
 custom_governance: {}
 generated_by:
   skill: project-context
-  version: "0.6.0"
-  model: claude-opus-4-7
+  version: "0.7.0"
+  model: claude-opus-4-8
   generation_date: 2026-05-13T16:42:00-05:00
 ---
 

@@ -1,8 +1,8 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
-# Governance metadata framework (project-context v0.6.0)
+# Governance metadata framework (project-context v0.7.0)
 
-The project-context skill ships a governance metadata framework so files can carry the policy attributes enterprise environments care about (sensitivity, retention, applicable frameworks). The framework is **a schema**, not an integration: the skill captures the metadata so downstream systems and future skill versions can act on it. v0.6.0 does not call DLP services, does not enforce retention, and does not apply ACLs.
+The project-context skill ships a governance metadata framework so files can carry the policy attributes enterprise environments care about (sensitivity, retention, applicable frameworks). The framework is **a schema**, not an integration: the skill captures the metadata so downstream systems and future skill versions can act on it. The skill does not call DLP services, does not enforce retention, and does not apply ACLs.
 
 All governance fields appear in every file's YAML frontmatter and are REQUIRED (though several may carry empty values like `[]` or `{}`). The framework is unchanged from v0.1.0 except for the per-record audit-block addition documented in section 6.
 
@@ -19,7 +19,7 @@ custom_governance: {}
 
 When a file is read by a downstream system or governance scanner, these fields set the baseline for everything in the file.
 
-v0.6.0 does not support per-record governance overrides via inline brackets. The v0.1 inline-bracket form (`[sensitivity: confidential]` after a bullet) is removed. Records that need divergent governance go in a separate file. This is a workshop-locked decision: per-record overrides were rarely used in production and added parsing complexity without operational benefit.
+The skill does not support per-record governance overrides via inline brackets. The v0.1 inline-bracket form (`[sensitivity: confidential]` after a bullet) is removed. Records that need divergent governance go in a separate file. This is a workshop-locked decision: per-record overrides were rarely used in production and added parsing complexity without operational benefit.
 
 ## The four fields
 
@@ -34,7 +34,7 @@ Allowed values: `open`, `internal`, `confidential`, `restricted`.
 | `confidential` | Limited to specific people, teams, or contracts. |
 | `restricted` | Highly sensitive; access strictly controlled (legal hold, board-level, regulated PII). |
 
-The upstream default is `internal`. `org-config.md` can change the org-level default via `compliance.default_sensitivity` (per the v0.6.0 schema in `references/org-config.md.template`). `user-config.md` can override per user via `privacy.default_sensitivity` (per `references/user-config.md.template`).
+The upstream default is `internal`. `org-config.md` can change the org-level default via `compliance.default_sensitivity` (per the schema in `config/org-config.md.template`). `user-config.md` can override per user via `privacy.default_sensitivity` (per `config/user-config.md.template`).
 
 ### `retention`
 
@@ -71,7 +71,7 @@ Empty `{}` by default. Downstream systems consume whatever keys the org puts her
 
 ## Defaults summary
 
-The override columns below cite the actual v0.6.0 config-template field paths. Consult `references/user-config.md.template` and `references/org-config.md.template` for the complete schemas; some frontmatter governance fields (`retention`, `custom_governance`) are not currently exposed as config-template override targets in v0.6.0 and must be set at file frontmatter or chat-time invocation.
+The override columns below cite the actual config-template field paths. Consult `config/user-config.md.template` and `config/org-config.md.template` for the complete schemas; some frontmatter governance fields (`retention`, `custom_governance`) are not currently exposed as config-template override targets and must be set at file frontmatter or chat-time invocation.
 
 | Field | Upstream default | Where to override |
 |---|---|---|
@@ -79,7 +79,7 @@ The override columns below cite the actual v0.6.0 config-template field paths. C
 | `retention` (active, entities) | `standard` | File frontmatter; chat-time operator instruction. Not currently exposed in `org-config.md.template` or `user-config.md.template`; deferred to a future schema bump if operator demand surfaces. |
 | `retention` (archive) | `indefinite` | File frontmatter; chat-time operator instruction. Same template-exposure caveat as above. |
 | `governance_frameworks` | `[]` | File frontmatter; `org-config.md`'s `compliance.regulatory_scope` (rough analog: lists frameworks like `SOX`, `HIPAA`, `ITAR`). `user-config.md` does not expose an analog. |
-| `custom_governance` | `{}` | File frontmatter; chat-time operator instruction. Not currently exposed in either v0.6.0 template; orgs that need custom keys document them via the `compliance` or `methodology_overrides` sections of `org-config.md` per their convention. |
+| `custom_governance` | `{}` | File frontmatter; chat-time operator instruction. Not currently exposed in either config template; orgs that need custom keys document them via the `compliance` or `methodology_overrides` sections of `org-config.md` per their convention. |
 
 ## Resolution order
 
@@ -109,15 +109,15 @@ audit:
 
 The audit block exists so quality issues (especially from auto-mode) can be diagnosed and coached after the fact, not as a blame mechanism. Governance fields (`sensitivity` etc.) describe WHAT the record is. Audit fields describe HOW it got into the file. Both are required.
 
-## What v0.6.0 does and does not do
+## What the skill does and does not do
 
-**v0.6.0 does:**
+**The skill does:**
 - Capture file-level governance metadata.
 - Capture per-record audit metadata.
 - Apply file-level defaults from upstream, `org-config.md`, and `user-config.md` in resolution order.
 - Carry `custom_governance` keys through unchanged so downstream systems can read them.
 
-**v0.6.0 does not:**
+**The skill does not:**
 - Call DLP, ACL, or compliance services.
 - Encrypt or redact records based on `sensitivity`.
 - Auto-delete files based on `retention`.

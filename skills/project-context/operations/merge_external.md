@@ -1,8 +1,8 @@
 ---
 file_role: skill-operation
 operation: merge_external
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -102,5 +102,5 @@ In addition to the failure modes in `operations/default.md` section 10:
 - Scoring formula and coefficients: `references/scoring.md`.
 - Defaults: `references/defaults.md`.
 - Migration from legacy files (invoked from pre-flight): `references/migration.md`.
-- Configuration overrides: `references/user-config.md.template`, `references/org-config.md.template`.
+- Configuration overrides: `config/user-config.md.template`, `config/org-config.md.template`.
 - Other operations: `operations/compact.md`, `operations/rebuild.md`.

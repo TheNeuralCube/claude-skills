@@ -1,8 +1,8 @@
 ---
 file_role: skill-reference
 topic: schema-changelog
-current_schema_version: "0.4"
-skill_version: "0.6.0"
+current_schema_version: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -16,12 +16,37 @@ The build session enforces a drift-detection guard. Before commit, the build com
 
 ## Schema versions
 
-### Schema "0.4" — current
+### Schema "0.5" — current
+
+- **Introduced:** 2026-06-09 (skill release v0.7.0).
+- **Used by skill versions:** 0.7.0 and forward (until the next schema bump).
+- **Carrier files:** the three context files, now named `pc-NNNN-context.md`, `pc-NNNN-entities.md`, `pc-NNNN-archive.md` (versioned, prefix-unified). Config files (`user-config.md`, `org-config.md`, `platform-specific-parameters.md`) also carry the schema_version literal and the new config header.
+- **Schema_version literal on disk:** `schema_version: "0.5"` (short, quoted).
+
+**Field-level diff from schema "0.4":**
+
+| Change | Detail |
+|---|---|
+| `generation` | New REQUIRED integer field in the frontmatter of the three context files. It equals the `NNNN` in the filename (`pc-NNNN-*`); all three files of a set share it; the first generation is `pc-0001-*`. It is the identity counter and never feeds scoring. |
+| `update_count` | **RETAINED** (not removed). It remains the per-file scoring lifecycle counter that drives update-based decay (`references/scoring.md`). It is distinct from `generation`: `update_count` increments only on files with content changes and is preserved verbatim across all migrations including Scenario G; `generation` is filename identity and resets to 1 on Scenario G. The earlier design intent to retire `update_count` was reversed during the v0.7.0 build (finding F1) when it became clear one counter cannot serve both identity and scoring once Scenario G resets the identity counter. |
+| Filename / naming contract | The three context files move from fixed canonical names (`project-context.md`, `entities.md`, `project-context-archive.md`) to versioned, prefix-unified names (`pc-NNNN-{context,entities,archive}.md`). Recognition is by the `pc-NNNN-*` pattern AND the `_managed_by` marker together. This resolves the duplicate-canonical-file corruption that fixed names produced on platforms that accumulate uploads instead of overwriting. |
+| Config-file frontmatter | Config files (`config_type: user|org|platform`) gain two REQUIRED fields: `config_editable: true` and `configure_with: references/configure.md`. Config files carry no `generation`, `update_count`, or `topology`. See `references/schema.md` section 2.1. |
+
+No other field-level changes from "0.4". The `topology` block carries forward verbatim. All other schema mechanics (`_managed_by`, `file_role`, lifecycle fields, per-record schema, `id_prefix_legend`, audit block, archive `checkpoints`, body sections, the `## Spoke Inventory` Hub section) are unchanged.
+
+**Migration path from "0.4":** automated, one-time per project, in-place upgrade (Scenario G). Pre-flight detects old canonical names with `_managed_by`, `schema_version: "0.4"`, a `topology` block, and no `pc-NNNN-*` files; the operator confirms with `confirm v0.7.0 upgrade` (a destructive-tier operation that also confirms model setup); the skill renames the three files to `pc-0001-*`, adds `generation: 1`, bumps `schema_version` to "0.5", RETAINS `update_count` and all per-record counters verbatim, carries the topology block verbatim, and applies the config treatment (header plus relocation to `config/`). All record content preserved unchanged. Old-named files are flagged for deletion. See `references/migration.md` section 11.
+
+**Rationale:** schema "0.5" makes file identity versioned so the set is unambiguous on accumulate-on-upload platforms (highest counter wins; lower sets pruned). It also formalizes the config/references separation (config files declare editability and point at the shared interview). The schema bump (0.4 → 0.5) accompanies the new REQUIRED `generation` field and the naming contract, which are backward-incompatible with the v0.4 file format; by semver convention this exceeds patch scope and triggers a minor version bump (hence v0.7.0). The `generation`/`update_count` decoupling (finding F1) keeps scoring continuity across the migration.
+
+---
+
+### Schema "0.4" — historical, still supported for upgrade migration
 
 - **Introduced:** 2026-05-22 (skill release v0.6.0).
-- **Used by skill versions:** 0.6.0 and forward (until the next schema bump).
-- **Carrier files:** every file the skill writes (`project-context.md`, `entities.md`, `project-context-archive.md`).
+- **Used by skill versions:** 0.6.0 only.
+- **Carrier files:** every file the skill wrote at v0.6.0 (`project-context.md`, `entities.md`, `project-context-archive.md`).
 - **Schema_version literal on disk:** `schema_version: "0.4"` (short, quoted).
+- **v0.7.0 handling:** v0.7.0 detects schema "0.4" files (old canonical names + `_managed_by` + `schema_version: "0.4"` + topology block + no `pc-NNNN-*` files) and offers an in-place Scenario G upgrade migration to "0.5" via the `confirm v0.7.0 upgrade` token path. The schema is not directly writable by v0.7.0 — v0.7.0 always writes "0.5".
 
 **Field-level diff from schema "0.3":**
 
@@ -153,15 +178,17 @@ consolidation_summary:
 
 ## Supported Schemas
 
-This release of the skill (v0.6.0) supports:
+This release of the skill (v0.7.0) supports:
 
-- **Read/write:** schema "0.4" (current). All v0.6.0 writes produce schema "0.4" with `_managed_by: project-context-skill` and a `topology` block in frontmatter (per `references/topology.md`).
-- **Read for upgrade:** schema "0.3" (v0.5.0 format). Detection: canonical filenames + `_managed_by: project-context-skill` + `schema_version: "0.3"` + no `topology` block. Migration path: in-place Scenario F upgrade (add `topology` block with `role: "unclassified"` default, bump `schema_version` to "0.4", preserve content). Operator confirmation token: `confirm v0.6.0 upgrade`. See `references/migration.md` section 10.
-- **Read for upgrade:** schema "0.2" (v0.4.0 format). Detection: canonical filenames + `schema_version: "0.2"` + no `_managed_by` field. Migration path: in-place Scenario E upgrade (add `_managed_by`, bump `schema_version` to "0.3", preserve content); operator re-invokes for Scenario F to reach "0.4". Operator confirmation token: `confirm upgrade`. See `references/migration.md` section 9.
-- **Read for migration:** v0.1-era literals (`v0.1.0` unquoted, `"0.1"` quoted, and the broader regex `^"?v?0\.(1|2|3)(\.\d+)?"?$` covering v0.1.0–v0.3.2 historical writes — see "Schema '0.1'" below). Detection: legacy filename pattern OR legacy `schema_version` literal. Migration path: full Scenario D legacy migration. v0.6.0 retargets Scenario D per design spec §7.3 to produce schema "0.4" files **directly** with operator-declared topology role (LOCKED TEXT 1 fires during the migration interview before any file write); the parse/classify/score algorithm (`references/migration.md` sections 3 steps 1–10) is preserved from v0.5.0, with section 3 step 11 added for the role-declaration interview and section 3 step 12 writing the schema-0.4 output with topology. Operators with v0.1-era projects skip schemas "0.2" and "0.3" entirely. Single migration invocation; no intermediate schema 0.3 state. Operator confirmation token: `confirm migration`. See `references/migration.md` section 3.
-- **Refuse:** schemas newer than "0.4" (e.g., a hypothetical "0.5" produced by a future skill version). Verdict: `✗ MISMATCH: project newer than skill`. Operator path: upgrade the local skill copy. Override path exists (`override version mismatch and proceed`) but is marked NOT RECOMMENDED.
-- **Refuse:** unrecognized `schema_version` values that match no documented pattern. Verdict: `✗ Mismatch: unknown schema` or `✗ Parse Error` depending on whether the value is a malformed literal or a syntactically valid but unknown one. Operator path: identify the file or override.
-- **Refuse:** schema "0.4" files with no `topology` block (malformed v0.6.0 data, not legacy). Verdict: `✗ Parse Error` with topology diagnostic. See `references/migration.md` section 1 disambiguation notes.
+- **Read/write:** schema "0.5" (current). All v0.7.0 writes produce schema "0.5" with `pc-NNNN-*` names, `_managed_by: project-context-skill`, a `generation` field, the retained `update_count`, and a `topology` block in frontmatter.
+- **Read for upgrade:** schema "0.4" (v0.6.0 format). Detection: old canonical filenames + `_managed_by` + `schema_version: "0.4"` + `topology` block + no `pc-NNNN-*` files. Migration path: in-place Scenario G upgrade (rename to `pc-0001-*`, add `generation: 1`, bump `schema_version` to "0.5", retain `update_count` verbatim, carry topology verbatim, apply config treatment). Destructive-tier; operator confirmation token: `confirm v0.7.0 upgrade`. See `references/migration.md` section 11.
+- **Read for upgrade:** schema "0.3" (v0.5.0 format). Detection: canonical filenames + `_managed_by` + `schema_version: "0.3"` + no `topology` block. Migration path: in-place Scenario F upgrade (add `topology` block, bump to "0.4"); operator re-invokes for Scenario G to reach "0.5". Token: `confirm v0.6.0 upgrade`. See `references/migration.md` section 10.
+- **Read for upgrade:** schema "0.2" (v0.4.0 format). Detection: canonical filenames + `schema_version: "0.2"` + no `_managed_by` field. Migration path: in-place Scenario E upgrade (add `_managed_by`, bump to "0.3"); operator re-invokes for Scenario F, then G. Token: `confirm upgrade`. See `references/migration.md` section 9.
+- **Read for migration:** v0.1-era literals (regex `^"?v?0\.(1|2|3)(\.\d+)?"?$` covering v0.1.0 through v0.3.2 historical writes). Detection: legacy filename pattern OR legacy `schema_version` literal. Migration path: full Scenario D legacy migration, producing schema "0.4" files directly with operator-declared topology; operator then re-invokes for Scenario G to reach "0.5". Token: `confirm migration`. See `references/migration.md` section 3.
+- **Refuse:** schemas newer than "0.5" (e.g., a hypothetical "0.6" produced by a future skill version). Verdict: `✗ MISMATCH: project newer than skill`. Operator path: upgrade the local skill copy. Override path exists (`override version mismatch and proceed`) but is marked NOT RECOMMENDED.
+- **Refuse:** unrecognized `schema_version` values that match no documented pattern. Verdict: `✗ Mismatch: unknown schema` or `✗ Parse Error`. Operator path: identify the file or override.
+- **Refuse:** schema "0.5" files with no `generation` field or whose filename is not `pc-NNNN-*` (malformed v0.7.0 data). Verdict: `✗ Parse Error` (or the generation self-consistency diagnostic when the filename and `generation` merely disagree). See `references/preflight.md` section 3.5.
+- **Refuse:** schema "0.4" files with no `topology` block (malformed v0.6.0 data). Verdict: `✗ Parse Error` with topology diagnostic. See `references/migration.md` section 1 disambiguation notes.
 
 The compatibility matrix is the authoritative input to pre-flight classification. See `references/preflight.md` for the algorithm that consumes this matrix and produces the operator-facing report block.
 
@@ -184,6 +211,8 @@ For the v0.4.0 build: the prior tag is `project-context-v0.3.2`. The schemas dif
 For the v0.5.0 build: the prior tag is `project-context-v0.4.0`. The schemas differ by exactly one field (the new REQUIRED `_managed_by` in frontmatter). `schema_version` bumps from `"0.2"` to `"0.3"`. This file's schema "0.3" entry documents the field-level change. The guard passes.
 
 For the v0.6.0 build: the prior tag is `project-context-v0.5.0`. The schemas differ by exactly one block (the new REQUIRED `topology` block in frontmatter, plus the new `## Spoke Inventory` body section for Hub projects). `schema_version` bumps from `"0.3"` to `"0.4"`. This file's schema "0.4" entry documents the block-level change. The guard passes.
+
+For the v0.7.0 build: the prior tag is `project-context-v0.6.0`. The schemas differ by the new REQUIRED `generation` field on the three context files and the versioned `pc-NNNN-*` naming contract (plus the schema-0.5 config-file header `config_editable`/`configure_with`). `update_count` is RETAINED (no removal). `schema_version` bumps from `"0.4"` to `"0.5"`. This file's schema "0.5" entry documents the field-level change and the `generation`/`update_count` decoupling. The guard passes.
 
 ## Versioning policy
 

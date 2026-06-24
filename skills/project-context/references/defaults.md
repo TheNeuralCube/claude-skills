@@ -1,18 +1,20 @@
 ---
 file_role: skill-reference
 topic: defaults
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Defaults (project-context v0.6.0)
+# Defaults (project-context v0.7.0)
 
 This file is the single source of truth for every default value the skill applies when no `user-config.md` or `org-config.md` overrides it. Resolution order: `user-config.md` > `org-config.md` > this file.
 
-If a value appears here, it can be overridden in user-config or org-config. If a value does not appear here, it is not user-tunable in v0.6.0.
+`defaults.md` stays skill-owned in `references/` (it is not operator-editable; the override knobs are `user-config.md` and `org-config.md` in `config/`). The skill reads the config files by base name (`config/<name>.md` on filesystem platforms, `<name>.md` from flat project knowledge on web), never by a hardcoded `config/` path; see `references/configure.md` and `config/platform-specific-parameters.md` (`config_read_location`).
+
+If a value appears here, it can be overridden in user-config or org-config. If a value does not appear here, it is not user-tunable.
 
 ## 1. Merge policy
 
@@ -53,7 +55,7 @@ Optimized for top-tier thinking models (Claude Opus 4.5+, GPT-5 Pro thinking, Ge
 - Between `soft_warning` and `hard_ceiling`: default operation surfaces a consolidation reminder in the operator brief.
 - Above `hard_ceiling`: default operation pushes harder on DEMOTE proposals; data integrity may degrade on lighter models.
 
-These budgets apply to `project-context.md`. `entities.md` and `project-context-archive.md` have no enforced ceilings in v0.6.0.
+These budgets apply to `pc-NNNN-context.md`. `pc-NNNN-entities.md` and `pc-NNNN-archive.md` have no enforced ceilings.
 
 ## 4. Scoring coefficients
 
@@ -88,7 +90,7 @@ See `references/scoring.md` for the formula and rationale.
 | `migration.enabled` | `true` |
 | `migration.preserve_legacy_files` | `true` (operator deletes manually; skill never deletes) |
 
-The surface guard cannot be disabled in v0.6.0 (the skill is fundamentally inappropriate for Claude Code surfaces). Migration is opt-in only in the sense that the operator confirms the migration brief; detection is always on.
+The surface guard cannot be disabled (the skill is fundamentally inappropriate for Claude Code surfaces). Migration is opt-in only in the sense that the operator confirms the migration brief; detection is always on.
 
 ## 7. Output behavior defaults
 
@@ -119,7 +121,7 @@ The surface guard cannot be disabled in v0.6.0 (the skill is fundamentally inapp
 | Entities (all sub-sections) | `ent-` |
 | Archived Records | `arc-` |
 
-ID prefixes are not user-configurable in v0.6.0. They are part of the schema contract (`schema_version: "0.4"`).
+ID prefixes are not user-configurable. They are part of the schema contract (`schema_version: "0.5"`).
 
 ## 10. Section order (`read_order`)
 
@@ -129,9 +131,9 @@ ID prefixes are not user-configurable in v0.6.0. They are part of the schema con
 | `entities.md` | `[people, places, things, organizations, datasets]` |
 | `project-context-archive.md` | `[records]` |
 
-`read_order` is not user-configurable in v0.6.0. It is part of the schema contract.
+`read_order` is not user-configurable. It is part of the schema contract.
 
-## 11. What is NOT configurable in v0.6.0
+## 11. What is NOT configurable
 
 These behaviors are intentionally fixed at the skill level. They are listed here so deployers do not waste time looking for override knobs.
 
@@ -139,10 +141,12 @@ These behaviors are intentionally fixed at the skill level. They are listed here
 - The five-op classifier's decision rules.
 - The hybrid brake's auto-apply / gate split (only the overall `merge_policy` is overridable).
 - The auto-mode warning text (must match design spec section 12.3 verbatim).
-- The migration algorithm (Scenarios D, E, F).
+- The migration algorithm (Scenarios D, E, F, G).
 - The file set (always three files; cannot reduce to one or two).
-- The schema (must conform to `schema_version: "0.4"`).
-- The topology block (REQUIRED in schema 0.4; role enum, declared_by enum, validation rules per `references/topology.md`).
+- The `pc-NNNN-*` naming scheme, the `generation` identity counter, and the counter-assignment / confirmed-empty rule (`references/preflight.md` section 3.4).
+- The two-tier model-setup gate composition (`references/preflight.md` section 4.6).
+- The schema (must conform to `schema_version: "0.5"`).
+- The topology block (REQUIRED in schema 0.5, carried verbatim from 0.4; role enum, declared_by enum, validation rules per `references/topology.md`).
 - The audit trigger phrases and the "Audit trigger valid only in Hub projects" refusal text.
 - LOCKED TEXT 1 (role declaration) and LOCKED TEXT 2 (missing hub_reference) in `references/preflight.md` section 13.
 - The `[AUTO]` content prefix for auto-approved records.
@@ -151,7 +155,7 @@ If a deployer needs to change one of these, the right answer is a skill fork or 
 
 ## 12. Cross-references
 
-- Format and commenting style for overriding these defaults: `references/user-config.md.template`.
-- Org-scope overrides: `references/org-config.md.template`.
+- Format and commenting style for overriding these defaults: `config/user-config.md.template`.
+- Org-scope overrides: `config/org-config.md.template`.
 - Topology metadata defaults and validation rules: `references/topology.md`.
 - Where each default is consumed: see each `operations/*.md` file.

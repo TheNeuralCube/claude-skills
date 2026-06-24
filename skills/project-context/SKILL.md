@@ -1,6 +1,6 @@
 ---
 name: project-context
-version: 0.6.0
+version: 0.7.0
 description: Capture forward-grounding context from the current chat into the three-file project-context system (active, entities, archive) so future chats start grounded. Use whenever the operator says "create project-context", "create project context", "save project context", "save the project context", "generate project-context", "snapshot project context", "ground this project", "ground the project", "project-context this", "project context this conversation", "build project-context file", "consolidate project-context", "consolidate project context", "consolidate project-context files", "merge project-context files", "compress project-context", "run project-context", "project context", "project-context skill", "compact this", "trim the project context", "rebuild", or "regenerate project context". v0.6.0 adds audit triggers (Hub projects only): "audit spoke projects", "audit the spokes", "which spokes are stale", "show me spoke staleness", "spoke inventory audit", "run spoke audit".
 ---
 
@@ -31,13 +31,15 @@ has emitted its report and any required confirmation has been received.
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# project-context (v0.6.0)
+# project-context (v0.7.0)
 
-A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` above), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration documentation, and the pre-flight / post-flight protocol live in `references/`.
+A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` above), and delegates to one of four operation files. Operation logic lives in `operations/`. Schema, scoring, defaults, migration, governance, configuration interview mechanics, and the pre-flight / post-flight protocol live in `references/` (skill-owned). Operator-editable configuration lives in `config/` (`user-config.md`, `org-config.md`, `platform-specific-parameters.md`), read by base name.
 
-v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system (`project-context.md`, `entities.md`, `project-context-archive.md`); the two modes (generate, consolidate) became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake by default. v0.5.0 closed the protocol-enforcement gap documented in the 2026-05-19 postmortem: pre-flight became a structural gate, schema bumped to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary closed the audit loop. v0.6.0 inherits all of that architecture and adds hub-spoke governance awareness: schema bumps to "0.4" with a new REQUIRED `topology` block, an audit trigger phrase invokable in Hub projects, stale-spoke detection on spoke projects, and a Scenario F migration path from v0.5.0 (schema 0.3) to v0.6.0 (schema 0.4). See `CHANGELOG.md` for the full change history.
+v0.4.0 was a major architectural pivot from v0.1.x-v0.3.x: the dated single-file output was replaced by a three-file rolling system; the two modes became four operations (default, merge_external, compact, rebuild); the skill gained a five-op merge classifier (ADD, UPDATE, NOOP, DEMOTE, SUPERSEDE) with a hybrid brake. v0.5.0 closed the protocol-enforcement gap (the 2026-05-19 postmortem): pre-flight became a structural gate, schema bumped to "0.3" with a new REQUIRED `_managed_by: project-context-skill` field, and a symmetric post-flight summary. v0.6.0 added hub-spoke governance awareness: schema "0.4" with a REQUIRED `topology` block, an audit trigger (Hub projects), stale-spoke detection, and Scenario F migration. **v0.7.0 inherits all of that and adds:** versioned, prefix-unified file identity (`pc-NNNN-{context,entities,archive}.md` with a `generation` field; schema bumps to "0.5"; `update_count` is RETAINED as the separate scoring counter); an operation-start model advisory and a two-tier confirmation gate; the config/references separation convention; an expanded `platform-specific-parameters.md`; and Scenario G migration from v0.6.0 (schema 0.4) to v0.7.0 (schema 0.5). See `CHANGELOG.md` for the full change history.
 
-Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, report block format, token catalog, post-flight summary, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts), `references/schema.md` (data shape, `schema_version: "0.4"`), `references/topology.md` (topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules), `references/scoring.md` (formula and coefficients), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration, v0.4.0 to v0.5.0 upgrade migration, and the new v0.5.0 to v0.6.0 topology upgrade migration), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables), `references/platform-specific-parameters.md` (per-platform capability and limit parameters).
+**pc-NNNN recognition note.** The skill recognizes its managed context set by the `pc-NNNN-*` name pattern AND the `_managed_by: project-context-skill` marker together. `NNNN` is the shared-set `generation` counter; the first generation is `pc-0001-*`. Counter assignment, the confirmed-empty rule (never `0001` on absence of evidence), and the generation self-consistency check live in `references/preflight.md` sections 3.4 and 3.5.
+
+Key references the router and operations consume: `references/preflight.md` (pre-flight algorithm, counter assignment, generation self-consistency, model advisory and two-tier gate, report block, token catalog, post-flight summary and set-integrity directive, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts), `references/schema.md` (data shape, `schema_version: "0.5"`, `generation`, naming contract, config-file frontmatter), `references/topology.md` (topology metadata schema, role definitions, spoke inventory, audit semantics, validation rules), `references/scoring.md` (formula and coefficients, keyed off the retained `update_count`), `references/operations.md` (classifier and post-pre-flight runtime steps), `references/migration.md` (legacy v0.1-era migration, Scenario E, Scenario F, and the new Scenario G generation/naming upgrade), `references/configure.md` (config interview mechanics; single owner), `references/schema-changelog.md` (version history and Supported Schemas matrix), `references/defaults.md` (single source of truth for tunables), `config/platform-specific-parameters.md` (per-platform capability and limit parameters, read by base name; consumed by the model advisory).
 
 ## Model-assumption disclosure
 
@@ -57,24 +59,27 @@ project-context/
 │   ├── merge_external.md                            (parse an attached file or external artifact instead of the conversation)
 │   ├── compact.md                                   (aggressively demote weak active records)
 │   └── rebuild.md                                   (rebuild active file from archive; mandatory pre-commit review)
-└── references/
-    ├── preflight.md                                 (pre-flight algorithm, report block, token catalog, post-flight summary, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts)
-    ├── schema.md                                    (file-level + per-record schema, schema_version "0.4", _managed_by field, topology block)
-    ├── schema-changelog.md                          (version-by-version schema history, Supported Schemas matrix, drift detection)
-    ├── topology.md                                  (v0.6.0: topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules)
-    ├── scoring.md                                   (the formula, coefficients, demotion threshold, worked examples)
-    ├── operations.md                                (cross-operation runtime logic and post-pre-flight steps)
-    ├── migration.md                                 (legacy v0.1-era migration + v0.4.0 to v0.5.0 upgrade + v0.5.0 to v0.6.0 topology upgrade)
-    ├── defaults.md                                  (single source of truth for every configurable default)
-    ├── governance.md                                (governance metadata framework)
-    ├── user-config.md.template                      (v0.6.0: per-user override layer; cross-skill convention)
-    ├── org-config.md.template                       (v0.6.0: org-scope override layer)
-    ├── platform-specific-parameters.md              (v0.6.0: per-platform capability and limit parameters; consumed by project-creator skill)
-    └── examples/
-        ├── example-project-context.md
-        ├── example-entities.md
-        ├── example-project-context-archive.md
-        └── example-user-config.md
+├── references/                                       (skill-owned; convention P4)
+│   ├── preflight.md                                 (pre-flight algorithm, counter assignment, generation self-consistency, model advisory + two-tier gate, report block, token catalog, post-flight + set-integrity directive, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts)
+│   ├── schema.md                                    (file-level + per-record schema, schema_version "0.5", generation field, pc-NNNN naming contract, config-file frontmatter, _managed_by, topology block)
+│   ├── schema-changelog.md                          (version-by-version schema history, Supported Schemas matrix, drift detection)
+│   ├── topology.md                                  (topology metadata schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules)
+│   ├── scoring.md                                   (the formula, coefficients, demotion threshold; keyed off the retained update_count)
+│   ├── operations.md                                (cross-operation runtime logic and post-pre-flight steps)
+│   ├── migration.md                                 (legacy v0.1-era migration + Scenario E + Scenario F + Scenario G generation/naming upgrade)
+│   ├── configure.md                                 (v0.7.0: single owner of config interview mechanics; batch, confirm, diff, write, compliance flag)
+│   ├── defaults.md                                  (single source of truth for every configurable default; stays skill-owned)
+│   ├── governance.md                                (governance metadata framework)
+│   └── examples/
+│       ├── example-project-context.md
+│       ├── example-entities.md
+│       ├── example-project-context-archive.md
+│       └── example-user-config.md
+└── config/                                           (operator-editable; convention P4; read by base name)
+    ├── user-config.md.template                      (per-user override layer; cross-skill convention)
+    ├── org-config.md.template                       (org-scope override layer)
+    ├── platform-specific-parameters.md              (live per-platform capability and limit parameters; consumed by the model advisory and project-creator)
+    └── platform-specific-parameters.md.template     (pristine shipped copy of the platform parameters)
 ```
 
 ## Routing rules
@@ -94,7 +99,7 @@ When the skill is invoked, the router:
    All 19 of the v0.1.0 trigger phrases preserved verbatim above. The v0.1.0 `consolidate` phrases route to v0.6.0 `compact` (the closest behavioral analog) — the operator can override during pre-flight if they intended `rebuild` instead. The six v0.6.0 audit trigger phrases (`audit spoke projects`, `audit the spokes`, `which spokes are stale`, `show me spoke staleness`, `spoke inventory audit`, `run spoke audit`) are registered in the description field above and route to the audit trigger handler in `references/preflight.md` section 12. The audit handler refuses on non-Hub projects.
 
 3. **Loads the operation file** (`operations/<operation>.md`) and runs its body to completion.
-4. **Applies configuration overrides** by loading `user-config.md` and `org-config.md` if present in the project; resolution order is user > org > skill defaults from `references/defaults.md`.
+4. **Applies configuration overrides** by loading `user-config.md` and `org-config.md` by base name if present in the project (`config/<name>.md` on filesystem platforms; `<name>.md` from flat project knowledge on web; never a hardcoded `config/` path). Resolution order is user > org > skill defaults from `references/defaults.md`. The configure flow (operator-driven regeneration of a config file) is owned by `references/configure.md`.
 
 The router itself does not parse the conversation, classify records, write files, or apply scoring. It only detects intent, runs the surface guard, and hands off.
 
@@ -143,15 +148,23 @@ Example pre-flight report block for Scenario F:
 **To proceed:** type `confirm v0.6.0 upgrade`
 ```
 
+### Scenario G (v0.6.0 to v0.7.0 upgrade)
+
+v0.7.0 introduces a pre-flight scenario for projects already running v0.6.0 (old canonical names at schema "0.4" with `_managed_by` and a topology block, no `pc-NNNN-*` files). Pre-flight detects this state and emits the `⚠ Upgrade Available (v0.6.0 to v0.7.0)` verdict. This is a destructive operation and gates on model setup per `references/preflight.md` section 4.6; the operator's confirmation token is `confirm v0.7.0 upgrade`. The upgrade renames the three files to `pc-0001-{context,entities,archive}.md`, adds `generation: 1`, bumps `schema_version: "0.4"` → `"0.5"`, RETAINS `update_count` and all per-record counters verbatim (the `generation` identity counter is distinct from the `update_count` scoring counter), carries the topology block verbatim, and applies the config treatment (header plus relocation to `config/` on filesystem platforms). Post-flight renders the set-integrity directive and instructs deletion of the old-named files. The full algorithm lives in `references/migration.md` section 11; the verdict and example block live in `references/preflight.md` section 4.4.
+
+### Platform support and Cowork deferral
+
+Per-platform behavior is data, not code: `config/platform-specific-parameters.md` holds the model the operation-start advisory names (`strongest_thinking_model`), whether the active model can be changed from a skill, file-inventory enumerability (which drives counter assignment), config read location, and output bundling. Profiled platforms: `claude-ai`, `codex`, `chatgpt-enterprise` (with `m365-copilot` carrying conservative defaults pending validation). **Claude Code is a declined platform** (the surface guard redirects to the companion skill). **Cowork is deferred:** v0.7.0 does not implement a Cowork profile. The anti-autonomous-decision guardrail must continue to fire on Cowork (it did in testing); the Cowork profile is a v0.7.x or v0.8.0 follow-on once the operator-enumerated behavior modifications are in hand. Do not implement autonomous Cowork behavior in v0.7.0.
+
 ### Stale Spoke verdict (informational)
 
-On `role: spoke-*` projects, pre-flight performs stale-spoke detection (per `references/preflight.md` section 11): it reads `topology.hub_version` from `project-context.md` frontmatter and compares it against the version parsed from an attached `ai-engineering-hub-instructions-v*.md` file. When the file version is newer than the spoke's declared version, pre-flight emits the `⚠ Stale Spoke` informational verdict. The verdict is not blocking; the proposed operation proceeds normally. Post-flight surfaces a one-line note recommending project-creator upgrade mode. Two adjacent informational verdicts handle related edge cases: `⚠ Hub Source Behind` (file version is older than the spoke's declared version, rare) and `⚠ Hub Source Missing` (no Hub instructions file is attached). All three are informational; none block operation.
+On `role: spoke-*` projects, pre-flight performs stale-spoke detection (per `references/preflight.md` section 11): it reads `topology.hub_version` from `pc-NNNN-context.md` frontmatter and compares it against the version parsed from an attached `ai-engineering-hub-instructions-v*.md` file. When the file version is newer than the spoke's declared version, pre-flight emits the `⚠ Stale Spoke` informational verdict. The verdict is not blocking; the proposed operation proceeds normally. Post-flight surfaces a one-line note recommending project-creator upgrade mode. Two adjacent informational verdicts handle related edge cases: `⚠ Hub Source Behind` (file version is older than the spoke's declared version, rare) and `⚠ Hub Source Missing` (no Hub instructions file is attached). All three are informational; none block operation.
 
 The skill never auto-upgrades the Hub reference. The upgrade flow lives in the project-creator skill (Workstream 3); v0.6.0 surfaces the staleness signal but does not act on it.
 
 ## Output behavior
 
-Operations write three markdown files to the session's output location and present them via the available file-presentation mechanism so the operator can download and re-upload them to the Project. The skill does not have a programmatic path to add files to a Claude Project in v0.6.0 (awaiting platform API capability; tracked in `ROADMAP.md`).
+Operations write the three markdown files of the current generation (`pc-NNNN-{context,entities,archive}.md`) to the session's output location and present them via the available file-presentation mechanism so the operator can download and upload them to the Project, then prune lower-numbered sets per the post-flight set-integrity directive. The skill does not have a programmatic path to add files to a Claude Project in v0.7.0 (awaiting platform API capability; tracked in `ROADMAP.md`).
 
 The skill does not commit, push, or transmit output anywhere. Distribution is the operator's responsibility.
 
