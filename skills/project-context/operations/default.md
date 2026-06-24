@@ -1,8 +1,8 @@
 ---
 file_role: skill-operation
 operation: default
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -16,7 +16,7 @@ The operations in this document apply only after pre-flight (`references/preflig
 
 This is the default operation: triggered when the operator invokes the skill with no specific operation named. It parses the current conversation, classifies candidate records against the existing three-file system, applies the hybrid brake, surfaces gated proposals for approval, writes the updated files, and emits the operator brief.
 
-Schema reference: `references/schema.md`. Scoring reference: `references/scoring.md`. Classifier and cross-operation logic: `references/operations.md`. Defaults: `references/defaults.md`. Configuration overrides: `references/user-config.md.template`, `references/org-config.md.template`.
+Schema reference: `references/schema.md`. Scoring reference: `references/scoring.md`. Classifier and cross-operation logic: `references/operations.md`. Defaults: `references/defaults.md`. Configuration overrides: `config/user-config.md.template`, `config/org-config.md.template`.
 
 ## 1. Pre-flight prologue
 
@@ -36,7 +36,7 @@ Then stop. Do not proceed to the rest of pre-flight on a non-supported surface.
 
 ### 1.2 Remaining pre-flight
 
-If the surface guard passes, hand off to the pre-flight protocol per `references/preflight.md` for the protocol-enforcement work (four-tier search, five-branch classification including UPGRADE_AVAILABLE_TOPOLOGY, report block, confirmation token, topology validation, stale-spoke detection). The post-classification runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4. Migration is initiated per `references/migration.md` whenever pre-flight classifies as `⚠ Legacy`, `⚠ Upgrade Available`, or `⚠ Upgrade Available (v0.5.0 to v0.6.0)`; only pure-current state at schema 0.4 with `_managed_by` and topology block skips migration (legacy files, schema-0.2 files, and schema-0.3-without-topology files all trigger their respective migration paths).
+If the surface guard passes, hand off to the pre-flight protocol per `references/preflight.md` for the protocol-enforcement work (the search strategy and six-branch classification including UPGRADE_AVAILABLE_GENERATION for Scenario G, counter assignment per section 3.4, the generation self-consistency check per section 3.5, report block, confirmation token, the model advisory and two-tier gate per section 4.6, topology validation, stale-spoke detection). The post-classification runtime steps (project detection, conflict detection, migration trigger handling, configuration resolution) are described in `references/operations.md` section 4. Migration is initiated per `references/migration.md` whenever pre-flight classifies as `⚠ Legacy`, `⚠ Upgrade Available`, `⚠ Upgrade Available (v0.5.0 to v0.6.0)`, or `⚠ Upgrade Available (v0.6.0 to v0.7.0)`; only pure-current state at schema 0.5 with `pc-NNNN-*` names, `_managed_by`, `generation`, and a topology block skips migration. A schema-0.4 file with old canonical names and a topology block (no `pc-NNNN-*` files) triggers Scenario G, the v0.6.0 to v0.7.0 generation/naming upgrade; legacy files, schema-0.2 files, and schema-0.3-without-topology files trigger their respective migration paths.
 
 ## 2. Parse the conversation
 
@@ -44,13 +44,13 @@ Scan the current conversation for candidate records. The seven candidate kinds:
 
 | Candidate kind | Routes to file | Routes to section |
 |---|---|---|
-| Decision | `project-context.md` | Decisions |
-| Constraint | `project-context.md` | Constraints |
-| Current state fact | `project-context.md` | Current State |
-| Open item | `project-context.md` | Open Items |
-| Terminology | `project-context.md` | Terminology |
-| External reference | `project-context.md` | External References |
-| Entity (person, place, thing, organization, dataset) | `entities.md` | matching sub-section |
+| Decision | `pc-NNNN-context.md` | Decisions |
+| Constraint | `pc-NNNN-context.md` | Constraints |
+| Current state fact | `pc-NNNN-context.md` | Current State |
+| Open item | `pc-NNNN-context.md` | Open Items |
+| Terminology | `pc-NNNN-context.md` | Terminology |
+| External reference | `pc-NNNN-context.md` | External References |
+| Entity (person, place, thing, organization, dataset) | `pc-NNNN-entities.md` | matching sub-section |
 
 For each candidate, extract:
 
@@ -87,7 +87,7 @@ if evolves_meaning_of(candidate, best_match):
 return ADD
 ```
 
-`find_similar_records` searches `project-context.md` for non-entity candidates and `entities.md` for entity candidates. Do NOT match against the archive during classification.
+`find_similar_records` searches `pc-NNNN-context.md` for non-entity candidates and `pc-NNNN-entities.md` for entity candidates. Do NOT match against the archive during classification.
 
 ## 4. End-of-session DEMOTE pass
 
@@ -182,7 +182,7 @@ For each approved proposal, apply the corresponding state change to the in-memor
 
 | Operation | State change |
 |---|---|
-| `ADD` | Append record to its section in `project-context.md` or `entities.md`. Initialize `times_seen = 1`, `first_seen_update = current_update`, `last_seen_update = current_update`, `first_seen_at = now`, `last_seen_at = now`, `status: active`, audit block per section 9. |
+| `ADD` | Append record to its section in `pc-NNNN-context.md` or `pc-NNNN-entities.md`. Initialize `times_seen = 1`, `first_seen_update = current_update`, `last_seen_update = current_update`, `first_seen_at = now`, `last_seen_at = now`, `status: active`, audit block per section 9. |
 | `UPDATE` | Replace existing record's content. Bump `last_seen_update = current_update`, `last_seen_at = now`, increment `times_seen`. Copy the prior version to the archive with `status: superseded`, `prior_id` = the original ID, a fresh `arc-` ID, `superseded_by` = the new record's ID, `superseded_at_update = current_update`. |
 | `NOOP` | On the matched record, increment `times_seen`, set `last_seen_update = current_update`, set `last_seen_at = now`. No archive write. |
 | `DEMOTE` | Remove record from active. Move to archive with a fresh `arc-` ID, `prior_id` = the original ID, `status: archived`, `demoted_at_update = current_update`. |
@@ -191,11 +191,12 @@ For each approved proposal, apply the corresponding state change to the in-memor
 After all changes are applied:
 
 1. Remove the first-run placeholder block (delimiters and content) from any file that still has it, if at least one record was added to that file.
-2. Increment `update_count` by 1 on every file touched.
-3. Update `last_merged` to now.
-4. Recompute `record_count` on every file.
-5. Append a checkpoint object to the archive's `checkpoints` frontmatter array summarizing the session (e.g., `"3 ADDs, 1 UPDATE, 1 DEMOTE."`). If the archive was untouched, still add the checkpoint with `summary: "No archive changes."` for traceability.
-6. Run the validation checklist from `references/schema.md` section 6 on every file written. If any check fails, halt and report.
+2. **Increment `update_count` by 1 on every file touched** (the scoring lifecycle counter; only files with content changes are touched). Do NOT touch `update_count` on a file with no content change. `update_count` is distinct from `generation`; see `references/schema.md`.
+3. **Stamp `generation = N` on all three files**, where `N` is the counter assigned at pre-flight (`references/preflight.md` section 3.4: confirmed-empty seeds 1; populated is highest plus one). **Write all three files under `pc-000N-{context,entities,archive}.md`** so the canonical set advances together at one counter. A file with no content change is still re-stamped to generation `N` and re-written under the new name; this keeps the set coherent at a single `NNNN` and lets the set-integrity directive prune lower sets safely. `generation` and `update_count` move independently: `generation` is `N` on all three; `update_count` increments only on touched files.
+4. Update `last_merged` to now on every file written.
+5. Recompute `record_count` on every file.
+6. Append a checkpoint object to the archive's `checkpoints` frontmatter array summarizing the session (e.g., `"3 ADDs, 1 UPDATE, 1 DEMOTE."`). If the archive had no record changes, still add the checkpoint with `summary: "No archive changes."` for traceability.
+7. Run the validation checklist from `references/schema.md` section 6 on every file written (including the generation self-consistency check: the `NNNN` in each filename equals its frontmatter `generation`). If any check fails, halt and report.
 
 ## 8. Auto-mode
 
@@ -226,7 +227,7 @@ Proceed with auto-mode for this session?
 | Passive (unclear, off-topic, silent) | Auto-mode proceeds (per workshop decision). | `passive` |
 | Explicit dismissal ("whatever", "fine") | Auto-mode proceeds. | `dismissed` |
 
-Activation scope is per-session. The warning fires again on the next session if auto-mode is still configured. Persistent across-session activation is not supported in v0.6.0.
+Activation scope is per-session. The warning fires again on the next session if auto-mode is still configured. Persistent across-session activation is not supported.
 
 Every record added under auto-mode carries:
 
@@ -242,28 +243,29 @@ After successful write, emit a structured brief in the chat. Emojis are allowed 
 ```
 ✅ **Session complete. Here is what to do next.**
 
-📥 **Download** these files from this chat:
-   • project-context.md  (updated — 3 ADDs, 1 UPDATE, 1 DEMOTE)
-   • project-context-archive.md  (updated — 2 records archived this session)
-   ℹ entities.md was not changed this session
+📥 **Download** the current generation's files from this chat (generation 4):
+   • pc-0004-context.md  (updated — 3 ADDs, 1 UPDATE, 1 DEMOTE)
+   • pc-0004-archive.md  (updated — 2 records archived this session)
+   ℹ pc-0004-entities.md — content unchanged this session, but re-stamped to
+     generation 4; download and upload it too so the set stays at one counter.
 
-📂 **Upload** them to your Project, replacing the older versions.
-   In Claude.ai: Project → Knowledge → Upload file → confirm replace.
-
-🗑 **Cleanup**: if you see older dated versions of these files from before
-   v0.4.0, you can remove them. The current three-file system does not
-   use date stamps; the file IS the current state.
+📂 **Upload** the pc-0004-* set to your Project, then follow the set-integrity
+   directive rendered in the post-flight summary above (canonical wording in
+   references/preflight.md section 9.6).
+   In Claude.ai: Project → Knowledge → Upload file.
 
 🔔 **Heads up**: a future Anthropic API update may automate this upload
    step. Until then, manual upload is the dominant friction in the
    workflow. Tracking on the project roadmap.
 ```
 
+The set-integrity directive is owned canonically by `references/preflight.md` section 9.6 and rendered by the post-flight summary; this brief does not restate the replace wording, it points at it.
+
 Brief fields adapt to session content:
 
-- Only list files that were actually changed in the "Download" section. Note unchanged files with the `ℹ` indicator.
+- List all three files of the current generation. Annotate files with content changes; mark a content-unchanged file with the `ℹ` indicator, noting it is still re-stamped to the new generation and must be uploaded so the set stays at one counter.
 - Append `downstream_chaining` instructions from `org-config.md` after the cleanup section if any apply (`after_default`, `after_any`).
-- Include token-budget reminder if `project-context.md` is above `soft_warning` (default 50K).
+- Include token-budget reminder if `pc-NNNN-context.md` is above `soft_warning` (default 50K).
 - Include auto-mode audit summary if `merge_policy: auto` was used this session and `brief.include_audit_summary` is true.
 
 ## 10. Failure handling
@@ -284,5 +286,5 @@ Brief fields adapt to session content:
 - Common operation logic and classifier: `references/operations.md`.
 - Defaults: `references/defaults.md`.
 - Migration: `references/migration.md`.
-- Configuration: `references/user-config.md.template`, `references/org-config.md.template`.
+- Configuration: `config/user-config.md.template`, `config/org-config.md.template`.
 - Other operations: `operations/merge_external.md`, `operations/compact.md`, `operations/rebuild.md`.

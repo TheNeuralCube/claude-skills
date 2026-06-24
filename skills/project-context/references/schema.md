@@ -1,28 +1,44 @@
 ---
 file_role: skill-reference
 topic: schema
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# Schema (project-context v0.6.0, schema_version "0.4")
+# Schema (project-context v0.7.0, schema_version "0.5")
 
-This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.5.0` for the v0.6.0 build) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
+This file is the authoritative restatement of the data schema for every file the project-context skill writes. Operations reference this file. The build session's drift-detection guard compares this file against the prior tag (`project-context-v0.6.0` for the v0.7.0 build) and refuses to commit if the schema differs from the prior release without a corresponding bump and `schema-changelog.md` entry.
 
-Schema "0.4" extends schema "0.3" with one new REQUIRED block in frontmatter (`topology`) and one new REQUIRED body section (`## Spoke Inventory`, present only when `topology.role: hub`). All other schema "0.3" mechanics carry forward unchanged. The topology block's full schema, role definitions, spoke inventory format, and validation rules are specified canonically in `references/topology.md`; this file references that authority rather than restating it.
+Schema "0.5" extends schema "0.4" with one new REQUIRED frontmatter field (`generation`) on the three context files and a versioned, prefix-unified naming contract for those files (`pc-NNNN-{context,entities,archive}.md`). The legacy `update_count` field is RETAINED: it remains the scoring lifecycle counter (see `references/scoring.md`). `generation` is a separate, identity-only counter that matches the filename's `NNNN` and is distinct from `update_count`. The topology block carries forward from "0.4" verbatim. All other schema "0.4" mechanics carry forward unchanged.
+
+**Two counters, two jobs.** `generation` (new in 0.5) is the shared-set identity counter: all three files of a generation share the same `NNNN`, it matches the filename, and it never feeds scoring. `update_count` (retained from 0.2) is the per-file scoring lifecycle counter that drives update-based decay. They move independently, not in lockstep: `generation` advances on every operation (the whole set is re-stamped to the new `NNNN`, including a file whose content did not change), while `update_count` increments only on files whose content changed. On Scenario G, `generation` resets to 1 while `update_count` is preserved verbatim. Do not conflate them.
+
+This retention of `update_count` intentionally diverges from design spec lines 103, 280, and 306 (which call to retire it) per Hub ruling F1: one counter cannot serve both identity and scoring once Scenario G resets the identity counter. Do not re-apply the removal instruction.
+
+### Naming contract (schema 0.5)
+
+| `file_role` | Filename (schema 0.5) | Prior name (schema 0.4 and earlier) |
+|---|---|---|
+| `project-context` | `pc-NNNN-context.md` | `project-context.md` |
+| `entities` | `pc-NNNN-entities.md` | `entities.md` |
+| `archive` | `pc-NNNN-archive.md` | `project-context-archive.md` |
+
+`NNNN` is a zero-padded four-digit shared-set counter equal to the file's `generation`. The first generation is `pc-0001-*`. The skill recognizes its managed context set by the `pc-NNNN-*` name pattern AND the `_managed_by` marker together (the recognition contract; see section 6 and `references/preflight.md`). Counter assignment at pre-flight and the confirmed-empty rule are specified in `references/preflight.md`. Old canonical names (`project-context.md`, `entities.md`, `project-context-archive.md`) are retained only as the detection signal and source filenames for migration Scenarios D, E, F, and G in `references/migration.md`.
 
 ## 1. The three files
 
 | Filename | `file_role` | Purpose | Token budget |
 |---|---|---|---|
-| `project-context.md` | `project-context` | Active grounding file: decisions, constraints, current state, open items, terminology, external references. | Target 30K, soft warning 50K, hard ceiling 80K. |
-| `entities.md` | `entities` | Stable reference data: people, places, things, organizations, datasets. Looked up by name; no automatic decay. | No fixed ceiling; loaded selectively. |
-| `project-context-archive.md` | `archive` | Append-only history of superseded and demoted records, plus per-session checkpoints in frontmatter. | No fixed ceiling; loaded selectively (on rebuild, restore, historical lookup). |
+| `pc-NNNN-context.md` | `project-context` | Active grounding file: decisions, constraints, current state, open items, terminology, external references. | Target 30K, soft warning 50K, hard ceiling 80K. |
+| `pc-NNNN-entities.md` | `entities` | Stable reference data: people, places, things, organizations, datasets. Looked up by name; no automatic decay. | No fixed ceiling; loaded selectively. |
+| `pc-NNNN-archive.md` | `archive` | Append-only history of superseded and demoted records, plus per-session checkpoints in frontmatter. | No fixed ceiling; loaded selectively (on rebuild, restore, historical lookup). |
 
-`user-config.md` and `org-config.md` are configuration files, not data files. Their schema lives in `references/user-config.md.template` and `references/org-config.md.template`.
+`NNNN` is the shared-set generation counter (see the naming contract above). All three files of one generation carry the same `NNNN`.
+
+`user-config.md`, `org-config.md`, and `platform-specific-parameters.md` are configuration files, not data files. They are operator-editable and live in `config/` (see `references/configure.md`); the skill reads them by base name. Their templates ship as `config/user-config.md.template`, `config/org-config.md.template`, and `config/platform-specific-parameters.md.template`. Config-file frontmatter is defined in section 2.1 below.
 
 ## 2. File-level YAML frontmatter
 
@@ -31,8 +47,9 @@ Every file the skill writes begins with this frontmatter. Fields marked OPTIONAL
 ```yaml
 ---
 # Schema identification
-schema_version: "0.4"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
+schema_version: "0.5"                            # REQUIRED, string. Decoupled from skill version. Bumps only when schema fields change. See references/schema-changelog.md.
 _managed_by: project-context-skill               # REQUIRED in schema 0.3+. String literal. Registry marker used by pre-flight detection — see references/preflight.md. The leading underscore signals internal metadata, not user-facing data.
+generation: <integer>                            # REQUIRED in schema 0.5+. Identity counter. Matches the filename NNNN (pc-NNNN-*). All three files of a set share it. Distinct from update_count; never feeds scoring. See the naming contract and section 6.
 file_role: project-context | entities | archive  # REQUIRED
 
 # Topology (v0.6.0, schema 0.4+) — full schema, role definitions, and validation rules in references/topology.md
@@ -52,7 +69,7 @@ project_id: <slug>                               # REQUIRED, string, kebab-case
 # Lifecycle
 created: <ISO-8601 timestamp>                    # REQUIRED
 last_merged: <ISO-8601 timestamp>                # REQUIRED
-update_count: <integer>                          # REQUIRED, monotonic
+update_count: <integer>                          # REQUIRED, monotonic. RETAINED in schema 0.5. The scoring lifecycle counter (drives update-based decay in references/scoring.md). Distinct from generation. Preserved verbatim across Scenario G; never reset by migration.
 record_count: <integer>                          # REQUIRED, count of records in this file
 
 # Display and parsing aids
@@ -100,15 +117,16 @@ generated_by:
 
 | Field | Required | Notes |
 |---|---|---|
-| `schema_version` | yes | The data-shape contract. v0.6.0 writes `"0.4"`. Bumps only when fields change; see `references/schema-changelog.md`. |
+| `schema_version` | yes | The data-shape contract. The skill writes `"0.5"`. Bumps only when fields change; see `references/schema-changelog.md`. |
 | `_managed_by` | yes (schema 0.3+) | String literal `project-context-skill`. Registry marker. Makes pre-flight detection reliable: `project_knowledge_search` for this distinctive YAML field returns only chunks from files under skill management. See `references/preflight.md`. |
-| `file_role` | yes | One of `project-context`, `entities`, `archive`. Must match the filename. |
+| `generation` | yes (schema 0.5+) | Integer identity counter equal to the filename `NNNN` (`pc-NNNN-*`). Shared across all three files of a set. Distinct from `update_count`; it is filename identity, not a scoring input. The filename counter and `generation` must agree; a mismatch is a pre-flight diagnostic (see `references/preflight.md` and section 6). Counter assignment and the confirmed-empty rule live in `references/preflight.md`. |
+| `file_role` | yes | One of `project-context`, `entities`, `archive`. Must match the file's role per the `pc-NNNN-{context,entities,archive}` suffix. |
 | `topology` | yes (schema 0.4+) | Block-level frontmatter field carrying the project's topology role and Hub relationship. Universal across all projects; every role has its own required-non-null and required-null field set per `references/topology.md` section 6.1. Validation rules (role enum check, declared_by enum check, ISO 8601 check, no-empty-fields) live in `references/topology.md` section 6 and are applied at pre-flight per `references/preflight.md` section 10. |
 | `project` | yes | Human-readable project name. |
 | `project_id` | yes | kebab-case slug used for cross-file references. |
 | `created` | yes | ISO-8601 with timezone; the date this file was first written. |
 | `last_merged` | yes | ISO-8601; updated every successful merge. |
-| `update_count` | yes | Monotonic integer; increments by one per successful merge. |
+| `update_count` | yes | Monotonic integer; increments by one per successful merge. RETAINED in schema 0.5 as the scoring lifecycle counter (`references/scoring.md`). Distinct from `generation`: `update_count` drives decay, `generation` is filename identity. Preserved verbatim across all migrations including Scenario G; never reset. |
 | `record_count` | yes | Count of records currently in this file's body. |
 | `read_order` | yes | List of section names in display order. Per `file_role`; see section 4. |
 | `how_to_read` | yes | One to three sentences telling an AI reader how to consume this file. |
@@ -127,6 +145,30 @@ generated_by:
 | `generated_by.generation_date` | yes | ISO-8601 timestamp marking when the records in this file were originally generated. Preserved unchanged across upgrade migrations — the field records original generation, not subsequent metadata-only rewrites. Upgrade traceability is the `schema_version` bump, not this field. |
 
 Frontmatter resolution order when the skill writes a file: `user-config.md` defaults > `org-config.md` defaults > skill defaults from `references/defaults.md` > field-level inferences from project state.
+
+### 2.1 Config-file frontmatter (schema 0.5)
+
+Configuration files (`user-config.md`, `org-config.md`, `platform-specific-parameters.md`) are operator-editable and carry their own minimal frontmatter. They are NOT data files and do NOT carry `generation`, `update_count`, `topology`, `record_count`, or any per-record schema. Their bodies are unchanged from v0.6.0 except for the self-documenting header and local field guide (see `references/configure.md`).
+
+```yaml
+---
+schema_version: "0.5"                            # REQUIRED, string. Bumped to "0.5" in v0.7.0.
+_managed_by: project-context-skill               # REQUIRED. Same registry marker as data files.
+config_type: "user" | "org" | "platform"         # REQUIRED. Which configuration layer this file is.
+config_editable: true                            # REQUIRED in schema 0.5+. Declares the file operator-editable. Always true for config files.
+configure_with: references/configure.md           # REQUIRED in schema 0.5+. Points at the shared interview mechanics that regenerate this file.
+---
+```
+
+| Field | Required | Notes |
+|---|---|---|
+| `schema_version` | yes | `"0.5"` for v0.7.0 config files. |
+| `_managed_by` | yes | `project-context-skill`. |
+| `config_type` | yes | `user`, `org`, or `platform`. Distinguishes the three config files. |
+| `config_editable` | yes (schema 0.5+) | Literal `true`. The location (`config/`) and this flag together declare operator ownership (convention P4). |
+| `configure_with` | yes (schema 0.5+) | `references/configure.md`. The single owner of interview mechanics; the local field guide in each config file documents that file's own fields. |
+
+Rendered config files (instantiated from the `.template` files into the operator's project) do NOT inherit the SPDX header from the template. The `config_editable` and `configure_with` header lines are present on both the template and the rendered file.
 
 ## 3. Per-record schema
 
@@ -205,7 +247,7 @@ IDs are unique within the project. The prefix encodes the file, so cross-file li
 
 ## 4. Body sections by file_role
 
-### 4.1 `project-context.md` (`read_order`)
+### 4.1 `pc-NNNN-context.md` (`read_order`)
 
 1. **Decisions** (prefix `dec-`) — choices made and committed.
 2. **Constraints** (prefix `con-`) — non-negotiable boundaries, limits, rules.
@@ -216,7 +258,7 @@ IDs are unique within the project. The prefix encodes the file, so cross-file li
 
 Empty sections contain the literal line `_No records in this section._`
 
-### 4.2 `entities.md` (`read_order`)
+### 4.2 `pc-NNNN-entities.md` (`read_order`)
 
 1. **People** — named individuals.
 2. **Places** — locations, regions, venues.
@@ -226,7 +268,7 @@ Empty sections contain the literal line `_No records in this section._`
 
 All entity records use prefix `ent-`. Empty sub-sections use the same placeholder.
 
-### 4.3 `project-context-archive.md` (`read_order`)
+### 4.3 `pc-NNNN-archive.md` (`read_order`)
 
 One body section, `## Records`. Flat list of all archived entries discriminated by the `status` field:
 
@@ -278,22 +320,25 @@ Reading agents that want "what happened in the last N updates" parse `checkpoint
 
 ## 6. Validation checklist
 
-A file conforms to schema "0.4" when:
+A file conforms to schema "0.5" when:
 
 1. Frontmatter is valid YAML and includes every REQUIRED field above.
-2. `schema_version` is exactly `"0.4"`.
+2. `schema_version` is exactly `"0.5"`.
 3. `_managed_by` is present and equals exactly the string `project-context-skill`.
-4. `file_role` matches the filename.
-5. `topology` block is present in frontmatter and conforms to the topology schema and validation rules in `references/topology.md` (role is one of the five enum values; required-by-role fields per section 6.1; no empty fields; `declared_by` is `operator` or `skill-default`; `declared_at` parses as ISO 8601).
-6. `id_prefix_legend` is present and includes all eight prefixes.
-7. The body uses the `read_order` defined for the file's `file_role`.
-8. Empty sections contain exactly `_No records in this section._`
-9. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
-10. Every record's ID prefix matches the section/file per the prefix table.
-11. `status` is one of `active`, `superseded`, `archived`.
-12. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
-13. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
-14. For `project-context.md` files with `topology.role: hub`, the body includes a `## Spoke Inventory` section immediately after frontmatter, formatted per `references/topology.md` section 3 (Name | Role | Artifact Type | Source Hub Version | Status | Parent). Empty spoke inventory renders as the heading plus column header row only.
+4. The filename matches the `pc-NNNN-{context,entities,archive}.md` pattern and `file_role` matches the suffix (`context` → `project-context`, `entities` → `entities`, `archive` → `archive`).
+5. `generation` is present, is a non-negative integer, and equals the `NNNN` in the filename. A mismatch is a pre-flight diagnostic (see `references/preflight.md`).
+6. `update_count` is present (RETAINED in schema 0.5) and is a monotonic integer. It is distinct from `generation` and is the scoring lifecycle counter.
+7. `topology` block is present in frontmatter and conforms to the topology schema and validation rules in `references/topology.md` (role is one of the five enum values; required-by-role fields per section 6.1; no empty fields; `declared_by` is `operator` or `skill-default`; `declared_at` parses as ISO 8601).
+8. `id_prefix_legend` is present and includes all eight prefixes.
+9. The body uses the `read_order` defined for the file's `file_role`.
+10. Empty sections contain exactly `_No records in this section._`
+11. Every record carries the REQUIRED record-level fields (lifecycle, scoring, status, provenance, links, audit).
+12. Every record's ID prefix matches the section/file per the prefix table.
+13. `status` is one of `active`, `superseded`, `archived`.
+14. Archive files include a `checkpoints` frontmatter array (may be `[]` on a freshly initialized archive).
+15. Auto-approved records have `[AUTO]` prefix on `content` AND `audit.approval_mode: auto`.
+16. For `pc-NNNN-context.md` files with `topology.role: hub`, the body includes a `## Spoke Inventory` section immediately after frontmatter, formatted per `references/topology.md` section 3 (Name | Role | Artifact Type | Source Hub Version | Status | Parent). Empty spoke inventory renders as the heading plus column header row only.
+17. The recognition contract holds: the file is identified as a managed context file by BOTH the `pc-NNNN-*` filename pattern AND the `_managed_by: project-context-skill` marker (see `references/preflight.md`).
 
 Operations reference this checklist in their final validation pass.
 
@@ -303,7 +348,9 @@ Operations reference this checklist in their final validation pass.
 - Pre-flight algorithm, report block, token catalog, post-flight summary, topology validation, stale-spoke detection, audit trigger handler, role-declaration prompts: `references/preflight.md`.
 - Topology block schema, role definitions, spoke inventory format, audit trigger semantics, hybrid topology rules, validation rules: `references/topology.md`.
 - Scoring inputs (`times_seen`, `importance`, etc.): `references/scoring.md`.
-- Migration from schema "0.1" (v0.1-era, Scenario D), "0.2" (v0.4.0 upgrade, Scenario E), and "0.3" (v0.5.0 topology upgrade, Scenario F): `references/migration.md`.
+- Migration from schema "0.1" (v0.1-era, Scenario D), "0.2" (v0.4.0 upgrade, Scenario E), "0.3" (v0.5.0 topology upgrade, Scenario F), and "0.4" (v0.6.0 to v0.7.0 generation/naming upgrade, Scenario G): `references/migration.md`.
+- Counter assignment, confirmed-empty rule, generation self-consistency check, naming contract enforcement: `references/preflight.md`.
 - Default values for every overridable field: `references/defaults.md`.
-- Configuration overrides: `references/user-config.md.template`, `references/org-config.md.template`.
+- Configuration interview mechanics and the config/references separation: `references/configure.md`.
+- Configuration overrides (operator-editable, read by base name): `config/user-config.md.template`, `config/org-config.md.template`, `config/platform-specific-parameters.md.template`.
 - Worked examples: `references/examples/`.

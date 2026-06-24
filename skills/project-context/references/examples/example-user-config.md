@@ -1,6 +1,6 @@
 # Example: populated `user-config.md`
 
-The block below is a realistic example of a user's `user-config.md` after they've made a few personal overrides. It is illustrative only — these are NOT recommended defaults for everyone. See `references/user-config.md.template` for the full v0.6.0 schema-0.4 template and explanation of each setting.
+The block below is a realistic example of a user's `user-config.md` after they've made a few personal overrides. It is illustrative only — these are NOT recommended defaults for everyone. See `config/user-config.md.template` for the full v0.7.0 schema-0.5 template and explanation of each setting (including the schema 0.5 config header `config_editable`/`configure_with`, which a rendered file carries in frontmatter).
 
 Generated-output examples do NOT carry SPDX headers.
 
@@ -25,7 +25,7 @@ proposal_cap_per_session: 15
 merge_policy: auto
 
 
-# Sticking with default token budgets — I'm on Claude Opus 4.7 which has
+# Sticking with default token budgets — I'm on Claude Opus 4.8 which has
 # plenty of headroom.
 # active_file_token_target: 30000
 # active_file_soft_warning: 50000
@@ -60,7 +60,7 @@ brief:
 
 ## What this configuration does NOT do
 
-- It does not change the schema. Files Sarah produces are valid `schema_version: "0.4"` files readable by anyone in the org.
+- It does not change the schema. Files Sarah produces are valid `schema_version: "0.5"` files readable by anyone in the org.
 - It does not change governance defaults. Sensitivity, retention, and frameworks come from `org-config.md` or upstream.
 - It does not override the auto-mode warning. The warning still fires once per session.
 - It does not affect other users. Each user has their own `user-config.md` in their own Project deployment.

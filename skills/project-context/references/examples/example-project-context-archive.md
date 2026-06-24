@@ -1,13 +1,14 @@
-# Example: `project-context-archive.md` after a few demotions and one supersession
+# Example: `pc-0014-archive.md` (schema 0.5) after a few demotions and one supersession
 
-The block below is a realistic example of the archive file. It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers.
+The block below is a realistic example of the archive file (part of the `pc-0014-*` generation set). It is illustrative only — the project, names, and content are fictional. Generated-output examples do NOT carry SPDX headers. `pc-NNNN-*` in the legend is generic; the actual file is `pc-0014-archive.md`.
 
-Note the structure: a flat `## Records` body discriminated by the `status` field (`superseded` vs `archived`), with the per-merge `checkpoints` array living in the YAML frontmatter (NOT in the body). This is the v0.4 schema convention (v0.4 inherits the body shape from v0.3; the change in v0.4 is the addition of the `topology` block in frontmatter).
+Note the structure: a flat `## Records` body discriminated by the `status` field (`superseded` vs `archived`), with the per-merge `checkpoints` array living in the YAML frontmatter (NOT in the body). The body shape carries forward unchanged through schema 0.5; the 0.5 changes are the `pc-NNNN-*` naming, the new `generation` field, and the retained `update_count`. The `checkpoints` array's `update:` values key off `update_count` (the scoring counter), not `generation`.
 
 ```markdown
 ---
-schema_version: "0.4"
+schema_version: "0.5"
 _managed_by: project-context-skill
+generation: 14
 file_role: archive
 topology:
   role: "standalone"
@@ -32,14 +33,14 @@ how_to_read: |
   `archived` for demoted records. Per-merge checkpoint history lives in the
   `checkpoints` frontmatter array, not in the body. Treat as read-only history.
 id_prefix_legend:
-  dec: "Decision (in project-context.md)"
-  con: "Constraint (in project-context.md)"
-  csn: "Current State (in project-context.md)"
-  opn: "Open Item (in project-context.md)"
-  trm: "Terminology (in project-context.md)"
-  ref: "External Reference (in project-context.md)"
-  ent: "Entity (in entities.md)"
-  arc: "Archived Record (in project-context-archive.md)"
+  dec: "Decision (in pc-NNNN-context.md)"
+  con: "Constraint (in pc-NNNN-context.md)"
+  csn: "Current State (in pc-NNNN-context.md)"
+  opn: "Open Item (in pc-NNNN-context.md)"
+  trm: "Terminology (in pc-NNNN-context.md)"
+  ref: "External Reference (in pc-NNNN-context.md)"
+  ent: "Entity (in pc-NNNN-entities.md)"
+  arc: "Archived Record (in pc-NNNN-archive.md)"
 authors: []
 related_session_recap: null
 related_files: []
@@ -62,8 +63,8 @@ checkpoints:
     approver: null
 generated_by:
   skill: project-context
-  version: "0.6.0"
-  model: claude-opus-4-7
+  version: "0.7.0"
+  model: claude-opus-4-8
   generation_date: 2026-05-13T16:42:00-05:00
 ---
 

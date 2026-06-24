@@ -1,8 +1,8 @@
 ---
 file_role: skill-operation
 operation: rebuild
-schema_version_documented: "0.4"
-skill_version: "0.6.0"
+schema_version_documented: "0.5"
+skill_version: "0.7.0"
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
@@ -14,7 +14,7 @@ skill_version: "0.6.0"
 
 The operations in this document apply only after pre-flight (`references/preflight.md`) has completed and operator confirmation (where required by the verdict) has been received. Operations described here assume a valid, classified project state. Do not execute these operations without pre-flight completion.
 
-`rebuild` reconstructs `project-context.md` from the archive (`project-context-archive.md`) using the current scoring algorithm. It is a recovery operation, not a routine one.
+`rebuild` reconstructs `pc-NNNN-context.md` from the archive (`pc-NNNN-archive.md`) using the current scoring algorithm. It is a recovery operation, not a routine one.
 
 Invocation phrases routing to this operation: "rebuild", "rebuild from archive", "reset from archive", "reset project context", "regenerate project context". Routing is handled by `SKILL.md`.
 
@@ -30,7 +30,7 @@ Use cases:
 
 Identical to `operations/default.md` section 1, with one addition:
 
-- Require `project-context-archive.md` to exist with at least one record. If it does not exist or has zero records, halt with: "Nothing to rebuild from — the archive is empty. Use the default operation to start producing records."
+- Require `pc-NNNN-archive.md` to exist with at least one record. If it does not exist or has zero records, halt with: "Nothing to rebuild from — the archive is empty. Use the default operation to start producing records."
 
 ## 2. Read and score the archive
 
@@ -59,9 +59,9 @@ Records whose status was `superseded` and whose `superseded_by` still exists in 
 
 ## 4. Build the candidate active file
 
-Construct a candidate `project-context.md` containing:
+Construct a candidate `pc-NNNN-context.md` (where `N` is the generation counter assigned at pre-flight per `references/preflight.md` section 3.4) containing:
 
-- Frontmatter cloned from the existing `project-context.md` if it exists, otherwise fresh frontmatter per `references/schema.md`. Bump `update_count` by 1. Set `last_merged` to now.
+- Frontmatter cloned from the existing `pc-NNNN-context.md` if it exists, otherwise fresh frontmatter per `references/schema.md`. Bump `update_count` by 1 (the scoring counter). Set `generation` to the new `N` (identity counter; distinct from `update_count`). Set `last_merged` to now.
 - Body sections per the file's `read_order`, populated with the promoted records.
 - For each promoted record:
   - Restore the original ID (the `prior_id` from the archive record). If that ID is now in use by a different record in the existing active file (rare, but possible after manual edits), generate a fresh sequential ID in the section's prefix.
@@ -72,12 +72,12 @@ Construct a candidate `project-context.md` containing:
 
 ## 5. Show the rebuilt file BEFORE committing
 
-This is the mandatory review gate. Even under `merge_policy: auto`, the rebuilt file MUST be shown to the operator before it overwrites the existing active file.
+This is the mandatory content review gate. Even under `merge_policy: auto`, the rebuilt file MUST be shown to the operator before it replaces the existing active file. Separately, `rebuild` is destructive-tier per `references/preflight.md` section 4.6: pre-flight renders the blocking model-setup gate at operation start (confirm the strongest thinking-capable model with extended thinking) before the rebuild runs. The two gates are complementary: the model-setup gate fires at pre-flight; this content review fires before commit.
 
 Brief template:
 
 ```
-🔁 **Rebuild preview.** I rebuilt project-context.md from the archive.
+🔁 **Rebuild preview.** I rebuilt pc-NNNN-context.md from the archive.
 
   Promoted from archive: 18 records
   Stayed archived:        29 records
@@ -105,31 +105,40 @@ The operator MUST type `approve` (or equivalent affirmative) before the commit h
 
 ## 6. Commit the rebuild
 
-On approval:
+On approval, write the new generation `N` (the counter assigned at pre-flight):
 
-1. Replace `project-context.md` with the candidate file.
-2. Update `project-context-archive.md`:
+1. Write the candidate file as `pc-000N-context.md` (it replaces the prior generation's context file as the canonical active file).
+2. Write `pc-000N-archive.md`:
    - The records promoted out of the archive remain in the archive body. Do NOT delete them. The archive is append-only; the source-of-truth invariant is that nothing is ever removed from the archive. The promoted records now appear in BOTH files, with the archive copy carrying its original `arc-` ID and `status: archived`.
    - **The archive record's `audit` block is preserved as-is.** Do not mutate any per-record audit field (including `approval_mode`, `approved_by`, `approved_at`, `warning_response`, `importance_source`) for a rebuild event. The schema (`references/schema.md`) does not define a per-record rebuild marker, and rebuild traceability lives **only** in the file-level `checkpoints` array in YAML frontmatter — never on individual records.
-   - Append a checkpoint to the archive's `checkpoints` array: `summary: "Rebuild: N records promoted from archive; M stayed archived."`. This is the sole rebuild trace.
-3. `entities.md` is not touched by `rebuild`.
-4. Run the validation checklist from `references/schema.md` section 6.
+   - Append a checkpoint to the archive's `checkpoints` array: `summary: "Rebuild: <count> records promoted from archive; <count> stayed archived."`. This is the sole rebuild trace.
+   - Increment the archive's `update_count` (scoring counter).
+3. `pc-000N-entities.md`: entities are not content-changed by `rebuild`, but the file is re-stamped to generation `N` and re-written under the new name so the canonical set stays at one counter. Its `update_count` is unchanged.
+4. **Stamp `generation = N` on all three files.** The set advances together; `update_count` moves only on the touched files (context and archive).
+5. Run the validation checklist from `references/schema.md` section 6 on every file written (including the generation self-consistency check).
 
 ## 7. Operator brief
 
 ```
-✅ **Rebuild complete.**
+✅ **Rebuild complete.** (generation 6)
 
-📥 **Download** these files:
-   • project-context.md  (REBUILT — 18 records, ~24K tokens)
-   • project-context-archive.md  (checkpoint added; archive body unchanged)
+📥 **Download** the current generation's files:
+   • pc-0006-context.md  (REBUILT — 18 records, ~24K tokens)
+   • pc-0006-archive.md  (checkpoint added; archive body unchanged)
+   ℹ pc-0006-entities.md — content unchanged, re-stamped to generation 6;
+     download and upload it too so the set stays at one counter.
 
-📂 **Upload** to your Project, replacing the prior project-context.md.
+📂 **Upload** the pc-0006-* set to your Project. Then follow the set-integrity
+   directive rendered in the post-flight summary above (canonical wording in
+   references/preflight.md section 9.6).
 
-🔔 Keep the prior project-context.md until you confirm the rebuilt
-   version looks correct. If something is wrong, you can re-upload the
-   prior version. If the rebuild is good, delete the prior version.
+🔔 Keep the prior generation's set until you confirm the rebuilt version
+   looks correct. If something is wrong, the prior pc-MMMM-* set is still
+   intact and you can fall back to it. Once verified, delete the prior set
+   per the set-integrity directive.
 ```
+
+The set-integrity directive is owned canonically by `references/preflight.md` section 9.6 and rendered by post-flight; this brief points at it rather than restating the replace wording.
 
 Append `downstream_chaining` instructions from `org-config.md` if any apply (`after_rebuild`, `after_any`).
 
