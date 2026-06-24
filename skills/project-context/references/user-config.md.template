@@ -1,0 +1,150 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 Raul J. Soto -->
+<!-- Rendered (operator-deployed) user-config.md files do not inherit the SPDX header because the placeholder content is the operator's work product, not licensable source. -->
+
+# user-config.md template (project-context v0.6.0, schema 0.4)
+
+This file is a **template**. The project-context skill renders it into the operator's project knowledge as `user-config.md` on first invocation if the project does not already have one. The operator then populates the `[tbd]` placeholders.
+
+The template is a Linux-conf-style markdown document: prose comments explain each field, the schema lives in a fenced YAML body, and every operator-supplied field renders as `[tbd]` until the operator declares a value. Fields that the skill can default sensibly populate inline; the operator overrides them only if they want to.
+
+Resolution order at runtime: `user-config.md` (this file's render) > `org-config.md` > skill defaults in `references/defaults.md`.
+
+The skill never writes to `user-config.md` after auto-creation. It is operator-owned.
+
+## What goes in user-config.md
+
+The fields below are the v0.6.0 schema for the user configuration layer. Per design spec §4.4, the schema_version on a rendered `user-config.md` is `"0.4"` and `_managed_by` is `project-context-skill`.
+
+```yaml
+---
+schema_version: "0.4"
+_managed_by: project-context-skill
+config_type: user
+---
+
+# ============================================================
+# project-context — user configuration (v0.6.0, schema 0.4)
+# ============================================================
+# Populate the [tbd] fields. Fields with values shown are skill
+# defaults; override them only if you want different behavior.
+# Reload by re-uploading this file to your Project.
+# ============================================================
+
+
+# -----------------------------------------------------------
+# operator
+# -----------------------------------------------------------
+# Identity used in audit-trail fields the skill writes
+# (audit.approved_by, declared_by stamps, etc.).
+#
+# primary_name (REQUIRED): your full name as you want it to
+#   appear on records you approve. The skill does not pull
+#   this from the platform; you declare it here.
+# preferred_aliases (OPTIONAL): alternative spellings or
+#   short-forms the skill may use when space is tight in
+#   rendered briefs.
+# -----------------------------------------------------------
+operator:
+  primary_name: "[tbd]"
+  preferred_aliases: []
+
+
+# -----------------------------------------------------------
+# defaults
+# -----------------------------------------------------------
+# Cross-project defaults the skill applies when not overridden
+# by org-config or chat-time instructions.
+#
+# hub_project_name (REQUIRED): the name of your Hub project as
+#   it appears in your AI workspace project list. The skill
+#   stamps this into spoke topology blocks as hub_reference.
+# current_hub_version: the Hub instructions version you are
+#   currently aligned with. Updated by the skill on every Hub
+#   interaction. Operator may override at first install.
+# preferred_platform (REQUIRED): which hosted AI surface you
+#   use as your primary. Drives platform-specific behavior
+#   loaded from platform-specific-parameters.md.
+#   One of: claude-ai | chatgpt-enterprise | m365-copilot
+# -----------------------------------------------------------
+defaults:
+  hub_project_name: "[tbd]"
+  current_hub_version: "[tbd]"
+  preferred_platform: "claude-ai"
+
+
+# -----------------------------------------------------------
+# conventions
+# -----------------------------------------------------------
+# Stylistic conventions the skill applies when generating new
+# content. Skill defaults are shown; override only to diverge.
+#
+# date_format: ISO 8601 date format. "YYYY-MM-DD" is the
+#   skill default and only currently supported value in v0.6.0.
+# filename_slug_style: slug style for skill-generated
+#   filenames. "kebab-case" is the default.
+# em_dashes_allowed: whether the skill is permitted to use
+#   em dashes in generated prose. Default false (operator
+#   preference of the parent vision doc).
+# preferred_table_density: how tightly the skill packs
+#   tables in operator briefs.
+#   One of: high | medium | low
+# default_response_register: tonal register the skill applies
+#   to operator-facing prose.
+#   One of: strategic-peer | professor | collaborative
+# -----------------------------------------------------------
+conventions:
+  date_format: "YYYY-MM-DD"
+  filename_slug_style: "kebab-case"
+  em_dashes_allowed: false
+  preferred_table_density: "high"
+  default_response_register: "strategic-peer"
+
+
+# -----------------------------------------------------------
+# privacy
+# -----------------------------------------------------------
+# Privacy posture applied to skill-written files.
+#
+# default_sensitivity: the default sensitivity label the skill
+#   stamps onto frontmatter of new files unless overridden by
+#   org-config or chat-time instructions.
+#   One of: open | internal | confidential | restricted
+# auto_redact_pii: whether the skill may auto-redact PII it
+#   detects in conversation content. Default false; the
+#   operator must explicitly opt in to any auto-redaction.
+# -----------------------------------------------------------
+privacy:
+  default_sensitivity: "internal"
+  auto_redact_pii: false
+
+
+# -----------------------------------------------------------
+# contact
+# -----------------------------------------------------------
+# Where feedback about the skill's behavior should be routed.
+# Free-form: a URL, email, Slack channel, or null.
+# -----------------------------------------------------------
+contact:
+  feedback_channel: "[tbd]"
+```
+
+## Required fields
+
+Per design spec §4.4, the following fields are REQUIRED and must be populated before the rendered `user-config.md` is considered complete:
+
+- `operator.primary_name`
+- `defaults.hub_project_name`
+- `defaults.preferred_platform`
+
+A rendered file with any required field still set to `[tbd]` is permitted (the skill operates with placeholder values) but emits a pre-flight note: "user-config.md has unpopulated required fields: [list]. Populate to complete personalization."
+
+## What does not belong in user-config.md
+
+- Anything specific to a single chat session — use chat-time instructions instead.
+- Anything that would change schema validity. The fields above are part of the schema 0.4 contract for `config_type: user` files.
+- Secrets or credentials. The skill does not need them, and `user-config.md` may end up in shared infrastructure.
+
+## Cross-skill convention
+
+This file's format — Linux-conf-style markdown with a fenced YAML body, kebab-case keys, every field documented with rationale — is the canonical example of the **user-config cross-skill convention** for the claude-skills monorepo. Future skills adopt the same convention.
