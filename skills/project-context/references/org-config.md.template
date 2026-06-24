@@ -1,0 +1,137 @@
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- Copyright 2026 Raul J. Soto -->
+<!-- Rendered (operator-deployed) org-config.md files do not inherit the SPDX header because the placeholder content is the operator's work product, not licensable source. -->
+
+# org-config.md template (project-context v0.6.0, schema 0.4)
+
+This file is a **template**. The project-context skill renders it into the operator's project knowledge as `org-config.md` on first invocation if the project does not already have one. The operator (typically the org admin or workspace owner) then populates the `[tbd]` placeholders.
+
+Resolution order at runtime: `user-config.md` > `org-config.md` (this file's render) > skill defaults in `references/defaults.md`.
+
+The skill never writes to `org-config.md` after auto-creation. It is operator-owned. The upstream skill does not ship a populated `org-config.md`; the template renders with placeholders and the deploying org fills them in.
+
+## What goes in org-config.md
+
+The fields below are the v0.6.0 schema for the organization configuration layer. Per design spec §4.5, the schema_version on a rendered `org-config.md` is `"0.4"` and `_managed_by` is `project-context-skill`.
+
+```yaml
+---
+schema_version: "0.4"
+_managed_by: project-context-skill
+config_type: org
+---
+
+# ============================================================
+# project-context — organization configuration (v0.6.0, schema 0.4)
+# ============================================================
+# Populate the [tbd] fields. Fields with values shown are skill
+# defaults; override them only if the org's posture differs.
+# Reload by re-uploading this file to your Project.
+# ============================================================
+
+
+# -----------------------------------------------------------
+# org
+# -----------------------------------------------------------
+# Identity of the deploying organization.
+#
+# name (REQUIRED): free-form organization name as it should
+#   appear on org-stamped frontmatter (e.g., "Acme Corporation",
+#   "Acme Holdings, LLC").
+# type (REQUIRED): scale tier. Drives default posture choices
+#   in some fields below.
+#   One of: personal | smb | enterprise
+# tenant (REQUIRED): tenant identifier in the host AI
+#   workspace, or "null" (string) if the org runs in a single
+#   shared tenant. Free-form; the skill does not validate the
+#   format against any specific platform's tenant convention.
+# -----------------------------------------------------------
+org:
+  name: "[tbd]"
+  type: "[tbd]"
+  tenant: "[tbd]"
+
+
+# -----------------------------------------------------------
+# sanctioned_tools
+# -----------------------------------------------------------
+# Free-form list of external tools the org sanctions for use
+# in conjunction with skills in this repo. Empty list is
+# permitted (means: no explicit sanctioning, operator-judgment
+# applies). Listing a tool here does not enable any
+# integration; it is informational metadata used by the
+# operator brief to note tool availability.
+# -----------------------------------------------------------
+sanctioned_tools: []
+
+
+# -----------------------------------------------------------
+# compliance
+# -----------------------------------------------------------
+# Compliance posture applied to skill-written files.
+#
+# data_classifications: the set of sensitivity labels the org
+#   recognizes. The skill validates frontmatter sensitivity
+#   fields against this list. Default list covers most orgs;
+#   override only if the org uses a non-standard taxonomy.
+# default_sensitivity (REQUIRED): the default label the skill
+#   stamps on new files unless overridden by user-config or
+#   chat-time instructions. Must be a value in
+#   data_classifications above.
+# regulatory_scope: free-form list of compliance frameworks
+#   the org operates under (e.g., "SOX", "HIPAA", "ITAR",
+#   "GDPR", "ISO-27001"). Empty list permitted (no
+#   regulatory frameworks declared).
+# -----------------------------------------------------------
+compliance:
+  data_classifications:
+    - "open"
+    - "internal"
+    - "confidential"
+    - "restricted"
+  default_sensitivity: "[tbd]"
+  regulatory_scope: []
+
+
+# -----------------------------------------------------------
+# methodology_overrides
+# -----------------------------------------------------------
+# Org-specific overrides to the skill's methodology defaults.
+# Usually empty (orgs adopt the skill's defaults). Each
+# field below mirrors a corresponding user-config or skill
+# default; setting it here pins the org floor.
+#
+# date_format: override the skill's "YYYY-MM-DD" default.
+#   null means "do not override; use skill default."
+# filename_slug_style: override the skill's "kebab-case"
+#   default. null means "do not override."
+# -----------------------------------------------------------
+methodology_overrides:
+  date_format: null
+  filename_slug_style: null
+```
+
+## Required fields
+
+Per design spec §4.5, the following fields are REQUIRED and must be populated before the rendered `org-config.md` is considered complete:
+
+- `org.name`
+- `org.type`
+- `org.tenant`
+- `compliance.default_sensitivity`
+
+A rendered file with any required field still set to `[tbd]` is permitted (the skill operates with placeholder values) but emits a pre-flight note: "org-config.md has unpopulated required fields: [list]. Populate to complete org posture."
+
+## What does not belong in org-config.md
+
+- Anything specific to a single user — use `user-config.md` instead.
+- Anything that would change schema validity. The fields above are part of the schema 0.4 contract for `config_type: org` files.
+- Secrets or credentials. The skill does not need them, and `org-config.md` may end up in shared infrastructure.
+
+## How the skill loads this file
+
+1. On invocation, after the surface guard and project detection, the skill scans the project for `org-config.md`.
+2. If absent, the skill renders this template into the project as `org-config.md` with `[tbd]` placeholders and notes the auto-creation in the pre-flight report.
+3. If present, the skill parses the YAML frontmatter and body.
+4. Any value here overrides the corresponding upstream default but is itself overridable by `user-config.md` (resolution order: user > org > defaults).
+5. If `org-config.md` is malformed, the skill warns the operator and falls back to upstream defaults rather than failing.
