@@ -100,3 +100,7 @@ scratch/
 local/
 private/
 _build_inputs/
+# Skill release archives and release notes (build artifacts, never tracked)
+*.skill
+/release-notes.md
+/*-release-notes.md
