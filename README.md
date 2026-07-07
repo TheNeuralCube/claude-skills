@@ -8,6 +8,7 @@ Each skill in this monorepo solves a real problem in working with Claude across 
 | Skill | Version | Description |
 |---|---|---|
 | [project-context](./project-context) | 0.3.0 | Captures forward-grounding context from a conversation inside an AI project (decisions, constraints, entities, terminology, open items, state) into a structured markdown file the operator adds back to the project. Future chats start grounded without re-explanation. Two modes: generate (default) and consolidate. |
+| [nc3-data-core-sample-skill-v0-1](./skills/nc3-data-core-sample-skill-v0-1) | v0-1 | Frontier-class deep-analysis skill: one maximum-extraction pass over an artifact (codebase, repo, document set, website, architecture, product), emitting dense machine-readable deliverables for execution-class consumers. Five lenses (survey, craft, review, security, plan); default survey + review. Every recommendation survives a war-game pass. |
 ## License
 Apache 2.0. See [LICENSE](./LICENSE) and [NOTICE](./NOTICE).
 ## Contributing
