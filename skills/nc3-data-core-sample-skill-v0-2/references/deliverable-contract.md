@@ -10,11 +10,11 @@ Every deliverable begins with this frontmatter. Every field populated; no empty 
 ---
 title: <document title>
 date: <YYYY-MM-DD>
-skill: nc3-data-core-sample-skill-v0-1
+skill: nc3-data-core-sample-skill-v0-2
 target: <artifact identifier: repo name, URL set, document set, product name>
-lens: <survey | craft | review | security | plan>
+lens: <survey | craft | review | security | plan | audit>
 sensitivity: <open | internal | confidential | restricted>
-consumer: execution-class
+consumer: <execution-class | operator-class>
 provenance: <one line stating what was read, at what depth, and what was excluded>
 gap_count: <integer, the count of INFORMATION GAP markers in the body>
 ---
@@ -26,11 +26,11 @@ Rules for the fields:
 |---|---|
 | title | Human-readable; names the target and the lens |
 | date | Session date, ISO 8601 |
-| skill | Exactly `nc3-data-core-sample-skill-v0-1` |
+| skill | Exactly `nc3-data-core-sample-skill-v0-2` |
 | target | Unambiguous identifier a cold reader can resolve to the artifact |
 | lens | One lens tag per file; survey emits two files, each with lens `survey` |
 | sensitivity | Operator-stated, or `internal` as documented default with a note |
-| consumer | Always `execution-class`; deliverables never assume frontier capability in the reader |
+| consumer | `execution-class` for every lens except audit, the sole lens using `operator-class` and the sole lens where the plain-language and jargon-defining rules apply; deliverables never assume frontier capability in the reader |
 | provenance | One line; the body's provenance section carries the detail |
 | gap_count | Recomputed after the final edit pass; must match the body |
 

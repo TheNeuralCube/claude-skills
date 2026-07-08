@@ -6,6 +6,16 @@ All notable changes to the nc3-data-core-sample-skill will be documented in this
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on the Neural Cube `v{MAJOR}-{MINOR}` scheme (dash, not dot), owned by the conventions skill; every new skill starts at `v0-1` and earns `v1-0` after real use and an eval pass.
 
+## [v0-2] - 2026-07-08
+
+### Added
+
+- **The audit lens** (`modes/audit.md`). Added the audit lens: operator-class, non-technical whole-system evaluation report card. It is the sole lens whose consumer is `operator-class`; it inverts the skill's anti-prose default (plain language, jargon defined inline, glossary, mentoring voice permitted) while every other contract rule holds in full. SKILL.md gains the dispatch row, the `audit` output filename tag, the operator-class dispatch note, and the audit trigger phrases; `references/deliverable-contract.md` gains `audit` in the `lens` enum and `operator-class` as an allowed `consumer` value.
+
+### Changed
+
+- **Skill renamed** to `nc3-data-core-sample-skill-v0-2` per the conventions skill: directory name, YAML `name`, and H1 heading bumped together, with the version references in the deliverable contract and README updated to match.
+
 ## [v0-1] - 2026-07-07
 
 Genesis release. Built cold from the 2026-07-07 build spec, which encodes the manual deep-dive workflow proved by that day's crescent-harness session.

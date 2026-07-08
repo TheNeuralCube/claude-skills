@@ -1,6 +1,6 @@
 ---
-name: nc3-data-core-sample-skill-v0-1
-description: "Frontier-class deep-analysis sessions: hand this skill an artifact (codebase, repo, document set, website, architecture, product) and it performs one maximum-extraction pass, then emits dense machine-readable deliverables for execution-class models and harness/Open Brain ingestion. Trigger on: 'core sample this', 'run a core sample', 'deep dive this repo/code/site/doc', 'full assay', 'as-built spec this', 'reverse engineer this for learning', 'craft study', 'how does this system work, document it', 'review this codebase', 'find issues in this code', 'security review this', 'war game a plan for X'. Lenses: survey (as-built design+build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed handoff plan). Default: survey+review. Assumes the session is scarce and expensive: read everything, resolve or explicitly gap every ambiguity, war-game all recommendations, zero fluff. Outputs declare effort classes, never model names."
+name: nc3-data-core-sample-skill-v0-2
+description: "Frontier-class deep-analysis sessions: hand it an artifact (codebase, repo, doc set, website, architecture, product) for one maximum-extraction pass; emits dense machine-readable deliverables for execution-class models and harness/Open Brain ingestion. Trigger on: 'core sample this', 'run a core sample', 'deep dive this repo/code/site/doc', 'full assay', 'as-built spec this', 'reverse engineer this for learning', 'craft study', 'how does this system work, document it', 'review this codebase', 'find issues in this code', 'security review this', 'war game a plan for X', 'audit this system', 'grade my harness', 'evaluate my setup', 'report-card this'. Lenses: survey (as-built design+build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed handoff plan), audit (operator-class report card). Default: survey+review. Posture: read everything, resolve or gap every ambiguity, war-game all recommendations, zero fluff. Outputs declare effort classes, never model names."
 owner: '@raul-soto'
 sensitivity: internal
 lifecycle: alpha
@@ -8,7 +8,7 @@ effort-class: frontier-max
 tags: [analysis, deep-dive, as-built, security-review, code-review, handoff, frontier]
 ---
 
-# Core Sample -- nc3-data-core-sample-skill-v0-1
+# Core Sample -- nc3-data-core-sample-skill-v0-2
 
 ## Purpose
 
@@ -18,6 +18,7 @@ Core Sample is the skill an expensive, rarely-run, frontier-class session execut
 
 | Version | Date | Changes |
 |---|---|---|
+| v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. |
 | v0-1 | 2026-07-07 | Initial release, built from the 2026-07-07 crescent-harness deep-dive session. |
 
 ## Effort-class posture
@@ -38,11 +39,13 @@ Core Sample is the skill an expensive, rarely-run, frontier-class session execut
 | review | [modes/review.md](modes/review.md) | Improvement review (one file) |
 | security | [modes/security.md](modes/security.md) | Security review (one file) |
 | plan | [modes/plan.md](modes/plan.md) | War-gamed execution plan (one file) |
+| audit | [modes/audit.md](modes/audit.md) | Whole-system evaluation report card |
 
 Dispatch rules:
 
 - Default when the operator does not specify: survey + review.
-- `full assay` = all five lenses.
+- `full assay` = the five analysis lenses (survey, craft, review, security, plan); audit runs only when explicitly requested.
+- audit's consumer is operator-class, not execution-class: it inverts the skill's default anti-prose posture (plain language, jargon defined inline, mentoring voice permitted); all other contract rules hold in full. It is the sole lens with this exception.
 - plan requires an operator-stated objective; absent one, it degrades into a recommended-roadmap section inside review (note the degradation once).
 - craft is opt-in; it is operator-development-specific.
 - All selected lenses share one evidence pass; never re-read the artifact per lens.
@@ -78,6 +81,7 @@ Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`
 | review | `review` |
 | security | `security-review` |
 | plan | `plan` |
+| audit | `audit` |
 
 The date prefix, underscore top-level delimiters, and the single human-readable hyphenated suffix `core-sample` conform to the Output Artifact Filename Convention in nc3-meta-conventions-skill; consult that skill for the convention's rules rather than restating them here.
 
@@ -89,7 +93,7 @@ At close, suggest once (operator's session-hygiene rule, never force): run sessi
 
 ### For the Operator
 
-Core Sample turns one expensive frontier session into durable, machine-readable knowledge about any artifact: a codebase, repo, document set, website, architecture, or product. Trigger it with "core sample this", "deep dive this repo", "full assay", "security review this", or similar. Pick lenses from: survey (as-built design + build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed execution plan); say nothing and you get survey + review; say "full assay" for all five. Expect: one clarifying question at most, a deep full read of the artifact (that depth is the point of the cost), and one or more dense markdown files named `{date}_{target}_{lens}_core-sample.md`. The outputs are written for cheaper execution-class models and for harness/Open Brain ingestion, so they are deliberately explicit and table-heavy rather than conversational.
+Core Sample turns one expensive frontier session into durable, machine-readable knowledge about any artifact: a codebase, repo, document set, website, architecture, or product. Trigger it with "core sample this", "deep dive this repo", "full assay", "security review this", or similar. Pick lenses from: survey (as-built design + build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed execution plan), audit (a plain-language whole-system report card written for you rather than for a downstream model); say nothing and you get survey + review; say "full assay" for the five analysis lenses (audit is requested explicitly). Expect: one clarifying question at most, a deep full read of the artifact (that depth is the point of the cost), and one or more dense markdown files named `{date}_{target}_{lens}_core-sample.md`. The outputs are written for cheaper execution-class models and for harness/Open Brain ingestion, so they are deliberately explicit and table-heavy rather than conversational.
 
 ### For the Agent
 
