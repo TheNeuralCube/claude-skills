@@ -6,6 +6,21 @@ All notable changes to the nc3-data-core-sample-skill will be documented in this
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on the Neural Cube `v{MAJOR}-{MINOR}` scheme (dash, not dot), owned by the conventions skill; every new skill starts at `v0-1` and earns `v1-0` after real use and an eval pass.
 
+## [v0-2] - 2026-07-08
+
+### Added
+
+- **The audit lens** (`modes/audit.md`). Added the audit lens: operator-class, non-technical whole-system evaluation report card. It is the sole lens whose consumer is `operator-class`; it inverts the skill's anti-prose default (plain language, jargon defined inline, glossary, mentoring voice permitted) while every other contract rule holds in full. SKILL.md gains the dispatch row, the `audit` output filename tag, the operator-class dispatch note, and the audit trigger phrases; `references/deliverable-contract.md` gains `audit` in the `lens` enum and `operator-class` as an allowed `consumer` value.
+- **`scripts/core_sample_checks.py`.** Deterministic, cross-platform conformance checks: dash purity (U+2014/U+2013), description length under 1024, `gap_count` agreement with the body's INFORMATION GAP markers, and conforming deliverable filename generation. Promoted off the roadmap after the documented grep form of the dash check proved non-portable on Windows. Wired into protocol spine step 6 and the contract's dash-check section.
+- **`references/acceptance-checks.md`.** The acceptance checklist brought in-repo: the genesis build spec's 12 checks reconstructed, plus check 13 for the audit operator-class exception. The v1-0 path in ROADMAP.md now points here instead of at the external build spec.
+- **`assets/audit-voice-example.md`.** Synthetic excerpt-level example calibrating the audit voice (TL;DR, one finding, glossary entries, closing paragraph); linked from `modes/audit.md`.
+
+### Changed
+
+- **Skill renamed** to `nc3-data-core-sample-skill-v0-2` per the conventions skill: directory name, YAML `name`, and H1 heading bumped together, with the version references in the deliverable contract and README updated to match.
+- **USAGE.md and ROADMAP.md aligned with the audit lens.** USAGE gains the audit trigger row, the scoped full-assay row, the operator-class consumer note, and audit in the always-war-gamed list; ROADMAP marks the scripts item shipped, re-points the review/security merge decision at the next bump (noting audit as a new input), and re-points v1-0 condition 3 at the in-repo checklist.
+- **Audit triggers expanded in the description.** Added 'how good is what I built' and 'should I be embarrassed to show this to real engineers'; other wording trimmed to stay under the 1024-character limit.
+
 ## [v0-1] - 2026-07-07
 
 Genesis release. Built cold from the 2026-07-07 build spec, which encodes the manual deep-dive workflow proved by that day's crescent-harness session.

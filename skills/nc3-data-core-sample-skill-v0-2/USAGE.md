@@ -17,10 +17,11 @@ Say some form of "core sample this" and point at the artifact.
 | You say | You get |
 |---|---|
 | "core sample this repo" (no lens) | survey + review: an as-built design spec, an as-built build spec, and an improvement review |
-| "full assay" | all five lenses |
+| "full assay" | the five analysis lenses: survey, craft, review, security, plan (audit is requested explicitly) |
 | "craft study this" | the engineering craft study |
 | "security review this" | the security review |
 | "war game a plan to <objective>" | the war-gamed execution plan |
+| "audit this system", "grade my harness", "report-card this" | the whole-system evaluation report card, written in plain language for you rather than for a downstream model |
 
 You can name several lenses at once. They all render from one read of the artifact; the session never re-reads it per lens.
 
@@ -35,12 +36,12 @@ You can name several lenses at once. They all render from one read of the artifa
 
 ## The deliverables
 
-Files are named `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`. Each carries YAML frontmatter (title, date, skill, target, lens, sensitivity, `consumer: execution-class`, provenance, gap count) and is self-contained: an execution-class session with only that file and the artifact can act on it. There are no references to "our conversation."
+Files are named `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`. Each carries YAML frontmatter (title, date, skill, target, lens, sensitivity, consumer, provenance, gap count) and is self-contained: a session with only that file and the artifact can act on it. There are no references to "our conversation." The consumer is `execution-class` for every lens except audit, whose report card is written for you and carries `consumer: operator-class`.
 
 Two things to check on any deliverable:
 
 - **Gaps are workable.** Every `[INFORMATION GAP: ...]` marker states the exact question to answer, so a cheaper session or you can close it without another frontier pass.
-- **The war game is present** wherever it applies (review, security, plan always; survey for its recommendations; craft for its predictions). Its absence there is a failed run.
+- **The war game is present** wherever it applies (review, security, plan, audit always; survey for its recommendations; craft for its predictions). Its absence there is a failed run.
 
 ## After the run
 

@@ -1,20 +1,20 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# nc3-data-core-sample-skill-v0-1
+# nc3-data-core-sample-skill-v0-2
 
 A frontier-class deep-analysis skill. Hand it one artifact (a codebase, repo, document set, website, architecture, or product) and it performs a single maximum-extraction pass, then emits dense, machine-readable deliverables written to be consumed cold by cheaper execution-class models and ingested into a harness or Open Brain pipeline.
 
 The name extends the Neural Cube Black Gold family: a core sample drills a deep column through an existing formation and brings the strata up for analysis.
 
 - **License:** Apache 2.0 (SPDX headers on repo wrapper files; skill-generated deliverables carry their own frontmatter, no SPDX).
-- **Skill version:** v0-1. Pre-production. Earns v1-0 after use on 2 or 3 real targets and an eval pass.
+- **Skill version:** v0-2. Pre-production. Earns v1-0 after use on 2 or 3 real targets and an eval pass.
 - **Structure:** thin router. Root SKILL.md dispatches; execution logic lives per lens in `modes/`; shared contracts live once each in `references/`.
 - **Effort class:** declares `frontier-max` for itself, never a model name. Outputs declare effort classes only.
 
 ## What it does
 
-Five lenses, one shared evidence pass, dispatched from one entry point:
+Six lenses, one shared evidence pass, dispatched from one entry point:
 
 | Lens | Deliverable | Trigger examples |
 |---|---|---|
@@ -23,8 +23,9 @@ Five lenses, one shared evidence pass, dispatched from one entry point:
 | review | improvement review (one file) | "review this codebase", "find issues in this code" |
 | security | security review (one file) | "security review this" |
 | plan | war-gamed execution plan (one file) | "war game a plan for X" |
+| audit | whole-system evaluation report card (one file) | "audit this system", "grade my harness", "evaluate my setup", "report-card this" |
 
-Default when no lens is named: **survey + review**. `full assay` runs all five. The craft lens is opt-in (it is operator-development-specific). The plan lens requires an operator-stated objective; absent one it degrades into a recommended-roadmap section inside review and says so once.
+Default when no lens is named: **survey + review**. `full assay` runs the five analysis lenses (survey, craft, review, security, plan); audit runs only when explicitly requested. The audit lens is the sole lens whose consumer is the human operator rather than an execution-class model: it uses plain language and defines jargon inline, while every other contract rule holds. The craft lens is opt-in (it is operator-development-specific). The plan lens requires an operator-stated objective; absent one it degrades into a recommended-roadmap section inside review and says so once.
 
 All selected lenses render from one evidence base. The artifact is never re-read per lens.
 
@@ -37,7 +38,7 @@ All selected lenses render from one evidence base. The artifact is never re-read
 ## Files
 
 ```
-nc3-data-core-sample-skill-v0-1/
+nc3-data-core-sample-skill-v0-2/
   SKILL.md                          thin router: identity, posture, dispatch, protocol spine, help
   modes/
     survey.md                       as-built design + build spec lens
@@ -45,17 +46,21 @@ nc3-data-core-sample-skill-v0-1/
     review.md                       improvement review lens
     security.md                     security review lens
     plan.md                         war-gamed execution plan lens
+    audit.md                        whole-system evaluation report card lens
   references/
     deliverable-contract.md         output frontmatter schema + document conventions (single source)
     war-game-protocol.md            the mandatory adversarial gate (single source)
     evidence-protocol.md            read discipline per artifact type (single source)
+    acceptance-checks.md            the 13-check acceptance list (single source)
+  scripts/
+    core_sample_checks.py           deterministic checks: dashes, description length, gap_count, filenames
+  assets/
+    audit-voice-example.md          synthetic excerpt calibrating the audit lens voice
 ```
-
-No `scripts/` or `assets/` in v0-1. Mechanical helpers (frontmatter and filename generation, the dash and length checks) are a v0-2 candidate.
 
 ## Output filenames
 
-Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`, with lens tags `design-spec`, `build-spec`, `craft-study`, `review`, `security-review`, `plan`. The date prefix, underscore top-level delimiters, and the single hyphenated suffix `core-sample` conform to the Output Artifact Filename Convention owned by the Neural Cube conventions skill.
+Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`, with lens tags `design-spec`, `build-spec`, `craft-study`, `review`, `security-review`, `plan`, `audit`. The date prefix, underscore top-level delimiters, and the single hyphenated suffix `core-sample` conform to the Output Artifact Filename Convention owned by the Neural Cube conventions skill.
 
 ## Non-negotiables
 
