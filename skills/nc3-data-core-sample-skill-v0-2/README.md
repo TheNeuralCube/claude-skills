@@ -51,9 +51,12 @@ nc3-data-core-sample-skill-v0-2/
     deliverable-contract.md         output frontmatter schema + document conventions (single source)
     war-game-protocol.md            the mandatory adversarial gate (single source)
     evidence-protocol.md            read discipline per artifact type (single source)
+    acceptance-checks.md            the 13-check acceptance list (single source)
+  scripts/
+    core_sample_checks.py           deterministic checks: dashes, description length, gap_count, filenames
+  assets/
+    audit-voice-example.md          synthetic excerpt calibrating the audit lens voice
 ```
-
-No `scripts/` or `assets/` as of v0-2. Mechanical helpers (frontmatter and filename generation, the dash and length checks) remain a candidate for a future version.
 
 ## Output filenames
 

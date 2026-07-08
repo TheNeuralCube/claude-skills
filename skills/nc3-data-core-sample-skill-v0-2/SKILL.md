@@ -1,6 +1,6 @@
 ---
 name: nc3-data-core-sample-skill-v0-2
-description: "Frontier-class deep-analysis sessions: hand it an artifact (codebase, repo, doc set, website, architecture, product) for one maximum-extraction pass; emits dense machine-readable deliverables for execution-class models and harness/Open Brain ingestion. Trigger on: 'core sample this', 'run a core sample', 'deep dive this repo/code/site/doc', 'full assay', 'as-built spec this', 'reverse engineer this for learning', 'craft study', 'how does this system work, document it', 'review this codebase', 'find issues in this code', 'security review this', 'war game a plan for X', 'audit this system', 'grade my harness', 'evaluate my setup', 'report-card this'. Lenses: survey (as-built design+build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed handoff plan), audit (operator-class report card). Default: survey+review. Posture: read everything, resolve or gap every ambiguity, war-game all recommendations, zero fluff. Outputs declare effort classes, never model names."
+description: "Frontier-class deep-analysis sessions: hand it an artifact (codebase, repo, doc set, website, architecture, product) for one maximum-extraction pass; emits dense machine-readable deliverables for execution-class models and Open Brain ingestion. Trigger on: 'core sample this', 'run a core sample', 'deep dive this repo/code/site/doc', 'full assay', 'as-built spec this', 'reverse engineer this for learning', 'craft study', 'document how this system works', 'review this codebase', 'find issues in this code', 'security review this', 'war game a plan for X', 'audit this system', 'grade my harness', 'evaluate my setup', 'report-card this', 'how good is what I built', 'should I be embarrassed to show this to real engineers'. Lenses: survey (as-built specs), craft (style study), review (findings), security, plan (war-gamed), audit (operator-class report card). Default: survey+review. Posture: read everything, gap the unresolvable, war-game recommendations, zero fluff. Outputs use effort classes, never model names."
 owner: '@raul-soto'
 sensitivity: internal
 lifecycle: alpha
@@ -18,7 +18,7 @@ Core Sample is the skill an expensive, rarely-run, frontier-class session execut
 
 | Version | Date | Changes |
 |---|---|---|
-| v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. |
+| v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. Also added scripts/core_sample_checks.py (deterministic conformance checks), references/acceptance-checks.md (in-repo acceptance checklist), and assets/audit-voice-example.md (audit voice calibration excerpt). |
 | v0-1 | 2026-07-07 | Initial release, built from the 2026-07-07 crescent-harness deep-dive session. |
 
 ## Effort-class posture
@@ -57,7 +57,7 @@ Dispatch rules:
 3. Full evidence read: diagnostic-first, complete read per artifact type, citations accumulate ([references/evidence-protocol.md](references/evidence-protocol.md)).
 4. Analysis per lens: render each selected lens from the shared evidence base per its mode file in [modes/](modes/).
 5. War-game pass, mandatory: execute [references/war-game-protocol.md](references/war-game-protocol.md); results are written into each deliverable.
-6. Handoff packaging: emit files per the filename convention below and the contract in [references/deliverable-contract.md](references/deliverable-contract.md); close with a short chat summary (deliverables list, top three findings, war-game verdicts), no walkthrough prose.
+6. Handoff packaging: emit files per the filename convention below and the contract in [references/deliverable-contract.md](references/deliverable-contract.md); verify every produced file with `python scripts/core_sample_checks.py check <files>` (dash purity, description length, gap_count agreement, filename conformance); close with a short chat summary (deliverables list, top three findings, war-game verdicts), no walkthrough prose.
 7. Ecosystem chaining: suggest, never force (see below).
 
 Mid-flight checkpoint rule: if context pressure threatens completion, produce a session-handoff checkpoint BEFORE quality degrades, prioritizing evidence notes with citations over finished prose.

@@ -58,4 +58,4 @@ Run against every produced file before shipping; the command must return nothing
 grep -n "$(printf '\342\200\224\\|\342\200\223')" <file>
 ```
 
-The octal UTF-8 escapes are U+2014 and U+2013; they work byte-wise in any grep. Where PCRE grep is available, `grep -n -P '\x{2014}|\x{2013}' <file>` is equivalent. Escaped forms are used here deliberately so this file passes its own check.
+The octal UTF-8 escapes are U+2014 and U+2013; they work byte-wise in any grep. Where PCRE grep is available, `grep -n -P '\x{2014}|\x{2013}' <file>` is equivalent. The portable form, which also verifies description length and gap_count agreement, is `python scripts/core_sample_checks.py check <files>`; prefer it on platforms where grep behavior varies, and treat the grep as the manual fallback. Escaped forms are used here deliberately so this file passes its own check.

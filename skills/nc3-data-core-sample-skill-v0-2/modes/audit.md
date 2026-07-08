@@ -82,6 +82,10 @@ Full read per [../references/evidence-protocol.md](../references/evidence-protoc
 
 Full protocol per [../references/war-game-protocol.md](../references/war-game-protocol.md): red-team the vision grade and the top 5 issues, pre-mortem the tomorrow-state roadmap, assumptions ledger, operator simulation (can a non-engineer actually act on this report), fluff purge. Results written into the deliverable.
 
+## Voice calibration
+
+An excerpt-level synthetic example of the audit voice lives in [../assets/audit-voice-example.md](../assets/audit-voice-example.md). Match its altitude and tone (plain title, level with reason attached, impact in the operator's terms), never its content.
+
 ## Quality bar
 
 Zero findings without evidence citations. The letter grade is defended, not asserted. Severity and relevance distributions are justified (if every feature is Essential, the scale was not used). Every technical term is in the glossary. The non-technical operator can read the whole report unaided, and can hand the technical appendix to a senior engineer without edits. The closing paragraph gives the operator a straight, evidence-based read on whether showing this work to expert peers is something to fear.
