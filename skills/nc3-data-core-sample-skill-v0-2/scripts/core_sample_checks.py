@@ -46,7 +46,7 @@ def check_dashes(path, text):
 
 
 def check_description(path, frontmatter):
-    m = re.search(r'^description:\s*"(.*)"\s*$', frontmatter, re.M | re.S)
+    m = re.search(r'^description:\s*"(.*?)"\s*$', frontmatter, re.M | re.S)
     if not m:
         m = re.search(r"^description:\s*(.+)$", frontmatter, re.M)
     if not m:
