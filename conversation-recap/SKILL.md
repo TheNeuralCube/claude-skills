@@ -61,6 +61,7 @@ Short, warm, in the skill's own host voice: a premiere-night announcer, not a se
    - 1 to 2 **rotation picks** (registers untried or not used recently; surface variety deliberately).
    - Always allow free-text: "or name any register, or a mashup."
 3. **Emotionally-heavy-thread bias.** If the thread is emotionally heavy (grief, conflict, a spiritual matter), bias the suggestions AWAY from roast-native registers (`cringe-verite`, `standup-observational`, `fourth-wall-antihero`) and TOWARD `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The operator may still override to any register; the bias governs what you suggest, not what you permit.
+4. **Picker presentation (agent logic).** Present each offered register as its non-IP label plus its `touchstone` field in parentheses, read verbatim from `references/register-catalog.md` and never improvised: for example "simulation-noir (Matrix-style)" or "standup-observational (Seinfeld-style)". This is a selection-surface aid only; it does not change the title-card attribution, which continues to read the register's `inspired-by` string. Naming a title in the picker never licenses lifting that IP's characters or lines into a recap; the register-integrity law governs the generated recap regardless of what the picker displays.
 
 ## Tier logic
 
@@ -74,7 +75,7 @@ Tier is a length and immersion contract measured in reading time (about 230 word
 
 **Judgment-call doctrine.** Pick the tier from story complexity, number of open threads, stakes, and time elapsed. State the call in one line ("One plotline, low stakes, high comedy density: calling it a Medium") and proceed. The operator overrides by exception. The same doctrine extends to structure, framing device, and intensity within a register: you decide, the operator tweaks.
 
-**Calibration anchor.** The 2026-07-17 Seinfeld-register run "The Command" (about 900 words) is the ratified gold standard for Medium feel and native-attitude intensity. Calibrate Medium output against it.
+**Calibration anchor.** The 2026-07-17 Seinfeld-register run "The Command" (656 words) is the ratified gold standard for Medium feel and native-attitude intensity. Calibrate Medium output against it.
 
 ## Output contract
 

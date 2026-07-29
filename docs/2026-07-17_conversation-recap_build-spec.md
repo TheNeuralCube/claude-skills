@@ -151,7 +151,7 @@ Embed this exact text in the agent Help section:
 
 ### 3.1 Purpose
 
-The style-contract library. It holds all 24 registers as data the generation pipeline reads at runtime. Per register it defines: slug, DNA, narrative contract, native attitude, the inspired-by attribution string used in the title card, and one original exemplar opening line that demonstrates the register's voice without lifting any IP. It also carries the catalog preamble that states the constitution doctrine and the register-integrity law.
+The style-contract library. It holds all 24 registers as data the generation pipeline reads at runtime. Per register it defines: slug, DNA, narrative contract, native attitude, the inspired-by attribution string used in the title card, the touchstone recognition string used in the picker, and one original exemplar opening line that demonstrates the register's voice without lifting any IP. It also carries the catalog preamble that states the constitution doctrine and the register-integrity law.
 
 ### 3.2 Exact file path
 
@@ -165,9 +165,9 @@ The style-contract library. It holds all 24 registers as data the generation pip
    - Constitution doctrine (vision Section 7): an invisible Catholic moral spine governs what the stories value (fidelity, repentance, mercy, dignity of persons, consequences that mean something); never announced, never preached in-text, plainly owned if the operator or an audience member asks where the stories come from.
    - Register-integrity law (vision Section 5, design spec Section 2): registers are stylistic DNA, not licensed characters; original characters, original dialogue, the operator's own life as material; no lifted characters, no lifted lines, no reproduced IP, ever.
    - Explicit exclusion: no Star Trek register.
-   - Extensibility rule (design spec Section 8): new registers are added by appending an entry (slug, DNA, contract, attitude, inspired-by, exemplar line) and bumping the skill MINOR version; mashups are allowed at generation time without a catalog entry.
+   - Extensibility rule (design spec Section 8): new registers are added by appending an entry (slug, DNA, contract, attitude, inspired-by, touchstone, exemplar line) and bumping the skill MINOR version; mashups are allowed at generation time without a catalog entry.
    - Style law reminder: exemplar lines and all catalog prose contain no em dashes and no en dashes.
-4. **Three family sections**, each a table plus per-register exemplar lines. The tables reproduce the design spec Section 8 columns exactly (slug, DNA, narrative contract, native attitude) and add the inspired-by column. The exemplar opening line for each register is authored at build time under the criteria in Section 3.5 (one per register, original, register-appropriate, dash-free).
+4. **Three family sections**, each a table plus per-register exemplar lines. The tables reproduce the design spec Section 8 columns exactly (slug, DNA, narrative contract, native attitude) and add the inspired-by and touchstone columns. The exemplar opening line for each register is authored at build time under the criteria in Section 3.5 (one per register, original, register-appropriate, dash-free).
    - Literary family: `novella`, `romance`, `war-novella`, `western`, `spy-thriller`, `mystery-noir`, `sci-fi`, `fantasy`, `documentary` (9).
    - Comedy family: `cringe-verite`, `standup-observational`, `office-mockumentary`, `farce-70s`, `living-room-70s`, `comedy-movie` (6).
    - Cinematic/franchise-flavored family: `simulation-noir`, `street-chronicle-90s`, `amblin-wonder`, `epic-quest`, `dark-vigilante`, `golden-age-hero`, `fourth-wall-antihero`, `everyman-hero`, `space-opera` (9).

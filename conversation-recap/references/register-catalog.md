@@ -27,15 +27,15 @@ Table A holds the inspired-by strings for this family (pure genre names the trad
 
 | Slug | DNA | Narrative contract | Native attitude | Inspired-by (Table A) | Touchstone (Table D) |
 |------|-----|-------------------|-----------------|-----------------------|----------------------|
-| `novella` | Literary fiction | Interior, patient, image-driven; the thread as a short story with a quiet turn | Compassionate, unsparing | inspired by the literary fiction tradition | Literary short fiction, the quiet-turn story |
-| `romance` | Romance fiction | Longing, obstacles, timing; open loops as will-they-won't-they | Warm, swooning, gently teasing | inspired by the romance tradition | The sweeping romance novel |
-| `war-novella` | War fiction (operator's beloved genre; flagship) | Field report cadence, unit loyalty, cost accounting; decisions as orders, open loops as unsecured ground | Grave, terse, zero sentimentality; does not care about feelings, there is a war on | inspired by the war novella tradition | The literary war novel |
-| `western` | Western fiction and film | Frontier morality, laconic narration, the stranger and the town; open loops as unfinished business at sundown | Dry, laconic, quietly judging | inspired by classic Westerns | The classic frontier Western |
-| `spy-thriller` | CIA and espionage fiction | Case file framing, tradecraft language, asset and handler dynamics; open loops as active operations | Paranoid, clinical, redacted humor | inspired by the espionage fiction tradition | Cold War tradecraft espionage |
-| `mystery-noir` | Detective fiction | The thread as a case; clues, red herrings, the reveal; open loops as unsolved counts | World-weary, wry | inspired by the detective noir tradition | Hardboiled detective noir |
-| `sci-fi` | General science fiction | Ideas-forward, extrapolative; the thread's stakes projected to their logical extreme | Curious, slightly ominous | inspired by the science fiction tradition | Idea-driven science fiction |
-| `fantasy` | General fantasy | Wonder register, quest logic, named artifacts | Earnest, mythic | inspired by the fantasy tradition | Mythic high fantasy |
-| `documentary` | Non-fiction documentary | Sober narrator, talking-head asides, archival framing; the most literal register in the catalog | Neutral, occasionally deadpan | inspired by the documentary tradition | The sober long-form documentary |
+| `novella` | Literary fiction | Interior, patient, image-driven; the thread as a short story with a quiet turn | Compassionate, unsparing | inspired by the literary fiction tradition | literary fiction |
+| `romance` | Romance fiction | Longing, obstacles, timing; open loops as will-they-won't-they | Warm, swooning, gently teasing | inspired by the romance tradition | romance fiction |
+| `war-novella` | War fiction (operator's beloved genre; flagship) | Field report cadence, unit loyalty, cost accounting; decisions as orders, open loops as unsecured ground | Grave, terse, zero sentimentality; does not care about feelings, there is a war on | inspired by the war novella tradition | war fiction |
+| `western` | Western fiction and film | Frontier morality, laconic narration, the stranger and the town; open loops as unfinished business at sundown | Dry, laconic, quietly judging | inspired by classic Westerns | classic Westerns |
+| `spy-thriller` | CIA and espionage fiction | Case file framing, tradecraft language, asset and handler dynamics; open loops as active operations | Paranoid, clinical, redacted humor | inspired by the espionage fiction tradition | espionage fiction |
+| `mystery-noir` | Detective fiction | The thread as a case; clues, red herrings, the reveal; open loops as unsolved counts | World-weary, wry | inspired by the detective noir tradition | detective noir |
+| `sci-fi` | General science fiction | Ideas-forward, extrapolative; the thread's stakes projected to their logical extreme | Curious, slightly ominous | inspired by the science fiction tradition | science fiction |
+| `fantasy` | General fantasy | Wonder register, quest logic, named artifacts | Earnest, mythic | inspired by the fantasy tradition | fantasy |
+| `documentary` | Non-fiction documentary | Sober narrator, talking-head asides, archival framing; the most literal register in the catalog | Neutral, occasionally deadpan | inspired by the documentary tradition | documentary |
 
 **Exemplar opening lines (Literary family):**
 
@@ -57,12 +57,12 @@ Table B holds the inspired-by strings for this family (real-show DNA names the s
 
 | Slug | DNA | Narrative contract | Native attitude | Inspired-by (Table B) | Touchstone (Table D) |
 |------|-----|-------------------|-----------------|-----------------------|----------------------|
-| `cringe-verite` | Curb-style improvised cringe comedy | Pettiness spirals, social-contract violations litigated at length, escalation from a trivial premise | Roasts the protagonist as fully complicit | inspired by Curb Your Enthusiasm | Curb Your Enthusiasm, the grievance spiral |
-| `standup-observational` | Seinfeld-style standup plus scenes | Comedian framing device bookends scenes; "who DOES that" interrogation of behavior; callbacks mandatory | Roasts everyone, protagonist first. Gold-standard calibration register | inspired by Seinfeld | Seinfeld, the "who does that" bit |
-| `office-mockumentary` | The Office-style mockumentary | Talking-head confessionals, camera-catch moments, painful sincerity under the comedy | Roasts with underlying affection | inspired by The Office | The Office, the talking-head confessional |
-| `farce-70s` | Three's Company-style farce | One misunderstanding load-bearing for the whole episode; doorbell timing; everything resolves and nothing is learned | Silly, innocent, zero malice | inspired by Three's Company | Three's Company, the load-bearing mix-up |
+| `cringe-verite` | Curb-style improvised cringe comedy | Pettiness spirals, social-contract violations litigated at length, escalation from a trivial premise | Roasts the protagonist as fully complicit | inspired by Curb Your Enthusiasm | Curb Your Enthusiasm-style |
+| `standup-observational` | Seinfeld-style standup plus scenes | Comedian framing device bookends scenes; "who DOES that" interrogation of behavior; callbacks mandatory | Roasts everyone, protagonist first. Gold-standard calibration register | inspired by Seinfeld | Seinfeld-style |
+| `office-mockumentary` | The Office-style mockumentary | Talking-head confessionals, camera-catch moments, painful sincerity under the comedy | Roasts with underlying affection | inspired by The Office | The Office-style |
+| `farce-70s` | Three's Company-style farce | One misunderstanding load-bearing for the whole episode; doorbell timing; everything resolves and nothing is learned | Silly, innocent, zero malice | inspired by Three's Company | Three's Company-style |
 | `living-room-70s` | All in the Family-style sitcom | Two entrenched worldviews argue in one room; the argument IS the plot; uncomfortable truths land inside jokes | Provocative, humane underneath | inspired by All in the Family | All in the Family, the armchair argument |
-| `comedy-movie` | Broad film comedy | Set pieces, escalation, a third-act run | Playful, big | inspired by the broad film comedy tradition | Broad studio comedy, the third-act runaround |
+| `comedy-movie` | Broad film comedy | Set pieces, escalation, a third-act run | Playful, big | inspired by the broad film comedy tradition | broad film comedy |
 
 **Exemplar opening lines (Comedy family):**
 
@@ -81,15 +81,15 @@ Table C holds the inspired-by strings for this family (the tradition or milieu i
 
 | Slug | DNA | Narrative contract | Native attitude | Inspired-by (Table C) | Touchstone (Table D) |
 |------|-----|-------------------|-----------------|-----------------------|----------------------|
-| `simulation-noir` | Matrix-flavored cyberpunk | Reality-questioning frame; the mundane thread revealed as signal in the system; choices as red and blue forks | Cool, portentous, leather-jacket solemn | inspired by the cyberpunk tradition | The Matrix, the red-pill reveal |
-| `street-chronicle-90s` | The world of 90s hip-hop (stories from that world, not real persons) | Block-level loyalty, rise-and-rivalry arcs, spoken-word narration cadence | Unflinching, loyal, elegiac | inspired by the world of 90s hip-hop | 90s hip-hop cinema, the block-loyalty saga |
-| `amblin-wonder` | ET-flavored 80s suburban wonder | Ordinary kid-height perspective on extraordinary events; bikes, cul-de-sacs, flashlights; awe over irony | Tender, wide-eyed | inspired by the 80s suburban wonder tradition | E.T. and Amblin, kid-height awe |
-| `epic-quest` | LOTR-flavored high fantasy | Fellowship framing, burdens carried, maps and long roads; open loops as roads yet untraveled | Solemn, loyal, occasionally merry | inspired by the high fantasy quest tradition | The Lord of the Rings, the fellowship road |
-| `dark-vigilante` | Batman-register noir | Night city, obsession, the case as personal wound; justice versus vengeance undertow | Brooding, relentless | inspired by the caped-vigilante noir tradition | Batman, the brooding night-city detective |
-| `golden-age-hero` | Superman-register heroism | Bright, hopeful, principled; the thread's best version of everyone | Flattering, sincere, zero irony | inspired by the golden-age superhero tradition | Superman, the bright and principled hero |
-| `fourth-wall-antihero` | Deadpool-register irreverence | Breaks the recap's own frame, mocks the skill itself, footnotes its own jokes | Roasts protagonist, author, AND the format | inspired by the fourth-wall-breaking antihero tradition | Deadpool, the self-mocking narrator |
-| `everyman-hero` | Spider-Man-register | Great-power-great-responsibility framing on small choices; quips under pressure; the hero is broke and late | Self-deprecating, warm | inspired by the everyman superhero tradition | Spider-Man, great power and broke and late |
-| `space-opera` | Star Wars-register | Opening-crawl framing device permitted; empires and rebellions mapped onto the thread's factions; lightsabers not included | Grand, mythic, a little pulpy | inspired by the space opera tradition | Star Wars, the opening-crawl saga |
+| `simulation-noir` | Matrix-flavored cyberpunk | Reality-questioning frame; the mundane thread revealed as signal in the system; choices as red and blue forks | Cool, portentous, leather-jacket solemn | inspired by the cyberpunk tradition | Matrix-style |
+| `street-chronicle-90s` | The world of 90s hip-hop (stories from that world, not real persons) | Block-level loyalty, rise-and-rivalry arcs, spoken-word narration cadence | Unflinching, loyal, elegiac | inspired by the world of 90s hip-hop | the world of 90s hip-hop |
+| `amblin-wonder` | ET-flavored 80s suburban wonder | Ordinary kid-height perspective on extraordinary events; bikes, cul-de-sacs, flashlights; awe over irony | Tender, wide-eyed | inspired by the 80s suburban wonder tradition | E.T.-style Amblin wonder |
+| `epic-quest` | LOTR-flavored high fantasy | Fellowship framing, burdens carried, maps and long roads; open loops as roads yet untraveled | Solemn, loyal, occasionally merry | inspired by the high fantasy quest tradition | Lord of the Rings-style |
+| `dark-vigilante` | Batman-register noir | Night city, obsession, the case as personal wound; justice versus vengeance undertow | Brooding, relentless | inspired by the caped-vigilante noir tradition | Batman-style |
+| `golden-age-hero` | Superman-register heroism | Bright, hopeful, principled; the thread's best version of everyone | Flattering, sincere, zero irony | inspired by the golden-age superhero tradition | Superman-style |
+| `fourth-wall-antihero` | Deadpool-register irreverence | Breaks the recap's own frame, mocks the skill itself, footnotes its own jokes | Roasts protagonist, author, AND the format | inspired by the fourth-wall-breaking antihero tradition | Deadpool-style |
+| `everyman-hero` | Spider-Man-register | Great-power-great-responsibility framing on small choices; quips under pressure; the hero is broke and late | Self-deprecating, warm | inspired by the everyman superhero tradition | Spider-Man-style |
+| `space-opera` | Star Wars-register | Opening-crawl framing device permitted; empires and rebellions mapped onto the thread's factions; lightsabers not included | Grand, mythic, a little pulpy | inspired by the space opera tradition | Star Wars-style |
 
 **Exemplar opening lines (Cinematic and franchise-flavored family):**
 
