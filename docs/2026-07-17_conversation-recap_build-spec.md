@@ -82,7 +82,7 @@ The single entry point and the entire execution brain of the skill. It detects t
 5. **## When to use this skill.** Prose plus the trigger phrases. Restore-appetite framing (vision Sections 1 and 2). Explicit not-for pointers: machine state -> `session-handoff`; structured summary -> `nc3-session-recap-skill`; reflective record -> `per-jrn-journal-entry`.
 6. **## Execution flow.** The seven-step pipeline from design spec Section 3, reproduced as a numbered protocol: TRIGGER, SOURCE, INTERVIEW, TIER CALL, GENERATE, DEBRIEF, OPTIONAL SAVE. State the collapse rule: when the operator specifies register and/or tier at invocation, skip the interview for what was specified and interview only for what is unspecified.
 7. **## Source material acquisition.** The four-priority input ladder from design spec Section 5 (explicit file input; named past conversation; current thread stale head; pasted transcript or notes). The one-clarifying-question rule for thin or ambiguous sources. The fabrication rule stated in full here and again in the agent Help section.
-8. **## The interview.** Design spec Section 6, as runtime instructions: host voice is a premiere-night announcer, not a settings menu; identify the thread (skip if stated); offer 3 to 4 register picks as a selectable list built from 1 to 2 past favorites plus 1 to 2 rotation picks, always allowing free-text or mashup; the emotionally-heavy-thread bias rule (grief, conflict, spiritual matter bias away from roast-native registers toward documentary, novella, amblin-wonder; do not Seinfeld a funeral). Past-favorites source at v0.1.0 is documented as "none" (see Section 5, Open Decision item 2, recommend defer to v0.2.0); the interview logic must degrade gracefully to rotation-only picks when no usage history exists.
+8. **## The interview.** Design spec Section 6, as runtime instructions: host voice is a premiere-night announcer, not a settings menu; identify the thread (skip if stated); offer 3 to 4 register picks as a selectable list built from 1 to 2 past favorites plus 1 to 2 rotation picks, always allowing free-text or mashup; the emotionally-heavy-thread bias rule (grief, conflict, spiritual matter bias away from roast-native registers toward documentary, novella, suburban-wonder; do not Seinfeld a funeral). Past-favorites source at v0.1.0 is documented as "none" (see Section 5, Open Decision item 2, recommend defer to v0.2.0); the interview logic must degrade gracefully to rotation-only picks when no usage history exists.
    **Picker presentation rule (operator decision 2026-07-17).** Each register offered in the interview is presented as its non-IP label plus its `touchstone` in parentheses, for example "simulation-noir (Matrix-style)". The touchstone is read from the catalog, never improvised. This is a selection-surface aid only: it helps the human recognize the mode at pick time and does not change the title-card attribution, which continues to print the `inspired-by` string from Table A, B, or C.
 9. **## Tier logic.** The three tiers from design spec Section 4 as a table (Short / The Teaser / 200 to 350 words / 60 to 90 sec; Medium / The Cold Open / 600 to 900 words / default; Long / The Season Recap / 1100 to 1600 words / sagas only). The judgment-call doctrine: AI picks the tier from complexity, open-thread count, stakes, and elapsed time; states the call in one line; operator overrides by exception. Same doctrine extends to structure, framing device, and intensity. Calibration anchor named: the "The Command" Medium run.
 10. **## Output contract.** The fixed three-part contract from design spec Section 7, stated as non-negotiable:
@@ -170,7 +170,7 @@ The style-contract library. It holds all 24 registers as data the generation pip
 4. **Three family sections**, each a table plus per-register exemplar lines. The tables reproduce the design spec Section 8 columns exactly (slug, DNA, narrative contract, native attitude) and add the inspired-by and touchstone columns. The exemplar opening line for each register is authored at build time under the criteria in Section 3.5 (one per register, original, register-appropriate, dash-free).
    - Literary family: `novella`, `romance`, `war-novella`, `western`, `spy-thriller`, `mystery-noir`, `sci-fi`, `fantasy`, `documentary` (9).
    - Comedy family: `cringe-verite`, `standup-observational`, `office-mockumentary`, `farce-70s`, `living-room-70s`, `comedy-movie` (6).
-   - Cinematic/franchise-flavored family: `simulation-noir`, `street-chronicle-90s`, `amblin-wonder`, `epic-quest`, `dark-vigilante`, `golden-age-hero`, `fourth-wall-antihero`, `everyman-hero`, `space-opera` (9).
+   - Cinematic/franchise-flavored family: `simulation-noir`, `street-chronicle-90s`, `suburban-wonder`, `epic-quest`, `dark-vigilante`, `golden-age-hero`, `fourth-wall-antihero`, `everyman-hero`, `space-opera` (9).
    Total: 24 registers.
 
 ### 3.4 Inspired-by attribution strings (build-ready mapping)
@@ -208,7 +208,7 @@ These are the exact `<source>` strings the title card reads. Real-show DNA names
 |------|----------------------------------|
 | `simulation-noir` | inspired by the cyberpunk tradition |
 | `street-chronicle-90s` | inspired by the world of 90s hip-hop |
-| `amblin-wonder` | inspired by the 80s suburban wonder tradition |
+| `suburban-wonder` | inspired by the 80s suburban wonder tradition |
 | `epic-quest` | inspired by the high fantasy quest tradition |
 | `dark-vigilante` | inspired by the caped-vigilante noir tradition |
 | `golden-age-hero` | inspired by the golden-age superhero tradition |
@@ -241,7 +241,7 @@ The touchstone is the show, movie, or milieu the register's DNA described, shown
 | `comedy-movie` | broad film comedy |
 | `simulation-noir` | Matrix-style |
 | `street-chronicle-90s` | the world of 90s hip-hop |
-| `amblin-wonder` | E.T.-style Amblin wonder |
+| `suburban-wonder` | E.T.-style Amblin wonder |
 | `epic-quest` | Lord of the Rings-style |
 | `dark-vigilante` | Batman-style |
 | `golden-age-hero` | Superman-style |
@@ -274,7 +274,7 @@ The build spec does not pre-author these 24 lines; authoring them is Phase 2 cre
 ### 3.7 Test hooks (from design spec Section 11)
 
 - Feeds Test 1: the `war-novella` and `documentary` entries (DNA, contract, attitude, inspired-by, exemplar) are the exact style contracts the two Richard thread runs are generated against. Verifies AC13 to AC16, AC19.
-- Feeds Test 3: the roast-native registers (`cringe-verite`, `standup-observational`, and the roast entries) and the bias-toward set (`documentary`, `novella`, `amblin-wonder`) are the registers the emotionally-heavy-thread simulation selects between; their attitude fields must make the bias correct. Verifies AC19 and, jointly with SKILL.md AC8, Test 3.
+- Feeds Test 3: the roast-native registers (`cringe-verite`, `standup-observational`, and the roast entries) and the bias-toward set (`documentary`, `novella`, `suburban-wonder`) are the registers the emotionally-heavy-thread simulation selects between; their attitude fields must make the bias correct. Verifies AC19 and, jointly with SKILL.md AC8, Test 3.
 - Feeds Test 1 title-card check: the inspired-by strings are what the generated title card must reproduce verbatim. Verifies AC15.
 
 ---

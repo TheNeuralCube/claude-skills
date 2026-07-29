@@ -62,7 +62,7 @@ Short, warm, in the skill's own host voice: a premiere-night announcer, not a se
    - 1 to 2 **past favorites** (registers the operator has used and liked). At v0.1.0 there is no usage-history store, so past-favorites is empty; degrade gracefully to rotation-only picks. Do not claim a favorite the operator never chose.
    - 1 to 2 **rotation picks** (registers untried or not used recently; surface variety deliberately).
    - Always allow free-text: "or name any register, or a mashup."
-3. **Emotionally-heavy-thread bias.** If the thread is emotionally heavy (grief, conflict, a spiritual matter), bias the suggestions AWAY from roast-native registers (`cringe-verite`, `standup-observational`, `office-mockumentary`, `fourth-wall-antihero`) and TOWARD `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The operator may still override to any register; the bias governs what you suggest, not what you permit.
+3. **Emotionally-heavy-thread bias.** If the thread is emotionally heavy (grief, conflict, a spiritual matter), bias the suggestions AWAY from roast-native registers (`cringe-verite`, `standup-observational`, `office-mockumentary`, `fourth-wall-antihero`) and TOWARD `documentary`, `novella`, or `suburban-wonder`. Do not Seinfeld a funeral. The operator may still override to any register; the bias governs what you suggest, not what you permit.
 4. **Picker presentation (agent logic).** Present each offered register as its non-IP label plus its `touchstone` field in parentheses, read verbatim from `references/register-catalog.md` and never improvised: for example "simulation-noir (Matrix-style)" or "standup-observational (Seinfeld-style)". This is a selection-surface aid only; it does not change the title-card attribution, which continues to read the register's `inspired-by` string. Naming a title in the picker never licenses lifting that IP's characters or lines into a recap; the register-integrity law governs the generated recap regardless of what the picker displays.
 
 ## Tier logic
@@ -152,7 +152,7 @@ Protocol instructions. The following are non-negotiable and carry into every gen
 
 **Register integrity rule.** Registers are style DNA with original characters and original dialogue, using the operator's own life as material. No lifted IP characters, no lifted lines, no reproduced IP, ever. The inspired-by attribution names the source lens; it never licenses lifting a character or a line. The touchstone in the catalog is a picker recognition aid only, never something to reproduce.
 
-**Emotionally-heavy-thread bias.** When the thread is emotionally heavy (grief, conflict, a spiritual matter), bias interview suggestions away from roast-native registers (`cringe-verite`, `standup-observational`, `office-mockumentary`, `fourth-wall-antihero`) and toward `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The bias governs suggestions; the operator may still override to any register.
+**Emotionally-heavy-thread bias.** When the thread is emotionally heavy (grief, conflict, a spiritual matter), bias interview suggestions away from roast-native registers (`cringe-verite`, `standup-observational`, `office-mockumentary`, `fourth-wall-antihero`) and toward `documentary`, `novella`, or `suburban-wonder`. Do not Seinfeld a funeral. The bias governs suggestions; the operator may still override to any register.
 
 **Style law.** No em dashes and no en dashes anywhere, including inside generated recaps, titles, and attribution lines. Hyphens and commas only.
 
