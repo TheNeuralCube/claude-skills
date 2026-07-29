@@ -13,14 +13,16 @@
 
 Per the no-empty-fields principle, every item that cannot be fully resolved from the two input docs is listed here with a recommended default. Items marked BLOCKS-PHASE-2 or BLOCKS-PHASE-3 do not block approval of this build spec; they are surfaced now so the operator can clear them before the gated phase runs. Items marked BUILD-DECISION carry a recommended default that the build will apply unless the operator overrides at approval.
 
-1. **[INFORMATION GAP: Phase 3 test source material] (BLOCKS-PHASE-3, material).**
+1. **[INFORMATION GAP: Phase 3 test source material] (PARTIALLY RESOLVED 2026-07-17, was BLOCKS-PHASE-3, material).**
    Design spec Section 11 item 1 requires regenerating "the Richard thread recap" and comparing against "the two ratified test runs." Neither the Richard thread source material nor the two ratified test runs (war-novella Short, documentary Medium) is reproduced in either input doc. Project search confirms they are not present in project knowledge. The Seinfeld calibration run "The Command" (~900 words) is named as the Medium gold standard but is likewise not reproduced.
    Consequence: the fabrication rule forbids inventing the thread's facts, so the test cannot be run against the operator's real Richard thread from the corpus available, and the "compare against the two ratified test runs" step cannot be performed at all without those artifacts.
    Recommended resolution at Phase 3: operator supplies the Richard thread source (a handoff, recap, or transcript) plus the two ratified runs; OR, if unavailable, Phase 3 substitutes a clearly labeled synthetic test fixture (a fabricated thread declared as a fixture, never presented as the operator's real life) to exercise contract compliance and tier budgets, and explicitly records that the gold-standard comparison was skipped for lack of the reference runs. Do not silently fabricate a "Richard thread" as if it were real source.
+   **Resolution status 2026-07-17:** the operator supplied `2026-07-17_conversation-recap_test-fixture_the-command-standup.md`, which carries the ratified "The Command" run verbatim plus a traceable source-facts line for the Richard thread. The Richard thread source facts are therefore now supplied in the test fixture, and Test 1 can be run against real source with the fabrication rule intact. The synthetic fixture substituted earlier is superseded and retired. Still partial, not closed: only one ratified run ("The Command", standup-observational Medium) exists, so the two ratified reference runs named in design spec Section 11 (war-novella Short, documentary Medium) remain unavailable for direct comparison. "The Command" serves as the single calibration anchor for Medium feel and native-attitude intensity.
 
-2. **[INFORMATION GAP: franchise-flavored inspired-by strings] (BUILD-DECISION).**
+2. **[INFORMATION GAP: franchise-flavored inspired-by strings] (RESOLVED 2026-07-17 by operator).**
    Design spec Section 7 gives the attribution rule for only two families: real-show DNA names the show ("inspired by Seinfeld"), pure-genre names the tradition ("inspired by the war novella tradition"). The cinematic/franchise-flavored family (9 registers) sits between: its DNA column references specific franchises (Matrix-flavored, ET-flavored, Batman-register, and so on), yet the family is explicitly declared "registers, never fan fiction," and every slug is already tradition-named rather than franchise-named.
-   Recommended default (applied unless overridden): franchise-flavored registers name the tradition or milieu, not the franchise (for example `simulation-noir` -> "inspired by the cyberpunk tradition"), consistent with the no-lifted-IP doctrine and the tradition-named slugs. `street-chronicle-90s` is the one the design spec resolves directly ("stories from that world, not real persons"), so it names the world: "inspired by the world of 90s hip-hop." Full proposed mapping in Section 3.4, Table C.
+   Recommended default (superseded by the operator resolution below): franchise-flavored registers name the tradition or milieu, not the franchise (for example `simulation-noir` -> "inspired by the cyberpunk tradition"), consistent with the no-lifted-IP doctrine and the tradition-named slugs. `street-chronicle-90s` is the one the design spec resolves directly ("stories from that world, not real persons"), so it names the world: "inspired by the world of 90s hip-hop." Full proposed mapping in Section 3.4, Table C.
+   **Touchstone doctrine (operator decision 2026-07-17, governing).** Slugs and the title-card `inspired-by` attribution stay non-IP and tradition-named, exactly as Table C proposes. A separate `touchstone` field names the actual show or movie, and it appears in the interview picker only. The touchstone never enters the title card, never enters the recap body, and never licenses lifting a character, a line, or a catchphrase. This resolves the gap in both directions at once: the printed artifact stays clean of IP naming, and the human picking a register still recognizes the mode. Touchstone strings for all 24 registers are fixed in Section 3.4, Table D.
 
 3. **[INFORMATION GAP: frontmatter version field shape] (BUILD-DECISION, verify at package).**
    Design spec Section 1 and Section 10 mandate `version: 0.1.0` as a top-level frontmatter field. Named peer `session-handoff` and `project-context` both use a top-level `version:` field; the third new-generation peer `transcript-metadata-tagger` nests it as `metadata:\n  version: 0.1.0`. The claude.ai packaging validator (`package_skill.py`) is not present in this environment (no `/mnt/skills`), so the field it reads cannot be confirmed here.
@@ -81,6 +83,7 @@ The single entry point and the entire execution brain of the skill. It detects t
 6. **## Execution flow.** The seven-step pipeline from design spec Section 3, reproduced as a numbered protocol: TRIGGER, SOURCE, INTERVIEW, TIER CALL, GENERATE, DEBRIEF, OPTIONAL SAVE. State the collapse rule: when the operator specifies register and/or tier at invocation, skip the interview for what was specified and interview only for what is unspecified.
 7. **## Source material acquisition.** The four-priority input ladder from design spec Section 5 (explicit file input; named past conversation; current thread stale head; pasted transcript or notes). The one-clarifying-question rule for thin or ambiguous sources. The fabrication rule stated in full here and again in the agent Help section.
 8. **## The interview.** Design spec Section 6, as runtime instructions: host voice is a premiere-night announcer, not a settings menu; identify the thread (skip if stated); offer 3 to 4 register picks as a selectable list built from 1 to 2 past favorites plus 1 to 2 rotation picks, always allowing free-text or mashup; the emotionally-heavy-thread bias rule (grief, conflict, spiritual matter bias away from roast-native registers toward documentary, novella, amblin-wonder; do not Seinfeld a funeral). Past-favorites source at v0.1.0 is documented as "none" (see Section 5, Open Decision item 2, recommend defer to v0.2.0); the interview logic must degrade gracefully to rotation-only picks when no usage history exists.
+   **Picker presentation rule (operator decision 2026-07-17).** Each register offered in the interview is presented as its non-IP label plus its `touchstone` in parentheses, for example "simulation-noir (Matrix-style)". The touchstone is read from the catalog, never improvised. This is a selection-surface aid only: it helps the human recognize the mode at pick time and does not change the title-card attribution, which continues to print the `inspired-by` string from Table A, B, or C.
 9. **## Tier logic.** The three tiers from design spec Section 4 as a table (Short / The Teaser / 200 to 350 words / 60 to 90 sec; Medium / The Cold Open / 600 to 900 words / default; Long / The Season Recap / 1100 to 1600 words / sagas only). The judgment-call doctrine: AI picks the tier from complexity, open-thread count, stakes, and elapsed time; states the call in one line; operator overrides by exception. Same doctrine extends to structure, framing device, and intensity. Calibration anchor named: the "The Command" Medium run.
 10. **## Output contract.** The fixed three-part contract from design spec Section 7, stated as non-negotiable:
     - Title card, two lines: `PREVIOUSLY ON: "<INVENTED EPISODE TITLE>"` then the italicized attribution line `*A story recap in the <register-slug> register, inspired by <source>.*` The `<source>` string is read from the catalog entry, never improvised.
@@ -215,6 +218,37 @@ These are the exact `<source>` strings the title card reads. Real-show DNA names
 
 If the operator prefers franchise-naming for Table C (for example "inspired by The Matrix"), the build swaps these strings; the register-integrity law is unaffected either way because attribution names a lens and never licenses lifting characters or lines.
 
+**Table D, touchstone strings (all 24 registers; picker recognition aid, operator decision 2026-07-17).**
+
+The touchstone is the show, movie, or milieu the register's DNA described, shown in the selection picker so the human recognizes the mode. Pure-genre literary registers had no specific IP in their DNA, so their touchstone is the genre itself (it coincides with the inspired-by string). Registers whose DNA named an IP carry that title. Naming a title here is recognition only; it is never a license to place that IP's characters or lines inside a recap.
+
+| Slug | touchstone (picker string) |
+|------|----------------------------|
+| `novella` | literary fiction |
+| `romance` | romance fiction |
+| `war-novella` | war fiction |
+| `western` | classic Westerns |
+| `spy-thriller` | espionage fiction |
+| `mystery-noir` | detective noir |
+| `sci-fi` | science fiction |
+| `fantasy` | fantasy |
+| `documentary` | documentary |
+| `cringe-verite` | Curb Your Enthusiasm-style |
+| `standup-observational` | Seinfeld-style |
+| `office-mockumentary` | The Office-style |
+| `farce-70s` | Three's Company-style |
+| `living-room-70s` | All in the Family-style |
+| `comedy-movie` | broad film comedy |
+| `simulation-noir` | Matrix-style |
+| `street-chronicle-90s` | the world of 90s hip-hop |
+| `amblin-wonder` | E.T.-style Amblin wonder |
+| `epic-quest` | Lord of the Rings-style |
+| `dark-vigilante` | Batman-style |
+| `golden-age-hero` | Superman-style |
+| `fourth-wall-antihero` | Deadpool-style |
+| `everyman-hero` | Spider-Man-style |
+| `space-opera` | Star Wars-style |
+
 ### 3.5 Exemplar opening line criteria (authored at build)
 
 Each register gets exactly one original opening line, authored during Phase 2, meeting all of:
@@ -229,8 +263,9 @@ The build spec does not pre-author these 24 lines; authoring them is Phase 2 cre
 ### 3.6 Acceptance criteria (Module 2)
 
 - AC13. All 24 registers present, correctly partitioned into the three families, slugs spelled exactly as design spec Section 8.
-- AC14. Each register row carries all five data fields: DNA, narrative contract, native attitude, inspired-by string, exemplar line. No blanks.
+- AC14. Each register row carries all six data fields: DNA, narrative contract, native attitude, inspired-by string, touchstone string, exemplar line. No blanks.
 - AC15. Inspired-by strings match Tables A and B exactly; Table C matches the approved mapping (default or operator override).
+- AC15b. Touchstone strings match Table D exactly (all 24), and the SKILL.md interview section reads them for the picker presentation rule (label plus touchstone in parentheses).
 - AC16. Each exemplar line satisfies every criterion in Section 3.5; spot-check that no line reproduces a known character name, catchphrase, or quoted line.
 - AC17. Preamble carries all four doctrines (constitution, register-integrity, no-Star-Trek exclusion, extensibility) plus the dash-free reminder.
 - AC18. Zero em dashes and zero en dashes in the entire file (automated grep check).
