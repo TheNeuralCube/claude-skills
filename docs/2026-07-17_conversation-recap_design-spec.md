@@ -70,7 +70,7 @@ Short, warm, in-character-for-the-skill (the skill's own host voice can have per
    - 1-2 **past favorites** (registers the operator has used and liked; consult usage history if available -- Open Brain search on prior Previously On captures, or in-skill history file in Claude Code contexts).
    - 1-2 **rotation picks** (registers untried or not used recently; deliberately surface variety).
    - Always allow free-text ("or name any register / mashup").
-3. If the thread is emotionally heavy (grief, conflict, spiritual matter), bias suggestions away from roast-native registers and toward documentary, novella, or amblin-wonder. Do not Seinfeld a funeral.
+3. If the thread is emotionally heavy (grief, conflict, spiritual matter), bias suggestions away from roast-native registers and toward documentary, novella, or suburban-wonder. Do not Seinfeld a funeral.
 
 ## 7. Output Contract (Register-Independent)
 
@@ -121,13 +121,15 @@ Registers are style contracts. Each entry: **slug | DNA | narrative contract | n
 |------|-----|-------------------|----------------|
 | `simulation-noir` | Matrix-flavored cyberpunk | Reality-questioning frame; the mundane thread revealed as signal in the system; choices as red/blue forks | Cool, portentous, leather-jacket solemn |
 | `street-chronicle-90s` | The world of 90s hip-hop (stories from that world, not real persons) | Block-level loyalty, rise-and-rivalry arcs, spoken-word narration cadence | Unflinching, loyal, elegiac |
-| `amblin-wonder` | ET-flavored 80s suburban wonder | Ordinary kid-height perspective on extraordinary events; bikes, cul-de-sacs, flashlights; awe over irony | Tender, wide-eyed |
+| `suburban-wonder` | ET-flavored 80s suburban wonder | Ordinary kid-height perspective on extraordinary events; bikes, cul-de-sacs, flashlights; awe over irony | Tender, wide-eyed |
 | `epic-quest` | LOTR-flavored high fantasy | Fellowship framing, burdens carried, maps and long roads; open loops as roads yet untraveled | Solemn, loyal, occasionally merry |
 | `dark-vigilante` | Batman-register noir | Night city, obsession, the case as personal wound; justice vs. vengeance undertow | Brooding, relentless |
 | `golden-age-hero` | Superman-register heroism | Bright, hopeful, principled; the thread's best version of everyone | Flattering, sincere, zero irony |
 | `fourth-wall-antihero` | Deadpool-register irreverence | Breaks the recap's own frame, mocks the skill itself, footnotes its own jokes | Roasts protagonist, author, AND the format |
 | `everyman-hero` | Spider-Man-register | Great-power-great-responsibility framing on small choices; quips under pressure; the hero is broke and late | Self-deprecating, warm |
 | `space-opera` | Star Wars-register | Opening crawl framing device permitted; empires and rebellions mapped onto the thread's factions; lightsabers not included | Grand, mythic, a little pulpy |
+
+**Amendment note (added after the 2026-07-29 audit finding F4):** the `everyman-hero` and `space-opera` narrative contract strings above ("Great-power-great-responsibility framing," "lightsabers not included") were amended following that finding. `conversation-recap/references/register-catalog.md` is the canonical source for current narrative contract text; this table is retained as a design-time record and is not rewritten to match it.
 
 **Extensibility rule:** new registers are added by appending a catalog entry (slug, DNA, contract, attitude, exemplar line) and bumping the skill MINOR version. Mashups ("war-novella x mockumentary") are permitted at generation time without catalog entries.
 
