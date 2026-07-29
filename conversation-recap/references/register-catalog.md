@@ -61,7 +61,7 @@ Table B holds the inspired-by strings for this family (real-show DNA names the s
 | `standup-observational` | Seinfeld-style standup plus scenes | Comedian framing device bookends scenes; "who DOES that" interrogation of behavior; callbacks mandatory | Roasts everyone, protagonist first. Gold-standard calibration register | inspired by Seinfeld | Seinfeld-style |
 | `office-mockumentary` | The Office-style mockumentary | Talking-head confessionals, camera-catch moments, painful sincerity under the comedy | Roasts with underlying affection | inspired by The Office | The Office-style |
 | `farce-70s` | Three's Company-style farce | One misunderstanding load-bearing for the whole episode; doorbell timing; everything resolves and nothing is learned | Silly, innocent, zero malice | inspired by Three's Company | Three's Company-style |
-| `living-room-70s` | All in the Family-style sitcom | Two entrenched worldviews argue in one room; the argument IS the plot; uncomfortable truths land inside jokes | Provocative, humane underneath | inspired by All in the Family | All in the Family, the armchair argument |
+| `living-room-70s` | All in the Family-style sitcom (fought from one fixed armchair, the character's territory, in a room that never changes) | Two entrenched worldviews argue in one room; the argument IS the plot; uncomfortable truths land inside jokes | Provocative, humane underneath | inspired by All in the Family | All in the Family-style |
 | `comedy-movie` | Broad film comedy | Set pieces, escalation, a third-act run | Playful, big | inspired by the broad film comedy tradition | broad film comedy |
 
 **Exemplar opening lines (Comedy family):**
