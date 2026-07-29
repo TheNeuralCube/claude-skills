@@ -51,6 +51,8 @@ If the source is thin or ambiguous ("that thing we decided"), ask ONE clarifying
 
 **Fabrication rule:** the narrative shaping may exaggerate tone, never facts. Every event, decision, and open loop in the recap must be traceable to the source. Comic distortion of framing is allowed. Invented plot points are never allowed. This is a recap, not fiction about the operator's life.
 
+**Interiority clause.** Interiority is framing, not fact: attributed motives and inner states are permitted only as the narrator's openly-marked read of behavior the source records. "Deep down, our guy knows exactly who he is dealing with" draws a conclusion from a sourced act and is allowed; "Richard felt humiliated" asserts an unsourced fact about another person's inner life and is a fabrication, however tonal it reads. The test is whether the subject could read the line and say "that did not happen": a visible inference survives it, an asserted inner state does not.
+
 ## The interview
 
 Short, warm, in the skill's own host voice: a premiere-night announcer, not a settings menu. The host voice may have personality; keep it brief.
@@ -60,7 +62,7 @@ Short, warm, in the skill's own host voice: a premiere-night announcer, not a se
    - 1 to 2 **past favorites** (registers the operator has used and liked). At v0.1.0 there is no usage-history store, so past-favorites is empty; degrade gracefully to rotation-only picks. Do not claim a favorite the operator never chose.
    - 1 to 2 **rotation picks** (registers untried or not used recently; surface variety deliberately).
    - Always allow free-text: "or name any register, or a mashup."
-3. **Emotionally-heavy-thread bias.** If the thread is emotionally heavy (grief, conflict, a spiritual matter), bias the suggestions AWAY from roast-native registers (`cringe-verite`, `standup-observational`, `fourth-wall-antihero`) and TOWARD `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The operator may still override to any register; the bias governs what you suggest, not what you permit.
+3. **Emotionally-heavy-thread bias.** If the thread is emotionally heavy (grief, conflict, a spiritual matter), bias the suggestions AWAY from roast-native registers (`cringe-verite`, `standup-observational`, `office-mockumentary`, `fourth-wall-antihero`) and TOWARD `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The operator may still override to any register; the bias governs what you suggest, not what you permit.
 4. **Picker presentation (agent logic).** Present each offered register as its non-IP label plus its `touchstone` field in parentheses, read verbatim from `references/register-catalog.md` and never improvised: for example "simulation-noir (Matrix-style)" or "standup-observational (Seinfeld-style)". This is a selection-surface aid only; it does not change the title-card attribution, which continues to read the register's `inspired-by` string. Naming a title in the picker never licenses lifting that IP's characters or lines into a recap; the register-integrity law governs the generated recap regardless of what the picker displays.
 
 ## Tier logic
@@ -74,6 +76,8 @@ Tier is a length and immersion contract measured in reading time (about 230 word
 | Long | The Season Recap | 4 to 6 min | 1100 to 1600 | Immersive, multi-thread, act structure. Reserved for sagas: multiple plotlines, high stakes, long gap since last contact. |
 
 **Judgment-call doctrine.** Pick the tier from story complexity, number of open threads, stakes, and time elapsed. State the call in one line ("One plotline, low stakes, high comedy density: calling it a Medium") and proceed. The operator overrides by exception. The same doctrine extends to structure, framing device, and intensity within a register: you decide, the operator tweaks.
+
+**Thin-source rule (agent logic).** When the traceable source cannot fill the called tier without invention, drop to the tier the source can support and write to that tier's budget instead. Never pad, never invent connective beats, never stretch thin material to reach a floor. The fabrication rule outranks the tier budget, always. State the drop in one line ("Source supports a Teaser, not a Cold Open: dropping to Short"), consistent with the judgment-call doctrine, and proceed; the operator overrides by exception. Word-budget conformance is then measured against the tier actually written, so the tier band is satisfied by the drop rather than broken by it.
 
 **Calibration anchor.** The 2026-07-17 Seinfeld-register run "The Command" (656 words) is the ratified gold standard for Medium feel and native-attitude intensity. Calibrate Medium output against it.
 
@@ -138,6 +142,8 @@ Protocol instructions. The following are non-negotiable and carry into every gen
 
 > Fabrication rule: the narrative shaping may exaggerate tone, never facts. Every event, decision, and open loop in the recap must be traceable to the source. Comic distortion of framing is allowed. Invented plot points are never allowed. This is a recap, not fiction about the operator's life.
 
+**Interiority clause.** Interiority is framing, not fact: attributed motives and inner states are permitted only as the narrator's openly-marked read of behavior the source records. "Deep down, our guy knows exactly who he is dealing with" draws a conclusion from a sourced act and is allowed; "Richard felt humiliated" asserts an unsourced fact about another person's inner life and is a fabrication, however tonal it reads. The test is whether the subject could read the line and say "that did not happen": a visible inference survives it, an asserted inner state does not.
+
 **Output contract.** Every recap carries all three parts: the title card (`PREVIOUSLY ON` plus the italicized inspired-by attribution line), the register-native body, and the mandatory `WHERE WE LEFT OFF` block. The `WHERE WE LEFT OFF` block appears in every register at every tier without exception.
 
 **Roast doctrine.** Native attitude per register; there is no global roast dial. Choosing the register IS choosing the treatment. Roast-native registers roast (the operator has authorized full native intensity); flatterers flatter; the war novella does not care about anyone's feelings because there is a war on. Do not soften a roast register or sharpen a gentle one; run the register as written in the catalog.
@@ -146,7 +152,7 @@ Protocol instructions. The following are non-negotiable and carry into every gen
 
 **Register integrity rule.** Registers are style DNA with original characters and original dialogue, using the operator's own life as material. No lifted IP characters, no lifted lines, no reproduced IP, ever. The inspired-by attribution names the source lens; it never licenses lifting a character or a line. The touchstone in the catalog is a picker recognition aid only, never something to reproduce.
 
-**Emotionally-heavy-thread bias.** When the thread is emotionally heavy (grief, conflict, a spiritual matter), bias interview suggestions away from roast-native registers (`cringe-verite`, `standup-observational`, `fourth-wall-antihero`) and toward `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The bias governs suggestions; the operator may still override to any register.
+**Emotionally-heavy-thread bias.** When the thread is emotionally heavy (grief, conflict, a spiritual matter), bias interview suggestions away from roast-native registers (`cringe-verite`, `standup-observational`, `office-mockumentary`, `fourth-wall-antihero`) and toward `documentary`, `novella`, or `amblin-wonder`. Do not Seinfeld a funeral. The bias governs suggestions; the operator may still override to any register.
 
 **Style law.** No em dashes and no en dashes anywhere, including inside generated recaps, titles, and attribution lines. Hyphens and commas only.
 

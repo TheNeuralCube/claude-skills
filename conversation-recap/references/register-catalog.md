@@ -93,7 +93,7 @@ Table C holds the inspired-by strings for this family (the tradition or milieu i
 
 **Exemplar opening lines (Cinematic and franchise-flavored family):**
 
-- `simulation-noir`: You have felt it your whole working life, the small wrongness in the ordinary, the sense that the schedule is a story someone tells you. Today the story blinks.
+- `simulation-noir`: The barista wrote his name on the cup before he said it, and neither of them noticed. Outside, the crowd opened around him and closed again, precise as water. Whatever is running this has gotten very good at the small things, and only the small things ever slip.
 - `street-chronicle-90s`: This is for the block that raised him and the corner that watched him leave. Remember the names. The city already forgot half of them, and it should not have.
 - `amblin-wonder`: The porch lights were coming on one by one down the whole street, and none of the grown-ups knew yet that the ordinary night had already ended. The kids knew. The kids always know first.
 - `epic-quest`: The company set out with light hearts and heavy packs, and only one of them understood how far the road truly went. He said nothing, and shouldered a little more of the load.
