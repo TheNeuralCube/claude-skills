@@ -256,7 +256,7 @@ Each register gets exactly one original opening line, authored during Phase 2, m
 - Register-true. Demonstrably carries the DNA and native attitude of its entry (a reader could guess the register from the line).
 - Self-contained and content-neutral. Illustrates voice without depending on any specific thread, so it reads as a style sample.
 - Dash-free. No em dashes, no en dashes.
-- One to three sentences and under 60 words. It is an opening beat, not a paragraph. (Amended 2026-07-29 from "one sentence or two short sentences": several registers cannot demonstrate their voice inside two sentences, and the exemplar's job is to demonstrate the voice.)
+- Under 60 words. It is an opening beat, not a paragraph. (Amended 2026-07-29: the sentence-count half of this criterion is deleted, not widened. Sentence count is not a valid proxy for exemplar size, because register grammar varies by design and a staccato register is penalized for being itself. The word ceiling carries the requirement.)
 
 The build spec does not pre-author these 24 lines; authoring them is Phase 2 creative work governed by the criteria above. This is a documented deferral, not an empty field.
 
@@ -266,7 +266,7 @@ The build spec does not pre-author these 24 lines; authoring them is Phase 2 cre
 - AC14. Each register row carries all six data fields: DNA, narrative contract, native attitude, inspired-by string, touchstone string, exemplar line. No blanks.
 - AC15. Inspired-by strings match Tables A and B exactly; Table C matches the approved mapping (default or operator override).
 - AC15b. Touchstone strings match Table D exactly (all 24), and the SKILL.md interview section reads them for the picker presentation rule (label plus touchstone in parentheses).
-- AC16. Each exemplar line satisfies every criterion in Section 3.5, including the amended format criterion (one to three sentences and under 60 words); spot-check that no line reproduces a known character name, catchphrase, or quoted line.
+- AC16. Each exemplar line satisfies every criterion in Section 3.5, including the format criterion, which is the word ceiling only (under 60 words); spot-check that no line reproduces a known character name, catchphrase, or quoted line.
 - AC17. Preamble carries all four doctrines (constitution, register-integrity, no-Star-Trek exclusion, extensibility) plus the dash-free reminder.
 - AC18. Zero em dashes and zero en dashes in the entire file (automated grep check).
 - AC19. Native-attitude text preserves the roast-doctrine distinctions (roast-native registers stay roast-native; flatterers flatter; war-novella stays unsentimental).

@@ -81,15 +81,15 @@ Table C holds the inspired-by strings for this family (the tradition or milieu i
 
 | Slug | DNA | Narrative contract | Native attitude | Inspired-by (Table C) | Touchstone (Table D) |
 |------|-----|-------------------|-----------------|-----------------------|----------------------|
-| `simulation-noir` | Matrix-flavored cyberpunk | Reality-questioning frame; the mundane thread revealed as signal in the system; choices as red and blue forks | Cool, portentous, leather-jacket solemn | inspired by the cyberpunk tradition | Matrix-style |
+| `simulation-noir` | Matrix-flavored cyberpunk | Reality-questioning frame; the mundane thread revealed as signal in the system; choices as forks with no way back | Cool, portentous, leather-jacket solemn | inspired by the cyberpunk tradition | Matrix-style |
 | `street-chronicle-90s` | The world of 90s hip-hop (stories from that world, not real persons) | Block-level loyalty, rise-and-rivalry arcs, spoken-word narration cadence | Unflinching, loyal, elegiac | inspired by the world of 90s hip-hop | the world of 90s hip-hop |
 | `amblin-wonder` | ET-flavored 80s suburban wonder | Ordinary kid-height perspective on extraordinary events; bikes, cul-de-sacs, flashlights; awe over irony | Tender, wide-eyed | inspired by the 80s suburban wonder tradition | E.T.-style Amblin wonder |
 | `epic-quest` | LOTR-flavored high fantasy | Fellowship framing, burdens carried, maps and long roads; open loops as roads yet untraveled | Solemn, loyal, occasionally merry | inspired by the high fantasy quest tradition | Lord of the Rings-style |
 | `dark-vigilante` | Batman-register noir | Night city, obsession, the case as personal wound; justice versus vengeance undertow | Brooding, relentless | inspired by the caped-vigilante noir tradition | Batman-style |
 | `golden-age-hero` | Superman-register heroism | Bright, hopeful, principled; the thread's best version of everyone | Flattering, sincere, zero irony | inspired by the golden-age superhero tradition | Superman-style |
 | `fourth-wall-antihero` | Deadpool-register irreverence | Breaks the recap's own frame, mocks the skill itself, footnotes its own jokes | Roasts protagonist, author, AND the format | inspired by the fourth-wall-breaking antihero tradition | Deadpool-style |
-| `everyman-hero` | Spider-Man-register | Great-power-great-responsibility framing on small choices; quips under pressure; the hero is broke and late | Self-deprecating, warm | inspired by the everyman superhero tradition | Spider-Man-style |
-| `space-opera` | Star Wars-register | Opening-crawl framing device permitted; empires and rebellions mapped onto the thread's factions; lightsabers not included | Grand, mythic, a little pulpy | inspired by the space opera tradition | Star Wars-style |
+| `everyman-hero` | Spider-Man-register | Capability-creates-obligation framing on small choices; quips under pressure; the hero is broke and late | Self-deprecating, warm | inspired by the everyman superhero tradition | Spider-Man-style |
+| `space-opera` | Star Wars-register | Opening-crawl framing device permitted; empires and rebellions mapped onto the thread's factions; borrowed props not included | Grand, mythic, a little pulpy | inspired by the space opera tradition | Star Wars-style |
 
 **Exemplar opening lines (Cinematic and franchise-flavored family):**
 
