@@ -32,14 +32,14 @@ Diagnostic first. Every bleed pair below is cited before anything is proposed.
 
 | # | Bleed pair | Nature of the overlap | Evidence |
 |---|---|---|---|
-| B-01 | audit contains review | Audit's "Inefficiencies" and "Recommended issues list" sections restate review findings in plain language | [audit.md:52,54](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md) vs [review.md:16-17](../skills/nc3-data-core-sample-skill-v0-2/modes/review.md) |
-| B-02 | audit contains security | Audit's "Vulnerabilities" section covers security and non-security risk, duplicating the security lens at lower resolution | [audit.md:51](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md) vs [security.md:11-24](../skills/nc3-data-core-sample-skill-v0-2/modes/security.md) |
-| B-03 | audit contains survey | Audit's "Executive summary, how it works today" restates the as-built design spec in plain language | [audit.md:48](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md) vs [survey.md](../skills/nc3-data-core-sample-skill-v0-2/modes/survey.md) |
-| B-04 | audit contains itself | The lens renders its own findings twice: plain body, then "For your peers, technical appendix" in engineer vocabulary | [audit.md:58](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md) |
-| B-05 | security depends on review | Security borrows review's finding schema by cross-mode reference. A mode file depending on another mode file violates the thin-router single-source rule the skill claims | [security.md:21](../skills/nc3-data-core-sample-skill-v0-2/modes/security.md), rule claimed at [README.md:12](../skills/nc3-data-core-sample-skill-v0-2/README.md) |
-| B-06 | plan overlaps review | Review owns "recommended sequencing of fixes"; plan degrades into a roadmap section inside review when no objective is stated | [review.md:17](../skills/nc3-data-core-sample-skill-v0-2/modes/review.md), [SKILL.md:49](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md) |
-| B-07 | survey splits without a boundary | One lens emits two files (design spec, build spec) with no stated rule for what belongs in which | [SKILL.md:79](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md) |
-| B-08 | review and security merge question unresolved | Carried open since v0-1, still open at v0-2, with audit named as a further complication | [ROADMAP.md:13](../skills/nc3-data-core-sample-skill-v0-2/ROADMAP.md) |
+| B-01 | audit contains review | Audit's "Inefficiencies" and "Recommended issues list" sections restate review findings in plain language | [audit.md:52,54](../../skills/deep-analysis/modes/audit.md) vs [review.md:16-17](../../skills/deep-analysis/modes/review.md) |
+| B-02 | audit contains security | Audit's "Vulnerabilities" section covers security and non-security risk, duplicating the security lens at lower resolution | [audit.md:51](../../skills/deep-analysis/modes/audit.md) vs [security.md:11-24](../../skills/deep-analysis/modes/security.md) |
+| B-03 | audit contains survey | Audit's "Executive summary, how it works today" restates the as-built design spec in plain language | [audit.md:48](../../skills/deep-analysis/modes/audit.md) vs [survey.md](../../skills/deep-analysis/modes/survey.md) |
+| B-04 | audit contains itself | The lens renders its own findings twice: plain body, then "For your peers, technical appendix" in engineer vocabulary | [audit.md:58](../../skills/deep-analysis/modes/audit.md) |
+| B-05 | security depends on review | Security borrows review's finding schema by cross-mode reference. A mode file depending on another mode file violates the thin-router single-source rule the skill claims | [security.md:21](../../skills/deep-analysis/modes/security.md), rule claimed at [README.md:12](../../skills/deep-analysis/README.md) |
+| B-06 | plan overlaps review | Review owns "recommended sequencing of fixes"; plan degrades into a roadmap section inside review when no objective is stated | [review.md:17](../../skills/deep-analysis/modes/review.md), [SKILL.md:49](../../skills/deep-analysis/SKILL.md) |
+| B-07 | survey splits without a boundary | One lens emits two files (design spec, build spec) with no stated rule for what belongs in which | [SKILL.md:79](../../skills/deep-analysis/SKILL.md) |
+| B-08 | review and security merge question unresolved | Carried open since v0-1, still open at v0-2, with audit named as a further complication | [ROADMAP.md:13](../../skills/deep-analysis/ROADMAP.md) |
 
 ### Root cause
 
@@ -53,7 +53,7 @@ The six lenses are not orthogonal because the set mixes three independent variab
 
 `audit` is not a distinct question. It is `review` plus `security` plus `survey`, asked at a different register. Encoding a register as if it were a lens forces content duplication by construction, which is exactly what B-01 through B-04 are. The bleed is not sloppiness in the mode files; it is the predicted output of the architecture.
 
-Axis C is absent entirely, which is why the multi-artifact lens has sat deferred since v0-1 ([ROADMAP.md:11](../skills/nc3-data-core-sample-skill-v0-2/ROADMAP.md)).
+Axis C is absent entirely, which is why the multi-artifact lens has sat deferred since v0-1 ([ROADMAP.md:11](../../skills/deep-analysis/ROADMAP.md)).
 
 ---
 
@@ -77,7 +77,7 @@ An invocation resolves to a triple: `(lens set, register, scope)`.
 
 ### 2.2 Register, the reader written for
 
-New single-source reference: `references/register-contract.md`. Replaces the language rules currently embedded in [audit.md:15-22](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md).
+New single-source reference: `references/register-contract.md`. Replaces the language rules currently embedded in [audit.md:15-22](../../skills/deep-analysis/modes/audit.md).
 
 | Property | `machine` (default) | `human` |
 |---|---|---|
@@ -118,12 +118,12 @@ Presets are named triples. They are the operator-facing surface; lenses and regi
 
 Two of these are new capabilities, not repackaging:
 
-- **explain** is the operator's stated unmet need. Today the only route to plain language is `audit`, which mandates a letter grade, a vulnerabilities section, a deprecation report, and an issues list ([audit.md:44-62](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md)). An operator who wants to understand a technical repo in human terms is currently forced to receive a report card they did not ask for.
+- **explain** is the operator's stated unmet need. Today the only route to plain language is `audit`, which mandates a letter grade, a vulnerabilities section, a deprecation report, and an issues list ([audit.md:44-62](../../skills/deep-analysis/modes/audit.md)). An operator who wants to understand a technical repo in human terms is currently forced to receive a report card they did not ask for.
 - **consult** is the multi-target engineering-peer review that has no home today. It is the preset the 2026-07-24 consultant prompt was reaching for.
 
 ### 2.5 The grade module
 
-`audit` is more than register plus lenses; it adds judgments no other lens makes: the A to F vision grade, the over-engineering check, feature relevance and disposition, and the deprecation report ([audit.md:49-55](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md)). Those survive as a module, `references/grade-module.md`, appended when the `audit` preset runs. The module owns only what no lens owns. Everything the module used to restate now comes from the lens files at `register: human`.
+`audit` is more than register plus lenses; it adds judgments no other lens makes: the A to F vision grade, the over-engineering check, feature relevance and disposition, and the deprecation report ([audit.md:49-55](../../skills/deep-analysis/modes/audit.md)). Those survive as a module, `references/grade-module.md`, appended when the `audit` preset runs. The module owns only what no lens owns. Everything the module used to restate now comes from the lens files at `register: human`.
 
 Net effect on `modes/audit.md`: it shrinks from a 92-line lens that duplicates three other lenses to a preset definition plus a grading rubric.
 
@@ -158,15 +158,15 @@ Every finding type has exactly one owning lens. A finding is authored once, by i
 
 **Recommendation: do not merge.** Keep them separate lenses.
 
-Defense: security's finding schema needs exploitability times impact severity mapping and a trust-boundary model that review has no use for ([security.md:21,14](../skills/nc3-data-core-sample-skill-v0-2/modes/security.md)). Merging would either bloat review's schema for every run or lose the security-specific rigor. The actual complaint behind the open question is bleed, not redundancy, and the boundary contract addresses bleed directly.
+Defense: security's finding schema needs exploitability times impact severity mapping and a trust-boundary model that review has no use for ([security.md:21,14](../../skills/deep-analysis/modes/security.md)). Merging would either bloat review's schema for every run or lose the security-specific rigor. The actual complaint behind the open question is bleed, not redundancy, and the boundary contract addresses bleed directly.
 
-Consequence: B-05 is fixed by extracting the shared finding schema to `references/finding-schema.md`. Both lenses reference it; neither depends on the other. Security extends it with the exploitability mapping. No mode file references another mode file, restoring the thin-router discipline the README claims at [README.md:12](../skills/nc3-data-core-sample-skill-v0-2/README.md).
+Consequence: B-05 is fixed by extracting the shared finding schema to `references/finding-schema.md`. Both lenses reference it; neither depends on the other. Security extends it with the exploitability mapping. No mode file references another mode file, restoring the thin-router discipline the README claims at [README.md:12](../../skills/deep-analysis/README.md).
 
 ---
 
 ## 4. Effort-class posture: Fable-first, not Fable-exclusive
 
-The skill is already model-agnostic in letter: it declares `effort-class: frontier-max` and forbids naming models ([SKILL.md:26](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md)). What it lacks is a degradation path, which is what makes it read as exclusive.
+The skill is already model-agnostic in letter: it declares `effort-class: frontier-max` and forbids naming models ([SKILL.md:26](../../skills/deep-analysis/SKILL.md)). What it lacks is a degradation path, which is what makes it read as exclusive.
 
 ### 4.1 The degradation contract
 
@@ -201,13 +201,13 @@ This repository runs two naming generations simultaneously.
 | Old | `{prefix}-{name}-skill-v{MAJOR}-{MINOR}`, version in the directory name | `nc3-data-core-sample-skill-v0-2` |
 | New | Plain functional directory name, `version:` in YAML frontmatter, semver dots, no prefix | `session-handoff` (`0.1.0`), `project-context` (`0.7.0`), `conversation-recap` (specced at `0.1.0`) |
 
-Evidence: [session-handoff/SKILL.md:1-3](../skills/session-handoff/SKILL.md), [project-context/SKILL.md:1-3](../skills/project-context/SKILL.md), and the explicit ratification at [conversation-recap design spec:7,13-16](2026-07-17_conversation-recap_design-spec.md).
+Evidence: [session-handoff/SKILL.md:1-3](../../skills/session-handoff/SKILL.md), [project-context/SKILL.md:1-3](../../skills/project-context/SKILL.md), and the explicit ratification at [conversation-recap design spec:7,13-16](../conversation-recap/2026-07-17_design-spec.md).
 
 Core Sample is the last old-generation skill in the repository. The rename is therefore not cosmetic; it is the completion of a migration already ratified elsewhere. Doing it at v0-3 costs one bump. Deferring it means carrying a second generation indefinitely.
 
 ### 5.2 Rename candidates
 
-Assessed against five axes. Trigger precision matters more than usual here: this skill is deliberately scarce and expensive ([SKILL.md:15](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md)), so a name that resists casual firing is a feature.
+Assessed against five axes. Trigger precision matters more than usual here: this skill is deliberately scarce and expensive ([SKILL.md:15](../../skills/deep-analysis/SKILL.md)), so a name that resists casual firing is a feature.
 
 | Candidate | Plain intent | Trigger precision | Covers all lenses | Covers all artifact types | Collision risk |
 |---|---|---|---|---|---|
@@ -219,7 +219,7 @@ Assessed against five axes. Trigger precision matters more than usual here: this
 
 **RATIFIED 2026-07-24: `deep-analysis`.**
 
-Decisive evidence: the skill already calls itself this. [README.md:6](../skills/nc3-data-core-sample-skill-v0-2/README.md) opens with "A frontier-class deep-analysis skill" and the YAML description at [SKILL.md:3](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md) begins "Frontier-class deep-analysis sessions". The name is not an invention; it is the skill's own self-description promoted to the identifier. It also covers all three lens classes, describe, evaluate, and propose, which `teardown` does not.
+Decisive evidence: the skill already calls itself this. [README.md:6](../../skills/deep-analysis/README.md) opens with "A frontier-class deep-analysis skill" and the YAML description at [SKILL.md:3](../../skills/deep-analysis/SKILL.md) begins "Frontier-class deep-analysis sessions". The name is not an invention; it is the skill's own self-description promoted to the identifier. It also covers all three lens classes, describe, evaluate, and propose, which `teardown` does not.
 
 **Explicitly rejected: `deep-dive`.** It is the phrase the operator already says, which is the argument for it, and it is exactly why it is wrong. Naming an expensive frontier-tier skill after a phrase that appears in ordinary conversation invites over-triggering a scarce resource.
 
@@ -280,9 +280,9 @@ Rules enforced by the skeleton:
 | File | Status | Purpose |
 |---|---|---|
 | `references/deliverable-contract.md` | Change | Add `run-effort-class` and scope fields; point the consumer field at the register contract instead of defining registers inline |
-| `references/register-contract.md` | New | Single source for the two registers. Absorbs [audit.md:15-22](../skills/nc3-data-core-sample-skill-v0-2/modes/audit.md) |
+| `references/register-contract.md` | New | Single source for the two registers. Absorbs [audit.md:15-22](../../skills/deep-analysis/modes/audit.md) |
 | `references/boundary-contract.md` | New | Ownership table and the four anti-bleed rules |
-| `references/finding-schema.md` | New | The shared finding schema, extracted from [review.md:20-34](../skills/nc3-data-core-sample-skill-v0-2/modes/review.md) |
+| `references/finding-schema.md` | New | The shared finding schema, extracted from [review.md:20-34](../../skills/deep-analysis/modes/review.md) |
 | `references/grade-module.md` | New | The grading judgments that survive audit's demotion |
 | `references/evidence-protocol.md` | Change | Add the set-scope section and the content-as-data rule (section 8) |
 | `references/war-game-protocol.md` | Change | Add per-tier reductions from the degradation contract; add the register rule that war-game verdicts are rendered in the deliverable's register |
@@ -292,7 +292,7 @@ Rules enforced by the skeleton:
 
 ## 8. Security hardening: content as data
 
-Current state: the security lens correctly analyzes prompt-injection exposure in the target ([security.md:16](../skills/nc3-data-core-sample-skill-v0-2/modes/security.md)). The evidence protocol has no corresponding rule protecting the reading session itself.
+Current state: the security lens correctly analyzes prompt-injection exposure in the target ([security.md:16](../../skills/deep-analysis/modes/security.md)). The evidence protocol has no corresponding rule protecting the reading session itself.
 
 This matters because the skill's whole job is reading arbitrary artifacts at depth, including public repositories, fetched websites, and third-party document sets. New rule for `references/evidence-protocol.md`:
 
@@ -306,7 +306,7 @@ Severity: this is the one gap in the current design where the failure mode is si
 
 ## 9. Description budget: a hard constraint, measured
 
-The YAML description is at **1020 of 1024 characters**, verified 2026-07-24 by parsing [SKILL.md:3](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md). Four characters of headroom.
+The YAML description is at **1020 of 1024 characters**, verified 2026-07-24 by parsing [SKILL.md:3](../../skills/deep-analysis/SKILL.md). Four characters of headroom.
 
 v0-3 adds two lenses, two registers, and two presets. Addition is impossible. Required triage, in order:
 
@@ -326,14 +326,14 @@ Budget target for v0-3: **under 900 characters**, leaving real headroom for v0-4
 |---|---|
 | Existing deliverables reference `skill: nc3-data-core-sample-skill-v0-2` in frontmatter | Leave them. They are historical records. The new skill writes the new name; no rewrite of past artifacts. |
 | Operator muscle memory for "core sample this" | Retain "core sample this" as a trigger phrase in the description for at least v0-3 and v0-4, marked in the changelog as a legacy trigger with a removal target. |
-| `scripts/core_sample_checks.py` | Rename to match the skill; extend `LENS_TAGS` at [core_sample_checks.py:26](../skills/nc3-data-core-sample-skill-v0-2/scripts/core_sample_checks.py) with the new lens and register tags; add a register-conformance check. |
+| `scripts/core_sample_checks.py` | Rename to match the skill; extend `LENS_TAGS` at [core_sample_checks.py:26](../../skills/deep-analysis/scripts/deep_analysis_checks.py) with the new lens and register tags; add a register-conformance check. |
 | The stale duplicate at repo root | Out of scope for this spec, but noted: top-level `project-context/` is at `version: 0.6.0` while `skills/project-context/` is at `0.7.0`. The root copy is a stale fork, not an intentional second copy. Recommend deletion in a separate change. |
 
 ---
 
 ## 11. War game
 
-Applying the skill's own protocol to this spec, per [war-game-protocol.md](../skills/nc3-data-core-sample-skill-v0-2/references/war-game-protocol.md).
+Applying the skill's own protocol to this spec, per [war-game-protocol.md](../../skills/deep-analysis/references/war-game-protocol.md).
 
 ### 11.1 Red team of the top findings
 
@@ -341,9 +341,9 @@ Applying the skill's own protocol to this spec, per [war-game-protocol.md](../sk
 |---|---|---|---|
 | 1 | The register axis is the right fix for the bleed | Two selectors is more machinery than six lenses. The operator has used the skill heavily and is happy; the bleed may be a drafting problem that a careful edit of `audit.md` fixes for a fraction of the cost. Over-engineering is exactly what the audit lens exists to catch, and this spec proposes an architecture change to a system the operator says works. | **Survives, narrowed.** The decisive evidence is not the bleed, it is the missing capability: the operator asked for plain-language understanding without a report card, and no edit to `audit.md` produces that. The register axis is justified by `explain`, and the bleed fix is the dividend. If `explain` is cut, this recommendation should be re-examined. |
 | 2 | `teardown` is the right name | Rename cost is real and the benefit is aesthetic. Every existing deliverable, any operator documentation, and muscle memory all reference the old name. "Core sample" is unusual, which aids recall rather than harming it. | **Survives, on the migration argument only.** The naming case alone would not justify the cost. The two-generation finding does: the repo has already ratified the new standard and Core Sample is the last holdout. Rename because the migration is owed, and pick a better name while the file is open. |
-| 3 | Two new lenses, determinism and ecosystem, should ship in v0-3 | The roadmap says v0-2 is unproven and the path to v1-0 is real-target runs, not more lenses ([ROADMAP.md:19-23](../skills/nc3-data-core-sample-skill-v0-2/ROADMAP.md)). Adding two speculative lenses at the same bump as an architecture change and a rename risks shipping three unproven things at once. | **Demoted.** Recommend splitting: v0-3 ships the rename, the register axis, the boundary contract, and the degradation contract. The two new lenses ship at v0-4 after `explain` and `audit` are proved under the new architecture. Recorded as decision D-05. |
+| 3 | Two new lenses, determinism and ecosystem, should ship in v0-3 | The roadmap says v0-2 is unproven and the path to v1-0 is real-target runs, not more lenses ([ROADMAP.md:19-23](../../skills/deep-analysis/ROADMAP.md)). Adding two speculative lenses at the same bump as an architecture change and a rename risks shipping three unproven things at once. | **Demoted.** Recommend splitting: v0-3 ships the rename, the register axis, the boundary contract, and the degradation contract. The two new lenses ship at v0-4 after `explain` and `audit` are proved under the new architecture. Recorded as decision D-05. |
 | 4 | The degradation contract makes the skill genuinely multi-tier | Declaring a supported tier does not make output at that tier good. Without a run at the supported tier, the reductions in section 4.1 are guesses about where quality actually breaks. | **Survives as provisional.** The contract ships with its reduction thresholds marked as unvalidated, to be corrected after the first supported-tier run. Better a declared and testable degradation path than an implicit one. |
-| 5 | Content-as-data belongs in the evidence protocol | The skill only reads and never writes to the target ([SKILL.md:71](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md)), so injection has a small blast radius. | **Survives.** The blast radius is the deliverable, and the deliverable is written to be consumed cold by cheaper sessions that will act on it. A poisoned analysis is a supply-chain problem one step removed, which is worse than a direct one because it is not visible at the point of harm. |
+| 5 | Content-as-data belongs in the evidence protocol | The skill only reads and never writes to the target ([SKILL.md:71](../../skills/deep-analysis/SKILL.md)), so injection has a small blast radius. | **Survives.** The blast radius is the deliverable, and the deliverable is written to be consumed cold by cheaper sessions that will act on it. A poisoned analysis is a supply-chain problem one step removed, which is worse than a direct one because it is not visible at the point of harm. |
 
 ### 11.2 Pre-mortem
 
@@ -392,25 +392,25 @@ Ran. Removed a section restating the current architecture, which the orchestrato
 
 ## 13. D-04 expanded: does the plan lens belong in this skill
 
-Added 2026-07-24 after reading [modes/plan.md](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) in full. The full read strengthened the case for keeping the lens and changed the recommendation from "may belong in a separate skill" to "reclassify, do not split."
+Added 2026-07-24 after reading [modes/plan.md](../../skills/deep-analysis/modes/plan.md) in full. The full read strengthened the case for keeping the lens and changed the recommendation from "may belong in a separate skill" to "reclassify, do not split."
 
 ### 13.1 What makes plan structurally unlike the other lenses
 
 | # | Property unique to plan | Evidence |
 |---|---|---|
-| 1 | It is the only lens with a precondition. Every other lens runs on "here is an artifact"; plan needs a second input, an operator-stated objective | [plan.md:3-5](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) |
-| 2 | It is the only lens that can fail to produce its own deliverable and instead fold itself into another lens's file | [plan.md:5](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) |
-| 3 | Its subject is future work, not the artifact. Module maps, dependency gates, and sequencing describe a build that does not exist yet; the artifact is an input, not the thing being described | [plan.md:19-22](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) |
-| 4 | Its quality bar measures whether a future build succeeds, not whether the analysis is correct | [plan.md:36](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) vs [review.md:46](../skills/nc3-data-core-sample-skill-v0-2/modes/review.md) |
-| 5 | It permanently overlaps review, and the degradation rule makes that overlap official rather than accidental | [plan.md:5](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md), [review.md:17](../skills/nc3-data-core-sample-skill-v0-2/modes/review.md) |
+| 1 | It is the only lens with a precondition. Every other lens runs on "here is an artifact"; plan needs a second input, an operator-stated objective | [plan.md:3-5](../../skills/deep-analysis/modes/plan.md) |
+| 2 | It is the only lens that can fail to produce its own deliverable and instead fold itself into another lens's file | [plan.md:5](../../skills/deep-analysis/modes/plan.md) |
+| 3 | Its subject is future work, not the artifact. Module maps, dependency gates, and sequencing describe a build that does not exist yet; the artifact is an input, not the thing being described | [plan.md:19-22](../../skills/deep-analysis/modes/plan.md) |
+| 4 | Its quality bar measures whether a future build succeeds, not whether the analysis is correct | [plan.md:36](../../skills/deep-analysis/modes/plan.md) vs [review.md:46](../../skills/deep-analysis/modes/review.md) |
+| 5 | It permanently overlaps review, and the degradation rule makes that overlap official rather than accidental | [plan.md:5](../../skills/deep-analysis/modes/plan.md), [review.md:17](../../skills/deep-analysis/modes/review.md) |
 
 ### 13.2 The steelman for keeping it, which wins
 
 | # | Argument | Weight |
 |---|---|---|
-| 1 | A plan grounded in a completed frontier read cites real paths and real interfaces rather than guessing at them. Splitting the lens into its own skill means either re-reading the artifact, which violates the skill's own shared-evidence rule, or working from a survey deliverable at reduced fidelity | Decisive. [plan.md:28](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) |
-| 2 | The skill's thesis is scarcity: pay for one expensive read, extract everything. Once the read is paid for, the plan is nearly free. A separate skill makes the operator pay twice | Strong. [SKILL.md:15,27](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md) |
-| 3 | Per-module effort-class assignment requires frontier judgment about what needs frontier judgment. That is a frontier-tier task and belongs in a frontier-tier skill | Strong. [plan.md:21](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) |
+| 1 | A plan grounded in a completed frontier read cites real paths and real interfaces rather than guessing at them. Splitting the lens into its own skill means either re-reading the artifact, which violates the skill's own shared-evidence rule, or working from a survey deliverable at reduced fidelity | Decisive. [plan.md:28](../../skills/deep-analysis/modes/plan.md) |
+| 2 | The skill's thesis is scarcity: pay for one expensive read, extract everything. Once the read is paid for, the plan is nearly free. A separate skill makes the operator pay twice | Strong. [SKILL.md:15,27](../../skills/deep-analysis/SKILL.md) |
+| 3 | Per-module effort-class assignment requires frontier judgment about what needs frontier judgment. That is a frontier-tier task and belongs in a frontier-tier skill | Strong. [plan.md:21](../../skills/deep-analysis/modes/plan.md) |
 
 ### 13.3 Recommendation
 
@@ -425,7 +425,7 @@ Under the section 2 architecture, lenses fall into two classes, describe and eva
 
 ### 13.4 Adjacent finding, separate from D-04
 
-[plan.md:19](../skills/nc3-data-core-sample-skill-v0-2/modes/plan.md) specifies that the module map "mirrors the operator's SDD-to-build-spec lifecycle." That is operator-specific process baked into a skill published under Apache 2.0. A third-party adopter has no such lifecycle and no way to resolve the reference. The same pattern appears elsewhere in the skill, where Open Brain, the wellhead, and the harness are named as if universal ([SKILL.md:15,90](../skills/nc3-data-core-sample-skill-v0-2/SKILL.md)).
+[plan.md:19](../../skills/deep-analysis/modes/plan.md) specifies that the module map "mirrors the operator's SDD-to-build-spec lifecycle." That is operator-specific process baked into a skill published under Apache 2.0. A third-party adopter has no such lifecycle and no way to resolve the reference. The same pattern appears elsewhere in the skill, where Open Brain, the wellhead, and the harness are named as if universal ([SKILL.md:15,90](../../skills/deep-analysis/SKILL.md)).
 
 **RESOLVED 2026-07-24 as D-08.** Third-party adoption is not a goal; the public repo is a portfolio and archive surface. Operator-specific references stay as written and are not abstracted. The build must not spend effort genericizing them. Documenting the SDD-to-build-spec lifecycle is worthwhile on its own merits and is tracked as separate repo work, outside this build.
 
