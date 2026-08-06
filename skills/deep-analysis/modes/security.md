@@ -2,7 +2,7 @@
 
 ## Deliverable
 
-`{date}_{slug}_security-review_core-sample.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `security`.
+`{date}_{slug}_security-review_deep-analysis.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `security`.
 
 ## Consumer
 

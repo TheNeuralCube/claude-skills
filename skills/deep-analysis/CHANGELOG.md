@@ -2,9 +2,22 @@
 <!-- Copyright 2026 Raul J. Soto -->
 # Changelog
 
-All notable changes to the nc3-data-core-sample-skill will be documented in this file.
+All notable changes to `deep-analysis` will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on the Neural Cube `v{MAJOR}-{MINOR}` scheme (dash, not dot), owned by the conventions skill; every new skill starts at `v0-1` and earns `v1-0` after real use and an eval pass.
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on dotted semver declared in the SKILL.md frontmatter; it earns `1.0.0` after real use and an eval pass. Releases before `0.2.0` used the retired `v{MAJOR}-{MINOR}` directory-suffix scheme and are recorded below under their original labels.
+
+## [0.2.0] - 2026-08-06
+
+### Changed
+
+- **Renamed to `deep-analysis`.** Directory, YAML `name`, and H1 move together from `nc3-data-core-sample-skill-v0-2`. The version leaves the directory name and is declared as `version: 0.2.0` in the SKILL.md frontmatter, completing the repo's migration to the current naming standard. Ratified in `docs/deep-analysis/2026-07-24_design-spec.md` (decision D-01).
+- **Output filename suffix** is now `_deep-analysis.md`; the deliverable contract's `skill` field is now `deep-analysis`.
+- **`scripts/core_sample_checks.py` renamed** to `scripts/deep_analysis_checks.py`.
+- **Legacy triggers retained.** The "core sample this" trigger phrases still fire, per the design spec's migration mitigation.
+
+### Note on scope
+
+This release is the rename only. The `0.3.0` architecture restructure specified in `docs/deep-analysis/2026-07-24_build-spec.md` (three orthogonal selectors, register axis, boundary and degradation contracts, `determinism` and `ecosystem` lenses) is unshipped and remains scheduled for `0.3.0`.
 
 ## [v0-2] - 2026-07-08
 

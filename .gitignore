@@ -100,7 +100,15 @@ scratch/
 local/
 private/
 _build_inputs/
-# Skill release archives and release notes (build artifacts, never tracked)
+# ...but keep the scratch folder's README so the folder survives a fresh clone
+!_build_inputs/README.md
+
+# Build outputs: packaged skills and release notes are never tracked.
+# Releases are built by scripts/build-skill.ps1 into dist/ and uploaded to
+# GitHub Releases. Release notes live in the Release body + the skill CHANGELOG.
+dist/
 *.skill
+*.skill.zip
+MANIFEST.sha256
 /release-notes.md
 /*-release-notes.md

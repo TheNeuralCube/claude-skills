@@ -6,7 +6,7 @@ An operator-stated objective is required. Absent one, do NOT emit a standalone p
 
 ## Deliverable
 
-`{date}_{slug}_plan_core-sample.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `plan`.
+`{date}_{slug}_plan_deep-analysis.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `plan`.
 
 ## Consumer
 

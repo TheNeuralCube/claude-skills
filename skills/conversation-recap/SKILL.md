@@ -1,15 +1,23 @@
 ---
 name: conversation-recap
-version: 0.1.0
-description: Generate low-fidelity NARRATIVE conversation recaps ("Previously On..." format) that re-immerse the operator in a stale conversation or project thread: narrative arc, insights, and open loops as cliffhangers, at minimal cognitive cost. Trigger on: 'previously on', 'catch me up', 'recap me in', 'what did I miss', 'reimmerse me', 'season recap this thread', 'where did we leave off with [topic]', 'Seinfeld me', 'war novella recap', or any request for an entertaining low-fidelity recap in a named register. Runs a short mood interview (register + tier: teaser/cold-open/season-recap), then generates per the register catalog. NOT for machine-readable state (use session-handoff) or structured summaries (use nc3-session-recap-skill).
+version: 0.1.1
+description: >-
+  Generate low-fidelity NARRATIVE conversation recaps ("Previously On..." format) that
+  re-immerse the operator in a stale conversation or project thread: narrative arc, insights,
+  and open loops as cliffhangers, at minimal cognitive cost. Trigger on: 'previously on', 'catch
+  me up', 'recap me in', 'what did I miss', 'reimmerse me', 'season recap this thread', 'where
+  did we leave off with [topic]', 'Seinfeld me', 'war novella recap', or any request for an
+  entertaining low-fidelity recap in a named register. Runs a short mood interview (register +
+  tier: teaser/cold-open/season-recap), then generates per the register catalog. NOT for
+  machine-readable state (use session-handoff) or structured agent-consumable summaries.
 ---
 
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# conversation-recap (v0.1.0)
+# conversation-recap
 
-This skill is the low-fidelity, narrative bottom rung of the continuity fidelity ladder. Its two ladder siblings restore machine state: `session-handoff` carries full state under a YAML contract, and `nc3-session-recap-skill` carries a structured, agent-consumable summary. This skill restores something they do not: the operator's appetite and orientation, delivered as a story. The functional skill name is `conversation-recap` so agents discover it by purpose; "Previously On" is the product brand and appears only in the output title card and the trigger phrases. The siblings restore state; this one restores the operator's appetite to resume. State is what the thread contained; appetite is whether the operator wants back in.
+This skill is the low-fidelity, narrative bottom rung of the continuity fidelity ladder. The rungs above it restore machine state: `session-handoff` carries full state under a YAML contract, and a structured-summary skill carries an agent-consumable digest. This skill restores something they do not: the operator's appetite and orientation, delivered as a story. The functional skill name is `conversation-recap` so agents discover it by purpose; "Previously On" is the product brand and appears only in the output title card and the trigger phrases. The siblings restore state; this one restores the operator's appetite to resume. State is what the thread contained; appetite is whether the operator wants back in.
 
 ## When to use this skill
 
@@ -19,10 +27,10 @@ Trigger phrases: "previously on", "catch me up", "recap me in [register]", "what
 
 This skill is NOT for:
 - Machine-readable working state (decisions, file paths, schema, configs). Route to `session-handoff`.
-- Structured, agent-consumable summaries. Route to `nc3-session-recap-skill`.
-- Reflective personal records. Route to `per-jrn-journal-entry`.
+- Structured, agent-consumable summaries. Route to the operator's structured-summary skill; none ships in this repo.
+- Reflective personal records. Route to the operator's journaling skill; none ships in this repo.
 
-If the operator needs any of those, name the right skill and stop; do not smuggle machine state into a narrative recap.
+If the operator needs any of those, say so and stop; do not smuggle machine state into a narrative recap.
 
 ## Execution flow
 
@@ -105,7 +113,7 @@ After delivery, run a one-line check that the length and register landed. If the
 
 Default delivery is in-chat and ephemeral. This is entertainment, not archive; do not save unless asked.
 
-On an explicit save request only, name the file per the Output Artifact Filename Convention in `nc3-meta-conventions-skill-v0-2` (referenced, not restated here):
+On an explicit save request only, name the file per the Output Artifact Filename Convention: a date prefix, underscore top-level delimiters, and a single hyphenated skill suffix.
 
 ```
 {YYYY}-{MM}-{DD}_{Topic_Words}-{register-slug}-{tier}_conversation-recap.md
@@ -117,6 +125,7 @@ Suffix: `conversation-recap`. Example: `2026-07-17_The_Command-standup-observati
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.1.1 | 2026-08-06 | Housekeeping. Moved from the repo root into `skills/`; invalid YAML description converted to a folded block scalar; references to non-public skills removed; the four required per-skill documents added. No behavior change. |
 | 0.1.0 | 2026-07-17 | Initial build per 2026-07-17 design spec. |
 
 ## Help
@@ -156,7 +165,7 @@ Protocol instructions. The following are non-negotiable and carry into every gen
 
 **Style law.** No em dashes and no en dashes anywhere, including inside generated recaps, titles, and attribution lines. Hyphens and commas only.
 
-**Related skills:** `session-handoff` (machine state), `nc3-session-recap-skill` (structured summary), `nc3-meta-conventions-skill-v0-2` (naming, versioning, and filename conventions; referenced, not restated).
+**Related skills:** `session-handoff` (machine state, published in this repo). A structured, agent-consumable summary sits between the two rungs; no such skill ships in this repo, so route those requests to whatever structured-summary skill the operator has installed.
 
 **Execution sequence:** TRIGGER, SOURCE, INTERVIEW, TIER CALL, GENERATE, DEBRIEF, OPTIONAL SAVE. Collapse the interview for any parameter the operator specified at invocation.
 

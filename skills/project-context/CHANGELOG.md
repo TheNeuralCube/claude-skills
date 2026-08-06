@@ -9,6 +9,19 @@ and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 The skill version (e.g., `0.5.0`) tracks releases. Beginning with v0.4.0, the **schema version** (`schema_version` in every file's frontmatter) is **decoupled** from the skill version. The schema version bumps only when the shape of stored data changes; the skill version bumps on every release. See `references/schema-changelog.md` for the version-by-version history of the data schema.
 
+## [0.7.1] - 2026-08-06
+
+Housekeeping release. No behavior change and no schema change: `schema_version` stays `"0.5"`.
+
+### Fixed
+
+- **Invalid YAML frontmatter.** The `description` was an unquoted plain scalar containing `": "`, which a strict YAML parser rejects. Converted to a folded block scalar (`>-`), matching `session-handoff`. The skill loaded before only because the platform loader is lenient.
+
+### Changed
+
+- **Version removed from the SKILL.md H1 heading.** It read `# project-context (v0.7.0)`; the version now lives only in the frontmatter `version` field, per the repository's naming standard.
+- **Redundant per-skill `LICENSE` removed.** The repository-root `LICENSE` and `NOTICE` cover every skill; this was the only skill carrying a duplicate copy.
+
 ## [0.7.0] — 2026-06-09
 
 This release consolidates the cancelled standalone v0.6.1 patch (the operation-start model advisory and the end-of-run set-integrity directive) and ships them at full fidelity alongside the schema-0.5 work, rather than as a generic micro-patch later replaced.

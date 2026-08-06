@@ -2,17 +2,17 @@
 <!-- Copyright 2026 Raul J. Soto -->
 # Roadmap
 
-Deferred items and future direction for nc3-data-core-sample-skill. Nothing here is committed; the list records intent and the conditions under which each item would be taken up.
+Deferred items and future direction for deep-analysis. Nothing here is committed; the list records intent and the conditions under which each item would be taken up.
 
 ## Deferred from v0-1
 
 | Item | Disposition |
 |---|---|
 | Comparative multi-artifact lens | Candidate. v0-1 is single-target per session; cross-artifact comparison is a future lens, out of scope now. |
-| `scripts/` for mechanical helpers | Shipped in v0-2 as `scripts/core_sample_checks.py`: dash purity, description length, gap_count agreement, and deliverable filename generation. Further helpers are added as patterns stabilize across real runs. |
+| `scripts/` for mechanical helpers | Shipped in v0-2 as `scripts/deep_analysis_checks.py`: dash purity, description length, gap_count agreement, and deliverable filename generation. Further helpers are added as patterns stabilize across real runs. |
 | review and security merge decision | Open question. Still unresolved at v0-2 (no real security run yet); decide at the next bump. The audit lens added in v0-2 overlaps both at operator altitude, one more input to the boundary decision. [INFORMATION GAP: operator preference after first security run] |
-| Automatic Open Brain capture | Out of scope. The wellhead owns capture; Core Sample only formats compatibly and suggests the chain. |
-| Standing scheduler integration | Out of scope now. Harness reconciliation may invoke Core Sample later. |
+| Automatic Open Brain capture | Out of scope. The wellhead owns capture; deep-analysis only formats compatibly and suggests the chain. |
+| Standing scheduler integration | Out of scope now. Harness reconciliation may invoke deep-analysis later. |
 
 ## Conditions for v1-0
 

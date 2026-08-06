@@ -2,7 +2,7 @@
 
 ## Deliverable
 
-`{date}_{slug}_craft-study_core-sample.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `craft`.
+`{date}_{slug}_craft-study_deep-analysis.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `craft`.
 
 ## Consumer
 

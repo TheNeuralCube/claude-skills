@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Deterministic conformance checks for Core Sample skill files and deliverables.
+"""Deterministic conformance checks for deep-analysis skill files and deliverables.
 
 Usage:
-  python core_sample_checks.py check <file> [<file> ...]
-  python core_sample_checks.py filename --date YYYY-MM-DD --slug <target-slug> --lens <lens-tag>
+  python deep_analysis_checks.py check <file> [<file> ...]
+  python deep_analysis_checks.py filename --date YYYY-MM-DD --slug <target-slug> --lens <lens-tag>
 
 The check command runs every applicable check on each file and exits nonzero on
 any failure. Checks applied per file:
@@ -13,7 +13,7 @@ any failure. Checks applied per file:
                count of [INFORMATION GAP: markers in the body
 
 The filename command prints a deliverable filename conforming to
-{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md and validates its parts.
+{YYYY-MM-DD}_{target-slug}_{lens-tag}_deep-analysis.md and validates its parts.
 """
 import argparse
 import re
@@ -101,7 +101,7 @@ def cmd_filename(args):
     if args.lens not in LENS_TAGS:
         print(f"lens must be one of {', '.join(LENS_TAGS)}, got {args.lens!r}")
         return 1
-    print(f"{args.date}_{args.slug}_{args.lens}_core-sample.md")
+    print(f"{args.date}_{args.slug}_{args.lens}_deep-analysis.md")
     return 0
 
 

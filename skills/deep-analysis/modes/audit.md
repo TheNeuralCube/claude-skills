@@ -2,7 +2,7 @@
 
 ## Deliverable
 
-`{date}_{slug}_audit_core-sample.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `audit`.
+`{date}_{slug}_audit_deep-analysis.md`, frontmatter and conventions per [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `audit`.
 
 ## Consumer
 

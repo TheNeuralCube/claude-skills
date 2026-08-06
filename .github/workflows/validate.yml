@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Raul J. Soto
+#
+# Enforces the repository contract in CLAUDE.md on every pull request.
+#
+# This exists because the rules it checks were all broken at least once while
+# they were only written down: a skill published to the repository root, a
+# version baked into a directory name, invalid YAML frontmatter that the
+# platform loader happened to tolerate, and a README index left stale across
+# releases. A rule a machine does not check is a suggestion.
+
+name: validate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Repository conformance
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      - name: Validate repository against CLAUDE.md
+        run: python scripts/validate-repo.py
+
+  build:
+    name: Package every skill
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install PyYAML
+        run: pip install pyyaml
+
+      # Proves every skill still packages cleanly, so a broken build is caught
+      # in review rather than during a release.
+      - name: Build all skills
+        shell: pwsh
+        run: ./scripts/build-skill.ps1 -All
+
+      - name: Upload packaged skills
+        uses: actions/upload-artifact@v4
+        with:
+          name: skills-dist
+          path: dist/
+          retention-days: 14

@@ -1,5 +1,6 @@
 ---
-name: nc3-data-core-sample-skill-v0-2
+name: deep-analysis
+version: 0.2.0
 description: "Frontier-class deep-analysis sessions: hand it an artifact (codebase, repo, doc set, website, architecture, product) for one maximum-extraction pass; emits dense machine-readable deliverables for execution-class models and Open Brain ingestion. Trigger on: 'core sample this', 'run a core sample', 'deep dive this repo/code/site/doc', 'full assay', 'as-built spec this', 'reverse engineer this for learning', 'craft study', 'document how this system works', 'review this codebase', 'find issues in this code', 'security review this', 'war game a plan for X', 'audit this system', 'grade my harness', 'evaluate my setup', 'report-card this', 'how good is what I built', 'should I be embarrassed to show this to real engineers'. Lenses: survey (as-built specs), craft (style study), review (findings), security, plan (war-gamed), audit (operator-class report card). Default: survey+review. Posture: read everything, gap the unresolvable, war-game recommendations, zero fluff. Outputs use effort classes, never model names."
 owner: '@raul-soto'
 sensitivity: internal
@@ -8,17 +9,18 @@ effort-class: frontier-max
 tags: [analysis, deep-dive, as-built, security-review, code-review, handoff, frontier]
 ---
 
-# Core Sample -- nc3-data-core-sample-skill-v0-2
+# deep-analysis
 
 ## Purpose
 
-Core Sample is the skill an expensive, rarely-run, frontier-class session executes when the operator hands it an artifact and says some form of "core sample this." The session performs maximum-value extraction in one pass: read everything, analyze through one or more declared lenses, war-game its own conclusions, and emit dense machine-readable deliverables consumed cold by cheaper execution-class models and ingested into the harness and Open Brain. Defining constraints: the session is scarce, the deliverable is a handoff, fluff is a defect, and every plan survives an adversarial pass before it ships.
+deep-analysis is the skill an expensive, rarely-run, frontier-class session executes when the operator hands it an artifact and says some form of "core sample this." The session performs maximum-value extraction in one pass: read everything, analyze through one or more declared lenses, war-game its own conclusions, and emit dense machine-readable deliverables consumed cold by cheaper execution-class models and ingested into the harness and Open Brain. Defining constraints: the session is scarce, the deliverable is a handoff, fluff is a defect, and every plan survives an adversarial pass before it ships.
 
 ## Version history
 
 | Version | Date | Changes |
 |---|---|---|
-| v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. Also added scripts/core_sample_checks.py (deterministic conformance checks), references/acceptance-checks.md (in-repo acceptance checklist), and assets/audit-voice-example.md (audit voice calibration excerpt). |
+| 0.2.0 | 2026-08-06 | Renamed from `nc3-data-core-sample-skill-v0-2` to `deep-analysis`; version moved out of the directory name and into this frontmatter as dotted semver. Output suffix is now `_deep-analysis.md`; the checks script is now `scripts/deep_analysis_checks.py`. Legacy "core sample this" triggers retained. Rename only: the 0.3.0 architecture restructure is unshipped. |
+| v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. Also added scripts/deep_analysis_checks.py (deterministic conformance checks), references/acceptance-checks.md (in-repo acceptance checklist), and assets/audit-voice-example.md (audit voice calibration excerpt). |
 | v0-1 | 2026-07-07 | Initial release, built from the 2026-07-07 crescent-harness deep-dive session. |
 
 ## Effort-class posture
@@ -57,7 +59,7 @@ Dispatch rules:
 3. Full evidence read: diagnostic-first, complete read per artifact type, citations accumulate ([references/evidence-protocol.md](references/evidence-protocol.md)).
 4. Analysis per lens: render each selected lens from the shared evidence base per its mode file in [modes/](modes/).
 5. War-game pass, mandatory: execute [references/war-game-protocol.md](references/war-game-protocol.md); results are written into each deliverable.
-6. Handoff packaging: emit files per the filename convention below and the contract in [references/deliverable-contract.md](references/deliverable-contract.md); verify every produced file with `python scripts/core_sample_checks.py check <files>` (dash purity, description length, gap_count agreement, filename conformance); close with a short chat summary (deliverables list, top three findings, war-game verdicts), no walkthrough prose.
+6. Handoff packaging: emit files per the filename convention below and the contract in [references/deliverable-contract.md](references/deliverable-contract.md); verify every produced file with `python scripts/deep_analysis_checks.py check <files>` (dash purity, description length, gap_count agreement, filename conformance); close with a short chat summary (deliverables list, top three findings, war-game verdicts), no walkthrough prose.
 7. Ecosystem chaining: suggest, never force (see below).
 
 Mid-flight checkpoint rule: if context pressure threatens completion, produce a session-handoff checkpoint BEFORE quality degrades, prioritizing evidence notes with citations over finished prose.
@@ -68,11 +70,11 @@ Mid-flight checkpoint rule: if context pressure threatens completion, produce a 
 2. Every claim traceable to a citation or explicitly gapped; never plausible filler.
 3. War-game section mandatory wherever the protocol says it applies; a missing war-game section is a failed run.
 4. Effort classes only; never model names, in this skill or in any output.
-5. Core Sample never modifies the target artifact. It analyzes and plans only.
+5. deep-analysis never modifies the target artifact. It analyzes and plans only.
 
 ## Output filenames
 
-Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`
+Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_deep-analysis.md`
 
 | Lens | Lens tag(s) |
 |---|---|
@@ -83,7 +85,7 @@ Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`
 | plan | `plan` |
 | audit | `audit` |
 
-The date prefix, underscore top-level delimiters, and the single human-readable hyphenated suffix `core-sample` conform to the Output Artifact Filename Convention in nc3-meta-conventions-skill; consult that skill for the convention's rules rather than restating them here.
+The date prefix, underscore top-level delimiters, and the single human-readable hyphenated suffix `deep-analysis` are the Output Artifact Filename Convention in full. Generate and validate names with `python scripts/deep_analysis_checks.py filename --date YYYY-MM-DD --slug <target-slug> --lens <lens-tag>` rather than composing them by hand.
 
 ## Ecosystem chaining
 
@@ -93,7 +95,7 @@ At close, suggest once (operator's session-hygiene rule, never force): run sessi
 
 ### For the Operator
 
-Core Sample turns one expensive frontier session into durable, machine-readable knowledge about any artifact: a codebase, repo, document set, website, architecture, or product. Trigger it with "core sample this", "deep dive this repo", "full assay", "security review this", or similar. Pick lenses from: survey (as-built design + build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed execution plan), audit (a plain-language whole-system report card written for you rather than for a downstream model); say nothing and you get survey + review; say "full assay" for the five analysis lenses (audit is requested explicitly). Expect: one clarifying question at most, a deep full read of the artifact (that depth is the point of the cost), and one or more dense markdown files named `{date}_{target}_{lens}_core-sample.md`. The outputs are written for cheaper execution-class models and for harness/Open Brain ingestion, so they are deliberately explicit and table-heavy rather than conversational.
+deep-analysis turns one expensive frontier session into durable, machine-readable knowledge about any artifact: a codebase, repo, document set, website, architecture, or product. Trigger it with "core sample this", "deep dive this repo", "full assay", "security review this", or similar. Pick lenses from: survey (as-built design + build specs), craft (engineering style study), review (prioritized findings), security, plan (war-gamed execution plan), audit (a plain-language whole-system report card written for you rather than for a downstream model); say nothing and you get survey + review; say "full assay" for the five analysis lenses (audit is requested explicitly). Expect: one clarifying question at most, a deep full read of the artifact (that depth is the point of the cost), and one or more dense markdown files named `{date}_{target}_{lens}_deep-analysis.md`. The outputs are written for cheaper execution-class models and for harness/Open Brain ingestion, so they are deliberately explicit and table-heavy rather than conversational.
 
 ### For the Agent
 
