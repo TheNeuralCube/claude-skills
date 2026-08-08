@@ -1,14 +1,14 @@
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# nc3-data-core-sample-skill-v0-2
+# deep-analysis
 
 A frontier-class deep-analysis skill. Hand it one artifact (a codebase, repo, document set, website, architecture, or product) and it performs a single maximum-extraction pass, then emits dense, machine-readable deliverables written to be consumed cold by cheaper execution-class models and ingested into a harness or Open Brain pipeline.
 
-The name extends the Neural Cube Black Gold family: a core sample drills a deep column through an existing formation and brings the strata up for analysis.
+The name is the skill's own self-description promoted to an identifier. It replaces the genesis name `nc3-data-core-sample-skill-v0-2`, which extended the Neural Cube Black Gold drilling metaphor rather than describing the work. The legacy "core sample this" trigger phrases are retained.
 
 - **License:** Apache 2.0 (SPDX headers on repo wrapper files; skill-generated deliverables carry their own frontmatter, no SPDX).
-- **Skill version:** v0-2. Pre-production. Earns v1-0 after use on 2 or 3 real targets and an eval pass.
+- **Skill version:** 0.2.0, declared in the SKILL.md frontmatter. Pre-production. Earns 1.0.0 after use on 2 or 3 real targets and an eval pass.
 - **Structure:** thin router. Root SKILL.md dispatches; execution logic lives per lens in `modes/`; shared contracts live once each in `references/`.
 - **Effort class:** declares `frontier-max` for itself, never a model name. Outputs declare effort classes only.
 
@@ -38,7 +38,7 @@ All selected lenses render from one evidence base. The artifact is never re-read
 ## Files
 
 ```
-nc3-data-core-sample-skill-v0-2/
+deep-analysis/
   SKILL.md                          thin router: identity, posture, dispatch, protocol spine, help
   modes/
     survey.md                       as-built design + build spec lens
@@ -53,18 +53,18 @@ nc3-data-core-sample-skill-v0-2/
     evidence-protocol.md            read discipline per artifact type (single source)
     acceptance-checks.md            the 13-check acceptance list (single source)
   scripts/
-    core_sample_checks.py           deterministic checks: dashes, description length, gap_count, filenames
+    deep_analysis_checks.py         deterministic checks: dashes, description length, gap_count, filenames
   assets/
     audit-voice-example.md          synthetic excerpt calibrating the audit lens voice
 ```
 
 ## Output filenames
 
-Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`, with lens tags `design-spec`, `build-spec`, `craft-study`, `review`, `security-review`, `plan`, `audit`. The date prefix, underscore top-level delimiters, and the single hyphenated suffix `core-sample` conform to the Output Artifact Filename Convention owned by the Neural Cube conventions skill.
+Pattern: `{YYYY-MM-DD}_{target-slug}_{lens-tag}_deep-analysis.md`, with lens tags `design-spec`, `build-spec`, `craft-study`, `review`, `security-review`, `plan`, `audit`. The date prefix, underscore top-level delimiters, and the single hyphenated suffix `deep-analysis` conform to the Output Artifact Filename Convention owned by the Neural Cube conventions skill.
 
 ## Non-negotiables
 
-No em or en dashes anywhere. No empty fields (INFORMATION GAP markers instead). Every claim traceable to a citation or explicitly gapped. Effort classes only, never model names. Core Sample never modifies the target artifact; it analyzes and plans only.
+No em or en dashes anywhere. No empty fields (INFORMATION GAP markers instead). Every claim traceable to a citation or explicitly gapped. Effort classes only, never model names. deep-analysis never modifies the target artifact; it analyzes and plans only.
 
 ## Provenance
 

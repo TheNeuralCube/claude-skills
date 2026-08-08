@@ -1,9 +1,10 @@
 ---
 name: session-orchestrator
+version: 0.2.0
 description: "Run multi-issue software work across a three-layer session model: quarterback decides and packages, orchestrator drives one build, builder writes the code, operator merges. Use when the operator says: 'quarterback this', 'run a wave', 'plan the next wave', 'which issues can run concurrently', 'orchestrate this issue', 'set up the build sessions', 'drive this build', 'what can run in parallel', 'batch these issues', or when a session is asked to coordinate work it must not implement itself. Carries the verification rules that make the model work: merged is not deployed, a response code is not a write outcome, verify from the consumer's vantage point, full paths never basenames. Not a handoff format (see handoff-settings-block) and not a session capture (see session-handoff)."
 ---
 
-# session-orchestrator (v0.1.0)
+# session-orchestrator
 
 A **Hub-resident skill** — standing machinery, version-pinned to this tree. It reads the Hub's
 governance rather than restating it: branch targeting comes from `governance/repo-branch-config.md`
@@ -74,9 +75,10 @@ Boundaries are deliberate; do not restate the other owners' content here.
   model registry belong to **`handoff-settings-block`**. This skill says *when* a handoff is written
   and *what must be true inside it*; that skill says *how it is shaped*. If the two disagree,
   `handoff-settings-block` wins on format.
-- **Capturing a session for later resumption** — `session-handoff` and `nc3-session-recap-skill`.
-  This skill coordinates live work; those preserve it.
-- **Naming, versioning and packaging of skills** — `nc3-meta-conventions-skill`.
+- **Capturing a session for later resumption** — `session-handoff`. This skill coordinates live
+  work; that one preserves it.
+- **Naming, versioning and packaging of skills** — the repo's `CLAUDE.md`. The former
+  `nc3-meta-conventions-skill` is retired and owns nothing.
 
 ## Help
 
@@ -121,4 +123,5 @@ the diagram and dropped the method.
 
 | Version | Date | Changes |
 |---------|------|---------|
+| 0.2.0 | 2026-08-08 | **Rule 10 and 10b adopted**, bringing the two trees back into agreement; rules count 9 to 10. Rule 10: *a gate encodes a branch MODEL and a tool's real PREDICATE, not a name and not the drafter's reading*, codified from three incidents in the autosync-retirement wave. 10b: *the allowlisted invocation is part of the gate surface*, from a tray-push incident where the permission-allowlisted form opened a shell and pushed nothing while the PowerShell form worked, so the allowlist made the broken path the compliant one. Also folds in the housekeeping: `version` declared in frontmatter (it had existed only in the H1 and this table), the four required per-skill documents added, and two dead cross-references removed. See CHANGELOG for why this is 0.2.0 and not 0.1.1. |
 | v0.1.0 | 2026-08-03 | Initial release. Distilled from the four-day quarterback run of 2026-07-31 to 2026-08-03 (five waves, sixteen issues closed or filed, zero rollbacks). **Operator decisions at authoring time:** (a) *one skill, two modes* over a shared rules reference, chosen over two skills specifically so the rules cannot drift apart; (b) *method stated generally, incidents cited* — every rule repo-agnostic and anchored by the failure that produced it, no project appendix; (c) *handoff format delegated* to `handoff-settings-block`, which wins any format disagreement; (d) *Hub-resident, unprefixed* — first packaged as `nc3-session-orchestrator-v0-1` for account install, then corrected the same day. The `nc3-` account form was wrong on evidence: `handoff-settings-block` is Hub-resident only, so an account-installed copy pointed at a format owner that does not exist outside a Hub session — the skill's own rule 3. Renamed to match the nine other Hub-resident skills, which are unprefixed and use `v0.MINOR.PATCH`. `nc3-meta-conventions-skill` governs the `nc3-` family and does not apply here. |

@@ -1,6 +1,6 @@
 # The verification rules
 
-**Read this file before either mode.** The three-layer model is scaffolding; these nine rules are
+**Read this file before either mode.** The three-layer model is scaffolding; these ten rules are
 the method. Every one of them was learned by a session that got it wrong first, and each is written
 here as *statement → the incident → the test you actually run*.
 
@@ -166,6 +166,48 @@ the last durable surface before the decision.
 
 ---
 
+## 10. A gate encodes a branch model and a tool's real predicate — not a name and not your reading
+
+**Statement.** A repo-state gate encodes a branch **model**, not a branch **name** — and the
+**tool's actual predicate**, not the drafter's mental model of it. It must confirm that the content it
+targets exists on the branch it writes to, and that its commands test what the drafter thinks they
+test.
+
+**The incidents — three, because the same mistake has three faces.**
+
+- **The gate inverted the model it was written for.** A package drafted under one branch model ran
+  after that model was retired, so its "safe" branch check sent routine records straight onto curated
+  trunk — the exact placement the retired model existed to prevent.
+- **A remediation gate was unsatisfiable on its own branch.** It required content to be present that
+  the remediation itself had not yet added, so the gate could only pass after the work it was gating.
+  A gate that cannot pass before the work is not a gate; it is a comment.
+- **`git branch -d` measured something other than what the gate claimed.** The gate read `-d` as
+  *merged into HEAD*; git tests *merged into UPSTREAM* when a branch has an upstream. It refused a
+  branch that git itself reported as merged to HEAD, and the package had pre-drafted that refusal as
+  proof that containment verification had failed. **A fail-closed refusal was misread as evidence of
+  stranded work** — the most expensive kind of misreading, because it argues for exactly the
+  destructive override (`-D`) that the refusal was protecting against. The refusal cleared once the
+  stale upstream ref was gone, still under `-d`.
+
+**The test.** For every gate: (1) **name which branch-model epoch it stands in** — if the model has
+changed since drafting, the gate is stale even when its commands are correct; (2) verify content
+targets with **git object reads on the branch being written** (`git show <branch>:<path>`), never a
+working-tree read and never an assumption that a merge landed; (3) for any command whose refusal *or*
+success the gate interprets, **state the tool's actual predicate in the gate text**, so the next
+reader checks the claim instead of inheriting it. If a gate refuses, the first hypothesis is that the
+gate is wrong, not that the tree is broken.
+
+**10b — the allowlisted invocation is part of the gate surface.** A permission allowlist entry
+naming `Bash(cmd /c outbox\hub-push.cmd)` silently opened a shell and pushed **nothing**, while the
+same script invoked from PowerShell pushed correctly. The failure is not merely a broken command: an
+agent *obeying the permission rule* selects exactly the broken path, and the allowlist makes the
+wrong choice the compliant one. Worse, it fails quietly — a shell that opens and exits looks like
+success. **The test:** the invocation form named in an Approvals row, a settings allowlist, or a
+handoff is **verified by execution, not assumed**, and a form known to be broken is either fixed or
+removed from the allowlist — leaving it there converts a permission grant into a trap.
+
+---
+
 ## Quick reference
 
 | # | Rule | The question it forces |
@@ -179,3 +221,5 @@ the last durable surface before the decision.
 | 7 | A deviation is an issue | Will a future session need to discover this unaided? |
 | 8 | Verify before propagating | Whose verification is this, and did anyone check it? |
 | 9 | Name the authority; PR body | Who can lift this, and where does the unverified part live? |
+| 10 | A gate encodes a model, not a name | Which branch-model epoch is this gate in, and does the command test what I think it tests? |
+| 10b | The allowlisted invocation is gate surface | Did I *run* the exact invocation form the allowlist names, or assume it works? |

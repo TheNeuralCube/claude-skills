@@ -1,6 +1,6 @@
 ---
 name: session-handoff
-version: 0.1.0
+version: 0.1.1
 description: >
   Capture a high-fidelity, machine-readable handoff of the current working session that
   any AI agent on any platform can resume cold. One entry point auto-routes to five modes
@@ -42,7 +42,7 @@ report and any required confirmation has been received.
 <!-- SPDX-License-Identifier: Apache-2.0 -->
 <!-- Copyright 2026 Raul J. Soto -->
 
-# session-handoff (v0.1.0)
+# session-handoff
 
 A thin-router skill. This file detects the invocation, runs the mandatory pre-flight protocol (`## Protocol` above), and delegates to one of five mode files. Mode logic lives in `modes/`. The schema, lineage, redaction, governance, configuration interview, defaults, platform parameters, and the pre-flight / post-flight protocol live in `references/`. Editable configuration lives in `config/`.
 

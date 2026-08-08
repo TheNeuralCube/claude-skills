@@ -2,7 +2,7 @@
 <!-- Copyright 2026 Raul J. Soto -->
 # Usage
 
-How to run nc3-data-core-sample-skill and what to expect. This skill is meant for an expensive, rarely-run frontier-class session; the depth of the read is the point of the cost.
+How to run deep-analysis and what to expect. This skill is meant for an expensive, rarely-run frontier-class session; the depth of the read is the point of the cost.
 
 ## Before you start
 
@@ -36,7 +36,7 @@ You can name several lenses at once. They all render from one read of the artifa
 
 ## The deliverables
 
-Files are named `{YYYY-MM-DD}_{target-slug}_{lens-tag}_core-sample.md`. Each carries YAML frontmatter (title, date, skill, target, lens, sensitivity, consumer, provenance, gap count) and is self-contained: a session with only that file and the artifact can act on it. There are no references to "our conversation." The consumer is `execution-class` for every lens except audit, whose report card is written for you and carries `consumer: operator-class`.
+Files are named `{YYYY-MM-DD}_{target-slug}_{lens-tag}_deep-analysis.md`. Each carries YAML frontmatter (title, date, skill, target, lens, sensitivity, consumer, provenance, gap count) and is self-contained: a session with only that file and the artifact can act on it. There are no references to "our conversation." The consumer is `execution-class` for every lens except audit, whose report card is written for you and carries `consumer: operator-class`.
 
 Two things to check on any deliverable:
 

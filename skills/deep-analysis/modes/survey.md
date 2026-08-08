@@ -4,8 +4,8 @@
 
 Two files:
 
-1. `{date}_{slug}_design-spec_core-sample.md`
-2. `{date}_{slug}_build-spec_core-sample.md`
+1. `{date}_{slug}_design-spec_deep-analysis.md`
+2. `{date}_{slug}_build-spec_deep-analysis.md`
 
 Both carry the frontmatter and conventions in [../references/deliverable-contract.md](../references/deliverable-contract.md), lens `survey`.
 
