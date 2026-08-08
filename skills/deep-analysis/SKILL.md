@@ -19,7 +19,7 @@ deep-analysis is the skill an expensive, rarely-run, frontier-class session exec
 
 | Version | Date | Changes |
 |---|---|---|
-| 0.2.0 | 2026-08-06 | Renamed from `nc3-data-core-sample-skill-v0-2` to `deep-analysis`; version moved out of the directory name and into this frontmatter as dotted semver. Output suffix is now `_deep-analysis.md`; the checks script is now `scripts/deep_analysis_checks.py`. Legacy "core sample this" triggers retained. Rename only: the 0.3.0 architecture restructure is unshipped. |
+| 0.2.0 | 2026-08-08 | Renamed from `nc3-data-core-sample-skill-v0-2` to `deep-analysis`; version moved out of the directory name and into this frontmatter as dotted semver. Output suffix is now `_deep-analysis.md`; the checks script is now `scripts/deep_analysis_checks.py`. Legacy "core sample this" triggers retained. Rename only: the 0.3.0 architecture restructure is unshipped. |
 | v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. Also added scripts/deep_analysis_checks.py (deterministic conformance checks), references/acceptance-checks.md (in-repo acceptance checklist), and assets/audit-voice-example.md (audit voice calibration excerpt). |
 | v0-1 | 2026-07-07 | Initial release, built from the 2026-07-07 crescent-harness deep-dive session. |
 

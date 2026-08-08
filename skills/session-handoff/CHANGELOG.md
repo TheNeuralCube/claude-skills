@@ -8,7 +8,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 **Schema and skill versions are decoupled.** The skill version (e.g. `0.1.0`) tracks releases. The schema version (`schema_version` in every handoff's frontmatter) bumps only when the shape of the metadata contract changes. The skill ships at v0.1.0 and the schema ships at "0.1" by coincidence, not by coupling: a future patch release that touches no contract field still writes `schema_version: "0.1"`. See `references/schema-changelog.md` for the contract's version history.
 
-## [0.1.1] - 2026-08-06
+## [0.1.1] - 2026-08-08
 
 Housekeeping release. No behavior change and no schema change: `schema_version` stays `"0.1"`.
 

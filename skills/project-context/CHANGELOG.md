@@ -9,7 +9,7 @@ and this skill adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.h
 
 The skill version (e.g., `0.5.0`) tracks releases. Beginning with v0.4.0, the **schema version** (`schema_version` in every file's frontmatter) is **decoupled** from the skill version. The schema version bumps only when the shape of stored data changes; the skill version bumps on every release. See `references/schema-changelog.md` for the version-by-version history of the data schema.
 
-## [0.7.1] - 2026-08-06
+## [0.7.1] - 2026-08-08
 
 Housekeeping release. No behavior change and no schema change: `schema_version` stays `"0.5"`.
 

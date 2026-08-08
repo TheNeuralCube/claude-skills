@@ -6,8 +6,8 @@
 A method for running multi-issue software work across separated sessions, where **the session that decides is never the session that writes the code**.
 
 - **License:** Apache 2.0 (SPDX headers on repo wrapper files).
-- **Skill version:** 0.1.1, declared in the SKILL.md frontmatter.
-- **Provenance:** distilled from a four-day quarterback run (2026-07-31 to 2026-08-03): five waves, sixteen issues closed or filed, zero rollbacks.
+- **Skill version:** 0.2.0, declared in the SKILL.md frontmatter.
+- **Provenance:** rules 1 to 9 were distilled from a four-day quarterback run (2026-07-31 to 2026-08-03): five waves, sixteen issues closed or filed, zero rollbacks. Rule 10 and 10b came later, from a separate autosync-retirement wave.
 
 > **Portability notice.** This skill is **Hub-resident**. It reads governance that lives outside this repository — branch targeting via a `handoff-settings-block` skill and a repo-branch config, and a durable project record in a spoke's `context/active.md`. Those are not published here, so an installed copy will reference owners it cannot open. The skill is slated to move to a private Hub-skills repository; it remains published here in the interim. The verification rules in `references/rules.md` are repo-agnostic and useful on their own.
 
@@ -36,7 +36,7 @@ The layer boundary is load-bearing, not stylistic. A quarterback that writes one
 
 Use an auditor when the work ships or runs against real data. The auditor is never the model that built it; that independence is the whole point of the role.
 
-## The nine verification rules
+## The ten verification rules
 
 `references/rules.md` is read first in every mode. It is the substance; the mode files apply it rather than repeating it.
 
@@ -51,6 +51,8 @@ Use an auditor when the work ships or runs against real data. The auditor is nev
 | 7 | A deviation a later block depends on is an issue, not a paragraph |
 | 8 | Verify reports against the source before propagating them |
 | 9 | Name who can lift each constraint, and put unverified items in the PR body |
+| 10 | A gate encodes a branch model and a tool's real predicate, not a name and not your reading |
+| 10b | The allowlisted invocation is part of the gate surface |
 
 ## Files
 
@@ -61,7 +63,7 @@ session-orchestrator/
     quarterback.md            deciding, sequencing, packaging, verifying reports
     orchestrator.md           turning one package into a build and verifying the result
   references/
-    rules.md                  the nine verification rules; read first, always
+    rules.md                  the ten verification rules; read first, always
     wave-selection.md         which issues collide, whether a batch is safe
     artifacts.md              the package and report-back templates
 ```

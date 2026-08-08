@@ -6,7 +6,7 @@ All notable changes to `conversation-recap` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on dotted semver declared in the SKILL.md frontmatter; it earns `1.0.0` after real use and an eval pass.
 
-## [0.1.1] - 2026-08-06
+## [0.1.1] - 2026-08-08
 
 Housekeeping release. No behavior change: the pipeline, the register catalog, the tier bands, and every doctrine are byte-identical in effect.
 

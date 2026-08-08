@@ -125,7 +125,7 @@ Suffix: `conversation-recap`. Example: `2026-07-17_The_Command-standup-observati
 
 | Version | Date | Change |
 |---------|------|--------|
-| 0.1.1 | 2026-08-06 | Housekeeping. Moved from the repo root into `skills/`; invalid YAML description converted to a folded block scalar; references to non-public skills removed; the four required per-skill documents added. No behavior change. |
+| 0.1.1 | 2026-08-08 | Housekeeping. Moved from the repo root into `skills/`; invalid YAML description converted to a folded block scalar; references to non-public skills removed; the four required per-skill documents added. No behavior change. |
 | 0.1.0 | 2026-07-17 | Initial build per 2026-07-17 design spec. |
 
 ## Help

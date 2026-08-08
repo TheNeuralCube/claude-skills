@@ -6,7 +6,7 @@ All notable changes to `deep-analysis` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on dotted semver declared in the SKILL.md frontmatter; it earns `1.0.0` after real use and an eval pass. Releases before `0.2.0` used the retired `v{MAJOR}-{MINOR}` directory-suffix scheme and are recorded below under their original labels.
 
-## [0.2.0] - 2026-08-06
+## [0.2.0] - 2026-08-08
 
 ### Changed
 
