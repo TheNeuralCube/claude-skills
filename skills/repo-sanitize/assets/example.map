@@ -1,0 +1,76 @@
+# Example sanitization map. Copy, adapt, and keep ORDER: most-specific first.
+# Directives: OLD==>NEW | regex:PAT==>REPL | protect:WORD
+#             ident:Name <email>==>New <email> | droppath:REGEX | excludepath:PREFIX
+#
+# This file is a template. Every value below is illustrative.
+
+# --- protect first: real words/products that collide with terms below --------
+# Verify each still exists afterward (verify.py --expect-intact).
+protect:Lunasima
+
+# --- vendored third-party data: restored pristine, never substituted ---------
+excludepath:.claude/skills/
+excludepath:vendor/
+excludepath:third_party/
+
+# --- build artifacts that embed absolute source paths: removed from history --
+droppath:(__pycache__/|\.pyc$|\.pyo$)
+
+# --- prose where the company name is also an ordinary English word ----------
+# Must precede the generic rules or you get "a acme beacon".
+a beacon of hope==>a sign of hope
+beacon fire==>signal fire
+
+# --- identities (file contents). Full/most-specific address forms first. -----
+first.last@oldcorp.com==>dev-one@acme.invalid
+First Last==>dev-one
+first-last==>dev-one
+first.last==>dev-one
+
+# --- hostnames: .invalid is RFC 2606 reserved and can never resolve ----------
+api.git.oldcorp.com==>api.git.acme.invalid
+git.oldcorp.com==>git.acme.invalid
+app.ai.oldcorp.com==>app.ai.acme.invalid
+oldcorp.com==>acme.invalid
+db-prod.postgres.database.azure.com==>db.postgres.database.acme.invalid
+oldcorpstorage01==>acmestorageacct
+
+# --- opaque identifiers an operator must supply ------------------------------
+# Keep deliberately-separate registrations separate; note it in the legend.
+00000000-1111-2222-3333-444444444444==><ENTRA_TENANT_ID>
+11111111-2222-3333-4444-555555555555==><ENTRA_CLIENT_ID>
+22222222-3333-4444-5555-666666666666==><OAUTH_AUDIENCE_APP_ID>
+ab12345.region.cloud==><WAREHOUSE_ACCOUNT>
+
+# --- real leaked credentials: unmistakable, and REPORT THEM to the operator --
+sk-ant-api03-REPLACE-WITH-THE-ACTUAL-LEAKED-VALUE==>REPLACE_ME_API_KEY_PLACEHOLDER
+
+# --- data platform ----------------------------------------------------------
+OLDCORP_READ==>ACME_READ
+PROD_WAREHOUSE==>REPORTING_WH
+
+# --- org / product identity -------------------------------------------------
+Old Corp==>Acme Corp
+oldcorp==>acmecorp
+oldcorp-harness==>acme-harness
+OLDCORP==>ACME
+Oldcorp==>Acme
+
+# --- camelCase identifiers: \b will NOT match inside these, so list them -----
+oldcorpTheme==>acmeTheme
+ProductLogo==>BrandLogo
+
+# --- bare first names LAST, word-boundary anchored --------------------------
+# Unanchored these corrupt ordinary words: justin/adjusting, sam/Sample,
+# roman/Romance, Bao/base64 hashes. Verify the collisions survive.
+regex:\bAlice\b==>dev-one
+regex:\balice\b==>dev-one
+regex:\bBob\b==>dev-two
+regex:\bbob\b==>dev-two
+
+# --- commit authorship (history rewrite only) -------------------------------
+# One human -> one pseudonym, across ALL their identities.
+ident:First Last <first.last@oldcorp.com>==>dev-one <dev-one@acme.invalid>
+ident:flast <flast@personal-email.com>==>dev-one <dev-one@acme.invalid>
+ident:First Last <123456+ghhandle@users.noreply.github.com>==>dev-one <dev-one@acme.invalid>
+ident:GitHub Enterprise <noreply@git.oldcorp.com>==>Git Server <noreply@git.acme.invalid>

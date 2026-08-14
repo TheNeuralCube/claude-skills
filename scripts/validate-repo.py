@@ -35,7 +35,8 @@ ALLOWED_ROOT_FILES = {
     "README.md", "CLAUDE.md", "AGENTS.md", "CONTRIBUTING.md",
     "LICENSE", "NOTICE", ".gitignore", ".gitattributes",
 }
-ALLOWED_ROOT_DIRS = {"skills", "docs", "scripts", ".github", "_build_inputs", "dist", ".git"}
+ALLOWED_ROOT_DIRS = {"skills", "docs", "scripts", ".github", "_build_inputs", "dist", ".git",
+                     ".claude"}  # local agent settings; globally gitignored, never committed
 
 SEMVER = re.compile(r"^\d+\.\d+\.\d+$")
 VERSION_IN_NAME = re.compile(r"[-_]v?\d+[-._]\d+")
