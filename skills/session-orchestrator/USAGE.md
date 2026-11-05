@@ -4,7 +4,7 @@
 
 How to run `session-orchestrator`. See `SKILL.md` for the router and `references/rules.md` for the rules every mode enforces.
 
-> **Portability notice.** This skill is Hub-resident and references a `handoff-settings-block` format owner and a spoke project record that are not published in this repository. See README.md.
+> **Project configuration.** Supply the repository, base branch, handoff convention and durable decision-record location. No fixed workspace layout is assumed.
 
 ## Before you start
 
@@ -30,7 +30,7 @@ A quarterback asked to "just fix this one thing" declines and packages it instea
 Say "orchestrate this issue", "set up the build sessions", or "drive this build".
 
 1. The skill reads the rules, announces the orchestrator layer and its prohibition: no code, no branches.
-2. It turns the package into a builder handoff, delegating the handoff *shape* to `handoff-settings-block` and never inventing a competing format.
+2. It turns the package into a builder handoff using the project's supplied convention or the minimum fields in SKILL.md.
 3. It drives the build and verifies the result **against the tree**, from the consumer's vantage point.
 4. It reports back per the report-back template: outcome, facts with evidence, and an explicit statement of verification strength.
 

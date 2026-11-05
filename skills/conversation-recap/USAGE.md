@@ -15,7 +15,7 @@ How to run `conversation-recap` and what to expect. See `SKILL.md` for the full 
 Say "previously on" or "catch me up" and name the thread. The skill interviews you briefly for a register, judges the tier, states its call in one line, and writes the recap.
 
 ```
-previously on the Richard thread
+previously on the exhibit-planning thread
 ```
 
 ## Steering it
@@ -78,7 +78,7 @@ Say so explicitly. The file is named:
 {YYYY}-{MM}-{DD}_{Topic_Words}-{register-slug}-{tier}_conversation-recap.md
 ```
 
-For example `2026-07-17_The_Command-standup-observational-medium_conversation-recap.md`.
+For example `2026-11-04_The_Narrow_Door-documentary-short_conversation-recap.md`.
 
 ## When to use something else
 

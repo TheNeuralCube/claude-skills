@@ -32,10 +32,10 @@ silently means the next orchestrator gets the same defective package.
 
 ## 2. Write the handoff
 
-Shape comes from `handoff-settings-block`: the settings block (Model / Effort / Session / Working
-directory / Branch / File access / Approvals), one fenced copy/paste-only prompt that opens with a
-gate, derives volatile values at runtime, and closes with a report-back. Follow it; this file does
-not restate it.
+Follow the project's supplied handoff convention. At minimum, include Model / Effort / Session /
+Working directory / Branch / File access / Approvals, followed by one fenced prompt that checks
+prerequisites, derives volatile values at runtime and closes with a report-back. Never invent
+permissions or a base branch.
 
 What this mode adds to that format:
 

@@ -6,6 +6,13 @@ All notable changes to `conversation-recap` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on dotted semver declared in the SKILL.md frontmatter; it earns `1.0.0` after real use and an eval pass.
 
+## [0.1.2] - 2026-11-04
+
+### Changed
+
+- Replace non-public examples with synthetic source and remove unavailable calibration dependencies.
+- Source update only; a release asset has not been published for this version.
+
 ## [0.1.1] - 2026-08-08
 
 Housekeeping release. No behavior change: the pipeline, the register catalog, the tier bands, and every doctrine are byte-identical in effect.
@@ -33,4 +40,4 @@ Housekeeping release. No behavior change: the pipeline, the register catalog, th
 - **Three tiers** (Teaser, Cold Open, Season Recap) as reading-time and word-budget contracts, with the judgment-call doctrine and the thin-source rule.
 - **Three-part output contract:** title card, register-native body, and the mandatory `WHERE WE LEFT OFF` block.
 - **Honesty constraints:** the fabrication rule, the interiority clause, and the emotionally-heavy-thread bias.
-- **Calibration anchor:** the 2026-07-17 Seinfeld-register run "The Command" (656 words) is the ratified gold standard for Medium feel.
+- **Calibration:** the initial release used a reference that is no longer included in the public tree. No current calibration claim depends on it.

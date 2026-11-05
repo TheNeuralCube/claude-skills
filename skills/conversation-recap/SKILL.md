@@ -1,6 +1,6 @@
 ---
 name: conversation-recap
-version: 0.1.1
+version: 0.1.2
 description: >-
   Generate low-fidelity NARRATIVE conversation recaps ("Previously On..." format) that
   re-immerse the operator in a stale conversation or project thread: narrative arc, insights,
@@ -44,7 +44,7 @@ Run this seven-step pipeline in order:
 6. **DEBRIEF.** One-line check that length and register landed; offer a re-cut if not.
 7. **OPTIONAL SAVE.** Only on explicit request; filename per "Saving output" below.
 
-**Collapse rule.** When the operator specifies the register and/or the tier at invocation ("Seinfeld me on the Richard thread, medium"), skip the interview for what was specified and interview only for what is unspecified. Respect explicit parameters; never re-ask for what the operator already gave.
+**Collapse rule.** When the operator specifies the register and/or the tier at invocation ("Seinfeld me on the exhibit-planning thread, medium"), skip the interview for what was specified and interview only for what is unspecified. Respect explicit parameters; never re-ask for what the operator already gave.
 
 ## Source material acquisition
 
@@ -59,7 +59,7 @@ If the source is thin or ambiguous ("that thing we decided"), ask ONE clarifying
 
 **Fabrication rule:** the narrative shaping may exaggerate tone, never facts. Every event, decision, and open loop in the recap must be traceable to the source. Comic distortion of framing is allowed. Invented plot points are never allowed. This is a recap, not fiction about the operator's life.
 
-**Interiority clause.** Interiority is framing, not fact: attributed motives and inner states are permitted only as the narrator's openly-marked read of behavior the source records. "Deep down, our guy knows exactly who he is dealing with" draws a conclusion from a sourced act and is allowed; "Richard felt humiliated" asserts an unsourced fact about another person's inner life and is a fabrication, however tonal it reads. The test is whether the subject could read the line and say "that did not happen": a visible inference survives it, an asserted inner state does not.
+**Interiority clause.** Interiority is framing, not fact: attributed motives and inner states are permitted only as the narrator's openly-marked read of behavior the source records. "The narrator reads the hesitation as uncertainty" marks an inference; "Casey felt humiliated" asserts an unsourced inner state and is a fabrication. Casey is an invented example. The test is whether the subject could read the line and say "that did not happen": a visible inference survives it, an asserted inner state does not.
 
 ## The interview
 
@@ -87,7 +87,7 @@ Tier is a length and immersion contract measured in reading time (about 230 word
 
 **Thin-source rule (agent logic).** When the traceable source cannot fill the called tier without invention, drop to the tier the source can support and write to that tier's budget instead. Never pad, never invent connective beats, never stretch thin material to reach a floor. The fabrication rule outranks the tier budget, always. State the drop in one line ("Source supports a Teaser, not a Cold Open: dropping to Short"), consistent with the judgment-call doctrine, and proceed; the operator overrides by exception. Word-budget conformance is then measured against the tier actually written, so the tier band is satisfied by the drop rather than broken by it.
 
-**Calibration anchor.** The 2026-07-17 Seinfeld-register run "The Command" (656 words) is the ratified gold standard for Medium feel and native-attitude intensity. Calibrate Medium output against it.
+**Calibration.** No approved Medium calibration example is bundled. Use the tier budgets, register catalog and fabrication rule; do not claim comparison against an unavailable reference. Use explicitly synthetic source material for public test examples.
 
 ## Output contract
 
@@ -119,12 +119,13 @@ On an explicit save request only, name the file per the Output Artifact Filename
 {YYYY}-{MM}-{DD}_{Topic_Words}-{register-slug}-{tier}_conversation-recap.md
 ```
 
-Suffix: `conversation-recap`. Example: `2026-07-17_The_Command-standup-observational-medium_conversation-recap.md`.
+Suffix: `conversation-recap`. Example: `2026-11-04_The_Narrow_Door-documentary-short_conversation-recap.md`.
 
 ## Version history
 
 | Version | Date | Change |
 |---------|------|--------|
+| 0.1.2 | 2026-11-04 | Replace non-public examples with synthetic source and remove unavailable calibration dependencies. |
 | 0.1.1 | 2026-08-08 | Housekeeping. Moved from the repo root into `skills/`; invalid YAML description converted to a folded block scalar; references to non-public skills removed; the four required per-skill documents added. No behavior change. |
 | 0.1.0 | 2026-07-17 | Initial build per 2026-07-17 design spec. |
 
@@ -151,7 +152,7 @@ Protocol instructions. The following are non-negotiable and carry into every gen
 
 > Fabrication rule: the narrative shaping may exaggerate tone, never facts. Every event, decision, and open loop in the recap must be traceable to the source. Comic distortion of framing is allowed. Invented plot points are never allowed. This is a recap, not fiction about the operator's life.
 
-**Interiority clause.** Interiority is framing, not fact: attributed motives and inner states are permitted only as the narrator's openly-marked read of behavior the source records. "Deep down, our guy knows exactly who he is dealing with" draws a conclusion from a sourced act and is allowed; "Richard felt humiliated" asserts an unsourced fact about another person's inner life and is a fabrication, however tonal it reads. The test is whether the subject could read the line and say "that did not happen": a visible inference survives it, an asserted inner state does not.
+**Interiority clause.** Interiority is framing, not fact: attributed motives and inner states are permitted only as the narrator's openly-marked read of behavior the source records. "The narrator reads the hesitation as uncertainty" marks an inference; "Casey felt humiliated" asserts an unsourced inner state and is a fabrication. Casey is an invented example. The test is whether the subject could read the line and say "that did not happen": a visible inference survives it, an asserted inner state does not.
 
 **Output contract.** Every recap carries all three parts: the title card (`PREVIOUSLY ON` plus the italicized inspired-by attribution line), the register-native body, and the mandatory `WHERE WE LEFT OFF` block. The `WHERE WE LEFT OFF` block appears in every register at every tier without exception.
 

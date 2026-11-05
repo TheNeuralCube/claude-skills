@@ -129,7 +129,7 @@ All programmatic. Files read with strict UTF-8 decoding (Python `bytes.decode("u
 | `conversation-recap/SKILL.md` | 0 | 0 |
 | `conversation-recap/references/register-catalog.md` | 0 | 0 |
 | `docs/2026-07-17_conversation-recap_build-spec.md` | 0 | 0 |
-| `docs/2026-07-17_conversation-recap_test-fixture_the-command-standup.md` | 0 | 0 |
+| Withdrawn historical fixture (not included in this tree) | historical result withheld | historical result withheld |
 
 **R2. Touchstone equality:** all 24 catalog touchstone strings compared programmatically against build spec Table D (Spec:225-250): **24/24 exact matches.** (Also re-verified inspired-by strings against Tables A/B/C: 24/24.)
 
@@ -138,7 +138,7 @@ All programmatic. Files read with strict UTF-8 decoding (Python `bytes.decode("u
 - AC13: 24 slugs, all unique, partitioned 9 literary / 6 comedy / 9 cinematic. PASS.
 - YAML description: **734 characters** against the 1024 limit. PASS.
 - Fabrication-rule blockquote (Skill:143) vs. build spec Section 2.6 (Spec:124): **byte-identical** (292 characters). The inline restatement at Skill:52 also matches the rule text exactly. PASS.
-- Bonus regression: all 24 exemplars pass the AC16 word ceiling; longest is `simulation-noir` at 48 words. Fixture body recount: exactly 656 words, matching the calibration anchor at Skill:82. PASS.
+- Bonus regression: all 24 exemplars passed the AC16 word ceiling; longest was `simulation-noir` at 48 words. The fixture word-count check passed historically, but its evidence is withdrawn and is not reproducible from this tree.
 
 **R4. Interiority clause and thin-source rule.**
 
@@ -166,6 +166,6 @@ Option 2 is doc-only and non-breaking. Until one lands, the merge would ship a k
 ## What I could not verify
 
 - **The originality judgments are bounded by my own recall of the source works.** I compared each line against the famous formulations I can retrieve (monologues, catchphrases, opening skeletons, iconic scenes). A line echoing a less-famous passage — a deep-cut Chandler sentence, a specific war-novel paragraph, an album skit — could pass me exactly as it passed the two prior sessions, and for the same reason: we recall the same corpus the same way. This is the structural blind spot the brief names, and no in-family pass removes it. A human fan-check of the 24 lines, especially `epic-quest`, `war-novella`, and `simulation-noir`, remains the only real closure.
-- **The ratified fixture's provenance.** The tree asserts the 656-word run is operator-ratified verbatim and that its source-facts line traces to a real thread. Nothing in the tree can prove either; I verified internal consistency (word count, facts-line coverage), not provenance.
+- **Historical fixture provenance.** Evidence is withdrawn and not reproducible from this tree. The historical check established internal consistency only, not external provenance; it is not a claim about the new synthetic fixture.
 - **Whether "who DOES that" is Seinfeld-signature.** I judged it generic observational grammar from my own knowledge of the show's recognized catchphrases. I did not (and per read-only scope, could not meaningfully) corroborate against an external corpus. If the operator knows it as a recurring signature line, my C1 #11 and C2b #11 clears weaken.
 - **Where my agreement may have come too easily:** (1) I cleared `epic-quest`'s exemplar and its "Fellowship framing" cell on the archetype-vs-expression and common-noun-function distinctions; both are defensible, but both are also exactly the kind of careful justification the brief warns reads persuasive because it is written the way I reason. I flagged the cell for v0.1.1 hardening rather than blocking, and I am not fully certain that grading is severity, not agreeableness. (2) I accepted the comedy family's real-show title cards as ratified design without re-litigating, as the prior audit also did; the C2c ruling partially leans on that acceptance (the "revealed policy" argument), so if the operator ever revisits Table B, the amblin analysis shifts with it. (3) My FIX FIRST offers a one-sentence ratification as a sufficient remedy; a stricter reader could call that an escape hatch. I judged it proportionate because the breach is naming, not expression — but that judgment is mine, not the doctrine's.
