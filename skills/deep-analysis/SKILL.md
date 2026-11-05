@@ -1,6 +1,6 @@
 ---
 name: deep-analysis
-version: 0.2.0
+version: 0.2.1
 description: "Frontier-class deep-analysis sessions: hand it an artifact (codebase, repo, doc set, website, architecture, product) for one maximum-extraction pass; emits dense machine-readable deliverables for execution-class models and Open Brain ingestion. Trigger on: 'core sample this', 'run a core sample', 'deep dive this repo/code/site/doc', 'full assay', 'as-built spec this', 'reverse engineer this for learning', 'craft study', 'document how this system works', 'review this codebase', 'find issues in this code', 'security review this', 'war game a plan for X', 'audit this system', 'grade my harness', 'evaluate my setup', 'report-card this', 'how good is what I built', 'should I be embarrassed to show this to real engineers'. Lenses: survey (as-built specs), craft (style study), review (findings), security, plan (war-gamed), audit (operator-class report card). Default: survey+review. Posture: read everything, gap the unresolvable, war-game recommendations, zero fluff. Outputs use effort classes, never model names."
 owner: '@raul-soto'
 sensitivity: internal
@@ -19,9 +19,10 @@ deep-analysis is the skill an expensive, rarely-run, frontier-class session exec
 
 | Version | Date | Changes |
 |---|---|---|
+| 0.2.1 | 2026-11-04 | Remove deployment-specific provenance from public payload and documentation. |
 | 0.2.0 | 2026-08-08 | Renamed from `nc3-data-core-sample-skill-v0-2` to `deep-analysis`; version moved out of the directory name and into this frontmatter as dotted semver. Output suffix is now `_deep-analysis.md`; the checks script is now `scripts/deep_analysis_checks.py`. Legacy "core sample this" triggers retained. Rename only: the 0.3.0 architecture restructure is unshipped. |
 | v0-2 | 2026-07-08 | Added the audit lens: operator-class, non-technical whole-system evaluation report card. Also added scripts/deep_analysis_checks.py (deterministic conformance checks), references/acceptance-checks.md (in-repo acceptance checklist), and assets/audit-voice-example.md (audit voice calibration excerpt). |
-| v0-1 | 2026-07-07 | Initial release, built from the 2026-07-07 crescent-harness deep-dive session. |
+| v0-1 | 2026-07-07 | Initial release of the repeatable artifact-analysis workflow. |
 
 ## Effort-class posture
 

@@ -6,6 +6,13 @@ All notable changes to `deep-analysis` will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). The skill is versioned on dotted semver declared in the SKILL.md frontmatter; it earns `1.0.0` after real use and an eval pass. Releases before `0.2.0` used the retired `v{MAJOR}-{MINOR}` directory-suffix scheme and are recorded below under their original labels.
 
+## [0.2.1] - 2026-11-04
+
+### Changed
+
+- Remove deployment-specific provenance from public payload and documentation.
+- Source update only; a release asset has not been published for this version.
+
 ## [0.2.0] - 2026-08-08
 
 ### Changed
@@ -36,7 +43,7 @@ This release is the rename only. The `0.3.0` architecture restructure specified 
 
 ## [v0-1] - 2026-07-07
 
-Genesis release. Built cold from the 2026-07-07 build spec, which encodes the manual deep-dive workflow proved by that day's crescent-harness session.
+Genesis release of the artifact-analysis workflow, built from the 2026-07-07 specification.
 
 ### Added
 

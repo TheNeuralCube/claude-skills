@@ -129,7 +129,7 @@ All programmatic. Files read with strict UTF-8 decoding (Python `bytes.decode("u
 | `conversation-recap/SKILL.md` | 0 | 0 |
 | `conversation-recap/references/register-catalog.md` | 0 | 0 |
 | `docs/2026-07-17_conversation-recap_build-spec.md` | 0 | 0 |
-| `docs/2026-07-17_conversation-recap_test-fixture_the-command-standup.md` | 0 | 0 |
+| Withdrawn historical fixture (not included in this tree) | historical result withheld | historical result withheld |
 
 **R2. Touchstone equality:** all 24 catalog touchstone strings compared programmatically against build spec Table D (Spec:225-250): **24/24 exact matches.** (Also re-verified inspired-by strings against Tables A/B/C: 24/24.)
 

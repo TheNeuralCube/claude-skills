@@ -34,7 +34,7 @@
 7. OPTIONAL SAVE  Only on request; filename per Section 9
 ```
 
-Steps 3-4 collapse when the operator specifies register and/or tier at invocation ("Seinfeld me on the Richard thread, medium"). Respect explicit parameters; interview only for what is unspecified.
+Steps 3-4 collapse when the operator specifies register and/or tier at invocation ("Seinfeld me on the synthetic exhibit-planning thread, medium"). Respect explicit parameters; interview only for what is unspecified.
 
 ## 4. Tiers
 
@@ -48,7 +48,7 @@ Tier is a length/immersion contract measured in reading time (~230 wpm silent re
 
 **Judgment-call doctrine (operator-ratified):** the AI picks the tier from story complexity, number of open threads, stakes, and time elapsed. It states its call in one line ("One plotline, low stakes, high comedy density: calling it a Medium") and proceeds. The operator overrides by exception. Same doctrine applies to structure, framing devices, and intensity within a register: the AI decides, the operator tweaks.
 
-**Calibration anchor:** the 2026-07-17 Seinfeld-register test ("The Command", ~900 words) is the ratified gold standard for Medium feel and native-attitude intensity.
+**Calibration:** no approved Medium output is included in the public tree. Use the tier budgets and register contract, without claiming comparison to an unavailable reference.
 
 ## 5. Source Material Acquisition
 
@@ -158,7 +158,7 @@ Suffix: `conversation-recap` (human-readable hyphenated form, one per skill; dis
 
 ## 11. Test Plan
 
-1. Regenerate the Richard thread recap in `war-novella` (Short) and `documentary` (Medium) from this spec alone; compare against the two ratified test runs for contract compliance (title card, arc, WHERE WE LEFT OFF, no fabricated facts).
+1. Generate recaps from the explicitly synthetic source in `2026-11-04_synthetic-fixture.md`, using `war-novella` and `documentary`. Check the title card, arc, WHERE WE LEFT OFF and source fidelity. Apply the thin-source rule rather than claiming an unavailable Medium comparison.
 2. Verify tier word budgets hit within +/-15%.
 3. Run one emotionally-heavy-thread simulation and confirm the interview biases away from roast-native registers.
 4. Package with `/mnt/skills/examples/skill-creator/scripts/package_skill.py`; confirm description length passes.

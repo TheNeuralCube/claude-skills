@@ -8,13 +8,13 @@ Deferred items and future direction for `session-orchestrator`. Nothing here is 
 
 | Item | Disposition |
 |---|---|
-| **Relocation to a private Hub-skills repository** | **Decided, not yet executed (operator decision, 2026-08-06).** This skill is Hub-resident: it delegates handoff shape to `handoff-settings-block` and writes its durable record to a spoke's `context/active.md`, neither of which is published here. A public consumer therefore installs a skill that points at owners it cannot open. The resolution is a dedicated private repository for Hub-resident skills, to be created as separate work; this skill moves there and is withdrawn from public distribution at that point. Until then it stays published with the portability notice carried in README.md and USAGE.md. |
+| **Portable project configuration** | Version 0.2.1 removes fixed workspace paths and states minimum handoff fields inline. Broader usability validation on independent projects remains open. |
 
 ## Deferred from v0.1.0
 
 | Item | Disposition |
 |---|---|
-| **De-Hubbing into a portable public variant** | Rejected for now, superseded by the relocation decision above. Making the skill portable would mean either inlining the handoff format (duplicating `handoff-settings-block` and guaranteeing the two drift apart, which is the exact failure the one-skill-two-modes decision avoided) or dropping the format delegation entirely. Both cost more than moving the skill to where its dependencies live. |
+| **Project-specific format extensions** | Accept an explicitly supplied project convention; do not require an unpublished dependency. |
 | **A project appendix of real incidents** | Rejected at authoring time and still rejected. Every rule is stated repo-agnostically and anchored by the failure that produced it. An appendix would tie the skill to one project's history and invite readers to treat the rules as that project's quirks. |
 | **Splitting quarterback and orchestrator into two skills** | Rejected at authoring time. One skill with two modes exists specifically so the shared rules cannot drift apart. Revisit only if the mode files grow far enough apart that the shared rules are no longer genuinely shared. |
 | **A rule for post-deployment monitoring** | Candidate. Rules 1 and 2 cover the gap between merged and deployed, but nothing yet covers what to watch after a deploy lands. Would need a real failure to anchor it, per the skill's own authoring standard. (Rule 10 took the tenth slot with unrelated content; this item was never about that rule.) |

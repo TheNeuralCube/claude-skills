@@ -62,8 +62,8 @@ message in a thread.
 One orchestrator per issue, or per a batch you have proven disjoint. Give each orchestrator its
 package and nothing else it must infer.
 
-The handoff's *shape* — the settings block, the gate-first fenced prompt, the report-back section —
-belongs to `handoff-settings-block`. Follow it; do not invent a variant.
+Use the project's supplied handoff convention, or the minimum fields in SKILL.md: a settings
+block, prerequisite checks and a report-back section. Do not invent permissions or a base branch.
 
 ### 5. Verify what comes back
 

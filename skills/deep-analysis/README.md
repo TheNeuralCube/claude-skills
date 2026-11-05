@@ -8,7 +8,7 @@ A frontier-class deep-analysis skill. Hand it one artifact (a codebase, repo, do
 The name is the skill's own self-description promoted to an identifier. It replaces the genesis name `nc3-data-core-sample-skill-v0-2`, which extended the Neural Cube Black Gold drilling metaphor rather than describing the work. The legacy "core sample this" trigger phrases are retained.
 
 - **License:** Apache 2.0 (SPDX headers on repo wrapper files; skill-generated deliverables carry their own frontmatter, no SPDX).
-- **Skill version:** 0.2.0, declared in the SKILL.md frontmatter. Pre-production. Earns 1.0.0 after use on 2 or 3 real targets and an eval pass.
+- **Skill version:** 0.2.1, declared in the SKILL.md frontmatter. Pre-production. Earns 1.0.0 after use on 2 or 3 real targets and an eval pass.
 - **Structure:** thin router. Root SKILL.md dispatches; execution logic lives per lens in `modes/`; shared contracts live once each in `references/`.
 - **Effort class:** declares `frontier-max` for itself, never a model name. Outputs declare effort classes only.
 
@@ -68,4 +68,4 @@ No em or en dashes anywhere. No empty fields (INFORMATION GAP markers instead). 
 
 ## Provenance
 
-Built to the 2026-07-07 build spec, which encodes the manual workflow proved by that day's crescent-harness deep-dive session (an as-built design spec, an as-built build spec, and an engineering craft study of a colleague's codebase). This skill makes that one-off workflow repeatable on any artifact.
+Built to a workflow covering an as-built design spec, an as-built build spec, and an engineering craft study. This skill makes that workflow repeatable on any artifact.

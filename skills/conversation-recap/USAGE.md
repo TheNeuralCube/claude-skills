@@ -15,7 +15,7 @@ How to run `conversation-recap` and what to expect. See `SKILL.md` for the full 
 Say "previously on" or "catch me up" and name the thread. The skill interviews you briefly for a register, judges the tier, states its call in one line, and writes the recap.
 
 ```
-previously on the Richard thread
+previously on the exhibit-planning thread
 ```
 
 ## Steering it

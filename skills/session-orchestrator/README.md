@@ -6,10 +6,10 @@
 A method for running multi-issue software work across separated sessions, where **the session that decides is never the session that writes the code**.
 
 - **License:** Apache 2.0 (SPDX headers on repo wrapper files).
-- **Skill version:** 0.2.0, declared in the SKILL.md frontmatter.
+- **Skill version:** 0.2.1, declared in the SKILL.md frontmatter.
 - **Provenance:** rules 1 to 9 were distilled from a four-day quarterback run (2026-07-31 to 2026-08-03): five waves, sixteen issues closed or filed, zero rollbacks. Rule 10 and 10b came later, from a separate autosync-retirement wave.
 
-> **Portability notice.** This skill is **Hub-resident**. It reads governance that lives outside this repository — branch targeting via a `handoff-settings-block` skill and a repo-branch config, and a durable project record in a spoke's `context/active.md`. Those are not published here, so an installed copy will reference owners it cannot open. The skill is slated to move to a private Hub-skills repository; it remains published here in the interim. The verification rules in `references/rules.md` are repo-agnostic and useful on their own.
+> **Project configuration.** Supply the repository, base branch, approved handoff convention and durable decision-record location. SKILL.md states minimum handoff fields inline; no unpublished skill or fixed workspace path is required.
 
 ## Why it exists
 
@@ -70,6 +70,6 @@ session-orchestrator/
 
 ## What this skill does not own
 
-- **The handoff format** — the settings block, the gate-first fenced prompt, the report-back section, and the model registry belong to `handoff-settings-block`. This skill says *when* a handoff is written and *what must be true inside it*; that skill says *how it is shaped*.
+- **Project-specific handoff conventions** come from the project or operator. SKILL.md states minimum settings, prerequisite checks and report-back fields inline, without requiring an unpublished format owner.
 - **Capturing a session for later resumption** — `session-handoff`. This skill coordinates live work; that one preserves it.
 - **Naming, versioning, and packaging of skills** — this repository's `CLAUDE.md`.

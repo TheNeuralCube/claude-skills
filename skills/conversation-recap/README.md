@@ -8,7 +8,7 @@ A narrative recap skill that re-immerses you in a stale conversation or project 
 The bottleneck on returning to a cold thread is rarely missing state. It is missing appetite. A session handoff gives you the state; this gives you back the wanting.
 
 - **License:** Apache 2.0 (SPDX headers on repo wrapper files; generated recaps carry none).
-- **Skill version:** 0.1.1, declared in the SKILL.md frontmatter.
+- **Skill version:** 0.1.2, declared in the SKILL.md frontmatter.
 - **Brand vs. name:** the functional skill name is `conversation-recap` so agents discover it by purpose. "Previously On" is the product brand and appears only in the output title card and the trigger phrases.
 
 ## Where it sits on the fidelity ladder
@@ -33,7 +33,7 @@ This skill is deliberately not a state carrier. YAML, IDs, file paths, configs, 
 6. **DEBRIEF.** A one-line check that length and register landed, plus an offer to re-cut.
 7. **OPTIONAL SAVE.** Only if you ask. Output is ephemeral by default.
 
-When you specify the register or tier at invocation ("Seinfeld me on the Richard thread, medium"), the interview collapses to whatever you left unspecified.
+When you specify the register or tier at invocation ("Seinfeld me on the exhibit-planning thread, medium"), the interview collapses to whatever you left unspecified. This is an invented example.
 
 ## Tiers
 
