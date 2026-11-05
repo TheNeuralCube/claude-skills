@@ -91,4 +91,4 @@ Saved only on explicit request. Pattern:
 {YYYY}-{MM}-{DD}_{Topic_Words}-{register-slug}-{tier}_conversation-recap.md
 ```
 
-Example: `2026-07-17_The_Command-standup-observational-medium_conversation-recap.md`
+Example: `2026-11-04_The_Narrow_Door-documentary-short_conversation-recap.md`

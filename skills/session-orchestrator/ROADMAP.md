@@ -27,10 +27,10 @@ v0.1.x stays at 0.x because the model has been proven on one operator, one repos
 1. The model runs successfully on a repository and issue set outside the one it was distilled from.
 2. At least one wave runs with an independent auditor in the loop, and the second-model independence demonstrably catches something the builder missed.
 3. No rule in `references/rules.md` is found to be project-specific once exercised elsewhere.
-4. The relocation decision above is executed, so the skill's stated dependencies are actually resolvable by everyone who can install it.
+4. Validate on at least one independent project using only the inline handoff minimum.
 
 ## Known limitations
 
-- **Hub coupling.** Stated plainly above and in README.md. This is the skill's largest defect as a published artifact, and it is a distribution problem rather than a design problem.
+- **Project configuration required.** The user supplies the repository, base branch, handoff convention and durable decision-record location.
 - **Single-operator provenance.** Ten rules from one operator's practice: rules 1 to 9 from a four-day quarterback run, rule 10 and 10b from a later autosync-retirement wave. They are real and each was paid for, but they are not yet known to generalize beyond that operator.
 - **The rules are enforced by a reading agent, not by tooling.** Nothing mechanically prevents a session from claiming a verification it did not perform. The gates are prose contracts, which is why rule 8 exists.

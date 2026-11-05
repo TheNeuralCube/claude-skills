@@ -15,7 +15,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ## [0.2.0] - 2026-08-08
 
-Reunites two lineages that had forked, and folds in the repository standardization.
+Adds rule 10 and 10b and folds in the repository standardization.
 
 ### Added
 

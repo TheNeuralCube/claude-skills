@@ -198,7 +198,7 @@ reader checks the claim instead of inheriting it. If a gate refuses, the first h
 gate is wrong, not that the tree is broken.
 
 **10b — the allowlisted invocation is part of the gate surface.** A permission allowlist entry
-naming `Bash(cmd /c outbox\hub-push.cmd)` silently opened a shell and pushed **nothing**, while the
+naming `Bash(cmd /c <push-script>.cmd)` silently opened a shell and pushed **nothing**, while the
 same script invoked from PowerShell pushed correctly. The failure is not merely a broken command: an
 agent *obeying the permission rule* selects exactly the broken path, and the allowlist makes the
 wrong choice the compliant one. Worse, it fails quietly — a shell that opens and exits looks like

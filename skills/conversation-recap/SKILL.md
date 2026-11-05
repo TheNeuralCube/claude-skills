@@ -119,7 +119,7 @@ On an explicit save request only, name the file per the Output Artifact Filename
 {YYYY}-{MM}-{DD}_{Topic_Words}-{register-slug}-{tier}_conversation-recap.md
 ```
 
-Suffix: `conversation-recap`. Example: `2026-07-17_The_Command-standup-observational-medium_conversation-recap.md`.
+Suffix: `conversation-recap`. Example: `2026-11-04_The_Narrow_Door-documentary-short_conversation-recap.md`.
 
 ## Version history
 

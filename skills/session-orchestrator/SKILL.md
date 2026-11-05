@@ -5,8 +5,10 @@ description: >-
   Run multi-issue software work across separated sessions: quarterback decides and
   packages, orchestrator drives one build, builder writes code, operator merges.
   Use for 'quarterback this', 'run a wave', 'plan the next wave', 'orchestrate this
-  issue', 'set up the build sessions', 'drive this build', or deciding what can run
-  concurrently. Carries verification rules: merged is not deployed, a response code
+  issue', 'set up the build sessions', 'drive this build', 'which issues can run
+  concurrently', 'what can run in parallel', 'batch these issues', or when a session
+  coordinates work it must not implement itself. Carries verification rules:
+  merged is not deployed, a response code
   is not a write outcome, verify from the consumer's vantage point, use full paths.
   Not a session capture; use session-handoff for that.
 ---
@@ -129,6 +131,6 @@ the diagram and dropped the method.
 
 | Version | Date | Changes |
 |---------|------|---------|
-| 0.2.0 | 2026-08-08 | **Rule 10 and 10b adopted**, bringing the two trees back into agreement; rules count 9 to 10. Rule 10: *a gate encodes a branch MODEL and a tool's real PREDICATE, not a name and not the drafter's reading*, codified from three incidents in the autosync-retirement wave. 10b: *the allowlisted invocation is part of the gate surface*, from a tray-push incident where the permission-allowlisted form opened a shell and pushed nothing while the PowerShell form worked, so the allowlist made the broken path the compliant one. Also folds in the housekeeping: `version` declared in frontmatter (it had existed only in the H1 and this table), the four required per-skill documents added, and two dead cross-references removed. See CHANGELOG for why this is 0.2.0 and not 0.1.1. |
 | v0.2.1 | 2026-11-04 | Removed deployment-specific provenance and unpublished dependencies; stated the existing handoff fields inline. |
+| 0.2.0 | 2026-08-08 | Rule 10 and 10b adopted; rules count 9 to 10; version declared in frontmatter; the four required per-skill documents added; dead cross-references removed. |
 | v0.1.0 | 2026-08-03 | Initial release: one skill, two modes, shared verification rules and separate builder and decision roles. |

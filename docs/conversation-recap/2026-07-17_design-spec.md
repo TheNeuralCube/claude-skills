@@ -142,7 +142,7 @@ Default delivery is **in-chat, ephemeral** -- this is entertainment, not archive
 ```
 
 Suffix: `conversation-recap` (human-readable hyphenated form, one per skill; distinct at a glance from the structured recap's `session-recap` suffix). Example:
-`2026-07-17_The_Command-standup-observational-medium_conversation-recap.md`
+`2026-11-04_The_Narrow_Door-documentary-short_conversation-recap.md`
 
 ## 10. SKILL.md Requirements for the Build
 
